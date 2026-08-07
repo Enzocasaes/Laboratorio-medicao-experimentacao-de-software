@@ -1,0 +1,15 @@
+{
+  "name": "lab01-repositorios-populares",
+  "version": "0.1.0",
+  "description": "Laboratorio 01 - Caracteristicas de repositorios populares do GitHub (Lab01S01 - RQ01)",
+  "type": "module",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "test:rq01": "node src/testar-rq01.js"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "license": "MIT"
+}
