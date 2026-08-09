@@ -6,7 +6,8 @@
   "main": "src/index.js",
   "scripts": {
     "start": "node src/index.js",
-    "test:rq01": "node src/testar-rq01.js"
+    "test:rq01": "node src/testar-rq01.js",
+    "test:rq02": "node src/testar-rq02.js"
   },
   "engines": {
     "node": ">=18.0.0"
