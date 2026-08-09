@@ -1,9 +1,13 @@
-# Lab01S01 — RQ01: idade dos repositórios populares
+# Lab01S01 — RQ01 e RQ02: repositórios populares
 
 Laboratório de Experimentação de Software — Laboratório 01, Sprint 1.
 
 **RQ01 — Sistemas populares são maduros/antigos?**
 Métrica: idade do repositório, calculada a partir da data de criação (`createdAt`).
+
+**RQ02 — Sistemas populares recebem muita contribuição externa?**
+Métrica: total de Pull Requests aceitas, operacionalizada como o total de
+Pull Requests com estado `MERGED` (`pullRequests(states: MERGED) { totalCount }`).
 
 ---
 
@@ -109,6 +113,60 @@ lista fixa. O CSV gerado tem 4 colunas: `repositorio`, `data_criacao`,
 (texto legível, ex.: `"12 anos, 9 meses e 27 dias"`). Esse arquivo **não é
 versionado** (está no `.gitignore`, junto com os demais CSVs de `data/`).
 
+### Testando a RQ02 (Pull Requests aceitas)
+
+Mesmo padrão da RQ01: busca automática dos repositórios mais populares (sem
+lista escrita à mão) e, para cada um, uma segunda consulta GraphQL pedindo
+`pullRequests(states: MERGED) { totalCount }` (ver
+[src/queries/rq02.js](src/queries/rq02.js)):
+
+```bash
+npm run test:rq02
+# equivalente a: node src/testar-rq02.js
+```
+
+A quantidade de repositórios da amostra é a mesma constante `QUANTIDADE` (hoje
+8) definida em [src/testar-rq02.js](src/testar-rq02.js). O resultado é gravado
+em [`data/rq02Validation.csv`](data/rq02Validation.csv).
+
+Saída esperada:
+
+```
+=== Lab01S01 - RQ02: total de Pull Requests aceitas ===
+
+Consultando os 8 repositorios populares...
+
+OK    codecrafters-io/build-your-own-x -> 157 PRs aceitas
+OK    sindresorhus/awesome         -> 700 PRs aceitas
+OK    public-apis/public-apis      -> 2.107 PRs aceitas
+OK    freeCodeCamp/freeCodeCamp    -> 29.048 PRs aceitas
+OK    EbookFoundation/free-programming-books -> 7.416 PRs aceitas
+OK    openclaw/openclaw            -> 23.345 PRs aceitas
+OK    nilbuild/developer-roadmap   -> 4.387 PRs aceitas
+OK    donnemartin/system-design-primer -> 210 PRs aceitas
+
+=== Resumo ===
+Processados com sucesso: 8/8
+
+PRs aceitas minima : 157
+PRs aceitas maxima : 29.048
+PRs aceitas mediana: 3.247
+
+CSV de validacao gravado em: .../data/rq02Validation.csv
+```
+
+O CSV gerado tem 2 colunas: `repositorio` e `pull_requests_aceitas`. Assim
+como o da RQ01, esse arquivo **não é versionado** (está no `.gitignore`).
+
+Diferença importante em relação à RQ01: a busca de populares
+([busca-populares.js](src/queries/busca-populares.js)) não traz o total de
+PRs, então `testar-rq02.js` faz **uma requisição por repositório** com a
+`QUERY_RQ02`. Isso é aceitável nesta etapa de validação (amostra pequena);
+para a coleta oficial dos 100 repositórios, o campo `pullRequests(states:
+MERGED) { totalCount }` deve ser incorporado à consulta de busca (ver
+[Reaproveitamento para as próximas RQs](#reaproveitamento-para-as-próximas-rqs-rq03rq06)),
+evitando requisições extras.
+
 ---
 
 ## Estrutura do projeto
@@ -118,15 +176,18 @@ Lab1/Sprint01/
 ├── src/
 │   ├── index.js               # teste com 1 repositório: consulta, valida, calcula a idade, imprime
 │   ├── testar-rq01.js         # validação individual da RQ01: busca automática + exportação CSV
+│   ├── testar-rq02.js         # validação individual da RQ02: busca automática + exportação CSV
 │   ├── github.js              # comunicação HTTP com a API GraphQL (genérico)
 │   ├── env.js                 # leitor mínimo do arquivo .env (genérico)
 │   ├── csv.js                 # gerador mínimo de CSV (genérico)
 │   ├── estatisticas.js        # funções estatísticas — mediana (genérico)
 │   └── queries/
 │       ├── rq01.js            # consulta de 1 repositório (name, nameWithOwner, createdAt)
+│       ├── rq02.js            # consulta de 1 repositório (pullRequests(states: MERGED) { totalCount })
 │       └── busca-populares.js # busca automática por estrelas (campo "search")
 ├── data/
-│   └── rq01Validation.csv     # csv de validação gerado por testar-rq01.js (não versionado)
+│   ├── rq01Validation.csv     # csv de validação gerado por testar-rq01.js (não versionado)
+│   └── rq02Validation.csv     # csv de validação gerado por testar-rq02.js (não versionado)
 ├── .env                        # token — NÃO versionado
 ├── .env.example                # modelo do .env
 ├── .gitignore
@@ -136,7 +197,7 @@ Lab1/Sprint01/
 
 Cada arquivo tem uma responsabilidade única, para que as próximas RQs entrem
 como novos campos/arquivos sem mexer na camada de transporte. Ver a seção
-[Reaproveitamento para as próximas RQs](#reaproveitamento-para-as-próximas-rqs-rq02rq06)
+[Reaproveitamento para as próximas RQs](#reaproveitamento-para-as-próximas-rqs-rq03rq06)
 para o que muda e o que fica igual.
 
 ---
@@ -282,9 +343,54 @@ Detalhe relevante do GraphQL: erros de consulta (campo inexistente, permissão
 negada) costumam vir com **status HTTP 200** e um array `errors` no corpo. Por
 isso a verificação do status HTTP sozinha não basta — o `github.js` checa os dois.
 
+### 7. RQ02 — Pull Requests aceitas
+
+A consulta está em [src/queries/rq02.js](src/queries/rq02.js):
+
+```graphql
+query RepositorioRQ02($owner: String!, $name: String!) {
+  repository(owner: $owner, name: $name) {
+    name
+    nameWithOwner
+    pullRequests(states: MERGED) {
+      totalCount
+    }
+  }
+}
+```
+
+| Campo | Significado |
+|---|---|
+| `pullRequests(states: MERGED)` | conexão de Pull Requests do repositório, filtrada **no servidor** para trazer só as que estão com `state = MERGED` |
+| `totalCount` | quantidade total de itens da conexão acima, contada pelo próprio GitHub |
+
+**Por que `MERGED` representa uma PR aceita:** o enum `PullRequestState` da
+API tem três valores — `OPEN`, `CLOSED` e `MERGED`. Uma PR `CLOSED` sem merge
+foi rejeitada/abandonada, não aceita; só `MERGED` corresponde a uma
+contribuição que de fato entrou no repositório.
+
+**Por que não é necessário paginar as PRs individuais:** o objetivo da RQ02 é
+só a *quantidade* de PRs aceitas, não os dados de cada uma. `totalCount` já
+vem pronto do GitHub numa única resposta — pedir `nodes`/`edges` e paginar
+todas as PRs seria desnecessário (e, para repositórios grandes como
+`freeCodeCamp/freeCodeCamp`, com ~29 mil PRs merged, extremamente caro em
+requisições).
+
+Diferente da RQ01, a RQ02 não pode reaproveitar os dados já trazidos pela
+busca de populares — `pullRequests` não está entre os campos de
+`busca-populares.js`. Por isso `testar-rq02.js` faz uma segunda consulta
+GraphQL (a `QUERY_RQ02` acima) para cada `nameWithOwner` encontrado na busca,
+separando `owner`/`name` a partir do próprio `nameWithOwner`.
+
+**Uso posterior:** na coleta oficial dos 100 repositórios (que reúne todas as
+RQs numa única consulta), o bloco `pullRequests(states: MERGED) { totalCount
+}` pode ser simplesmente acrescentado dentro do mesmo `repository { ... }`
+usado pela RQ01 e pela busca de populares — dispensando a segunda requisição
+por repositório usada nesta validação individual.
+
 ---
 
-## Reaproveitamento para as próximas RQs (RQ02–RQ06)
+## Reaproveitamento para as próximas RQs (RQ03–RQ06)
 
 Nenhuma das próximas RQs precisa ser implementada do zero. A maior parte do
 que existe hoje é genérica e não sabe nem se importa com qual pergunta de
@@ -295,16 +401,21 @@ pesquisa está sendo respondida:
 | [src/github.js](src/github.js) | Sim | Só envia `{ query, variables }` e devolve `data` — não olha o conteúdo da query |
 | [src/env.js](src/env.js) | Sim | Só lê o token; nada muda por RQ |
 | [src/csv.js](src/csv.js) | Sim | `gerarCSV(cabecalho, linhas)` aceita qualquer conjunto de colunas |
-| [src/estatisticas.js](src/estatisticas.js) | Sim | `calcularMediana` serve para a idade (RQ01) e qualquer outra métrica numérica (ex.: total de PRs da RQ02) |
+| [src/estatisticas.js](src/estatisticas.js) | Sim | `calcularMediana` serve para a idade (RQ01), para o total de PRs (RQ02) e qualquer outra métrica numérica |
 | [src/queries/busca-populares.js](src/queries/busca-populares.js) | Parcial | A busca (`search`, `sort:stars-desc`, paginação) continua igual; só ganha **novos campos** dentro de `... on Repository` |
 | `calcularIdade()` / `converterCreatedAt()` em [src/index.js](src/index.js) | Não | Específico da métrica da RQ01; cada RQ tem sua própria função de cálculo, no mesmo espírito |
+
+RQ02 já segue esse padrão: [src/queries/rq02.js](src/queries/rq02.js) reaproveita
+`github.js`, `env.js`, `csv.js` e `calcularMediana()` sem alterá-los; a única
+peça nova foi a consulta em si e o script de validação
+[src/testar-rq02.js](src/testar-rq02.js) (ver [seção 7](#7-rq02--pull-requests-aceitas)).
 
 **O que muda por RQ, então, é pequeno:**
 
 1. Acrescentar o campo GraphQL correspondente na consulta existente, dentro
    de `... on Repository { ... }`. Exemplos (nomes de campo reais da API,
    confirmar antes de usar):
-   - RQ02 (PRs aceitas): `pullRequests(states: MERGED) { totalCount }`
+   - RQ02 (PRs aceitas): `pullRequests(states: MERGED) { totalCount }` — **implementado**, ver [src/queries/rq02.js](src/queries/rq02.js)
    - RQ03 (releases): `releases { totalCount }`
    - RQ04 (última atualização): `pushedAt`
    - RQ05 (linguagem primária): `primaryLanguage { name }`
@@ -328,9 +439,10 @@ dados de todas as RQs vêm do mesmo objeto `Repository`.
 [src/testar-rq01.js](src/testar-rq01.js) e `data/rq01Validation.csv` são
 nomeados por RQ de propósito. O enunciado pede que **cada integrante valide
 sua própria RQ isoladamente**, numa amostra pequena, antes de integrar ao
-script único do grupo. Por isso o padrão esperado para as próximas é o mesmo:
+script único do grupo. Por isso o padrão se repete a cada RQ:
 
-- `src/testar-rq02.js` → `data/rq02Validation.csv`
+- `src/testar-rq01.js` → `data/rq01Validation.csv` — feito
+- `src/testar-rq02.js` → `data/rq02Validation.csv` — feito
 - `src/testar-rq03.js` → `data/rq03Validation.csv`
 - ... e assim por diante, um par por RQ.
 
