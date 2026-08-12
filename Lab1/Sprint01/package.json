@@ -9,7 +9,10 @@
     "test:rq01": "node src/testar-rq01.js",
     "test:rq02": "node src/testar-rq02.js",
     "test:rq05": "node src/testar-rq05.js",
-    "test:rq06": "node src/testar-rq06.js"
+    "test:rq06": "node src/testar-rq06.js",
+    "test:rq03": "node src/testar-rq03.js",
+    "test:rq04": "node src/testar-rq04.js",
+    "test:rq07": "node src/analisar-rq07.js"
   },
   "engines": {
     "node": ">=18.0.0"
