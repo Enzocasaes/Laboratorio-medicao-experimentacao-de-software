@@ -60,6 +60,16 @@ export const QUERY_BUSCAR_POPULARES = `
           name
           nameWithOwner
           createdAt
+          updatedAt
+          primaryLanguage {
+            name
+          }
+          releases {
+            totalCount
+          }
+          pullRequests(states: MERGED) {
+            totalCount
+          }
         }
       }
     }

@@ -13,6 +13,11 @@
 
 /** Unico endereco da API GraphQL do GitHub. */
 const URL_API_GRAPHQL = "https://api.github.com/graphql";
+const TENTATIVAS_EM_FALHA_TEMPORARIA = 2;
+
+function esperar(milissegundos) {
+  return new Promise((resolver) => setTimeout(resolver, milissegundos));
+}
 
 /**
  * Envia uma query GraphQL para o GitHub e devolve o objeto "data" da resposta.
@@ -51,23 +56,29 @@ export async function executarQueryGraphQL(query, variaveis = {}) {
   // 3) Envio da requisicao HTTP
   // ------------------------------------------------------------------
   let resposta;
-  try {
-    resposta = await fetch(URL_API_GRAPHQL, {
-      method: "POST",
-      headers: {
-        // "Bearer <token>" e o formato exigido pelo GitHub para autenticacao.
-        // E por este cabecalho que o token e enviado - ele nunca aparece na URL.
-        Authorization: `Bearer ${token.trim()}`,
-        "Content-Type": "application/json",
-        // O GitHub exige um User-Agent identificando a aplicacao;
-        // sem ele a requisicao pode ser recusada com 403.
-        "User-Agent": "lab01-experimentacao-software",
-      },
-      body: corpoDaRequisicao,
-    });
-  } catch (erroDeRede) {
-    // Cai aqui quando nem chegou a existir resposta: sem internet, DNS, proxy...
-    throw new Error(`Falha de rede ao acessar ${URL_API_GRAPHQL}: ${erroDeRede.message}`);
+  let ultimoErroDeRede;
+  for (let tentativa = 0; tentativa <= TENTATIVAS_EM_FALHA_TEMPORARIA; tentativa += 1) {
+    resposta = undefined;
+    try {
+      resposta = await fetch(URL_API_GRAPHQL, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token.trim()}`,
+          "Content-Type": "application/json",
+          "User-Agent": "lab01-experimentacao-software",
+        },
+        body: corpoDaRequisicao,
+      });
+    } catch (erroDeRede) {
+      ultimoErroDeRede = erroDeRede;
+    }
+    const falhaTemporaria = !resposta || [502, 503, 504].includes(resposta.status);
+    if (!falhaTemporaria || tentativa === TENTATIVAS_EM_FALHA_TEMPORARIA) break;
+    console.log(`Resposta temporariamente indisponivel; nova tentativa em ${(tentativa + 1) * 2}s...`);
+    await esperar((tentativa + 1) * 2000);
+  }
+  if (!resposta) {
+    throw new Error(`Falha de rede ao acessar ${URL_API_GRAPHQL}: ${ultimoErroDeRede?.message ?? "sem resposta"}`);
   }
 
   // Lemos o corpo como texto primeiro. Assim, se a resposta nao for um JSON
