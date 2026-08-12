@@ -47,7 +47,7 @@ import { calcularMediana } from "./estatisticas.js";
 import { gerarCSV } from "./csv.js";
 
 /** Quantos repositorios pedir nesta chamada (maximo permitido pela API: 100). */
-const QUANTIDADE = 8;
+const QUANTIDADE = 100;
 
 /** Caminho do CSV de validacao, sempre em <raiz do projeto>/data/. */
 const raizDoProjeto = resolve(dirname(fileURLToPath(import.meta.url)), "..");
