@@ -1,9 +1,3 @@
-/**
- * RQ03 - "Sistemas populares lancam releases com frequencia?"
- * Metrica: total de releases.
- *
- * O valor vem pronto do no da busca em releases.totalCount.
- */
 import { calcularMediana } from "../estatisticas.js";
 
 export const RQ03 = {

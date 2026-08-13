@@ -1,13 +1,3 @@
-/**
- * RQ07 (bonus) - metricas por linguagem primaria.
- *
- * Diferente das RQ01-06 (uma linha por repositorio), esta RQ e AGREGADA:
- * agrupa os repositorios por linguagem primaria e resume, para cada grupo, a
- * mediana de PRs aceitas, de releases e de dias desde a ultima atualizacao.
- *
- * Por isso ela expoe "analisar(repos)" em vez de "extrair/resumir": recebe a
- * lista inteira ja coletada e devolve as linhas do CSV (uma por linguagem).
- */
 import { calcularMediana } from "../estatisticas.js";
 import { converterUpdatedAt, calcularDiasDesdeAtualizacao } from "../tempo-atualizacao.js";
 

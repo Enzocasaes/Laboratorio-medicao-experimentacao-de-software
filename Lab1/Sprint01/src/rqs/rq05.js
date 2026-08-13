@@ -1,11 +1,3 @@
-/**
- * RQ05 - "Sistemas populares sao escritos nas linguagens mais populares?"
- * Metrica: linguagem primaria de cada repositorio (primaryLanguage.name).
- *
- * Metrica CATEGORICA: o resumo mostra a contagem por linguagem, nao mediana.
- * Fonte de referencia para "linguagens mais populares": GitHub Octoverse
- * (mantida por todo o laboratorio; ver src/queries/rq05.js para o racional).
- */
 import { contarPorCategoria } from "../estatisticas.js";
 
 const SEM_LINGUAGEM = "Sem linguagem";

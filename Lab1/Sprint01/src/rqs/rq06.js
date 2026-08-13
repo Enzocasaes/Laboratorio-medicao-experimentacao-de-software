@@ -1,11 +1,3 @@
-/**
- * RQ06 - "Sistemas populares possuem um alto percentual de issues fechadas?"
- * Metrica: razao entre issues fechadas e total de issues.
- *
- * Os dois totais vem do no da busca via alias (issuesTotal / issuesFechadas,
- * ver src/queries/busca-populares.js). Repositorios sem issues (total = 0)
- * recebem razao 0, evitando divisao por zero.
- */
 import { calcularMediana } from "../estatisticas.js";
 
 export const RQ06 = {

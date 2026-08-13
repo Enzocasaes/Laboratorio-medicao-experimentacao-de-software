@@ -1,9 +1,3 @@
-/**
- * RQ04 - "Sistemas populares sao atualizados com frequencia?"
- * Metrica: tempo (em dias) desde a ultima atualizacao (updatedAt).
- *
- * Reaproveita as funcoes de data ja validadas em src/tempo-atualizacao.js.
- */
 import { calcularMediana } from "../estatisticas.js";
 import { converterUpdatedAt, calcularDiasDesdeAtualizacao } from "../tempo-atualizacao.js";
 

@@ -1,10 +1,3 @@
-/**
- * RQ01 - "Sistemas populares sao maduros/antigos?"
- * Metrica: idade do repositorio (a partir de createdAt).
- *
- * A idade e calculada em JavaScript reaproveitando as funcoes ja validadas em
- * src/index.js (converterCreatedAt / calcularIdade / formatarIdade).
- */
 import { converterCreatedAt, calcularIdade, formatarIdade } from "../index.js";
 import { calcularMediana } from "../estatisticas.js";
 

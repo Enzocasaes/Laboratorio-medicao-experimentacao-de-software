@@ -1,11 +1,3 @@
-/**
- * Registro central das RQs. O runner (src/minerar.js) usa este mapa para
- * descobrir quais RQs existem e executa-las por chave ("rq01".."rq07").
- *
- * Para adicionar uma nova RQ: crie src/rqs/rqNN.js (com extrair/resumir para
- * metrica por repositorio, ou analisar para metrica agregada) e registre-a
- * aqui. Nenhum outro arquivo precisa mudar.
- */
 import { RQ01 } from "./rq01.js";
 import { RQ02 } from "./rq02.js";
 import { RQ03 } from "./rq03.js";

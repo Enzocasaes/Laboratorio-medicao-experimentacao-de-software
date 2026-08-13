@@ -1,9 +1,3 @@
-/**
- * RQ02 - "Sistemas populares recebem muita contribuicao externa?"
- * Metrica: total de Pull Requests aceitas (state = MERGED).
- *
- * O valor vem pronto do no da busca em pullRequests(states: MERGED).totalCount.
- */
 import { calcularMediana } from "../estatisticas.js";
 
 export const RQ02 = {
