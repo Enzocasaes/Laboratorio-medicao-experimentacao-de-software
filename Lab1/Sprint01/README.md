@@ -1,5 +1,3 @@
-# Laboratorio-medicao-experimentacao-de-software
-
 # Lab01 — Características de repositórios populares
 
 Laboratório de Experimentação de Software — Laboratório 01.

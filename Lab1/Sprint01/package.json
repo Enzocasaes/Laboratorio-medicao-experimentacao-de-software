@@ -1,0 +1,23 @@
+{
+  "name": "lab01-repositorios-populares",
+  "version": "0.1.0",
+  "description": "Laboratorio 01 - Caracteristicas de repositorios populares do GitHub (Lab01S01 - RQ01)",
+  "type": "module",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "minerar": "node src/minerar.js",
+    "minerar:todas": "node src/minerar.js todas",
+    "test:rq01": "node src/minerar.js rq01",
+    "test:rq02": "node src/minerar.js rq02",
+    "test:rq03": "node src/minerar.js rq03",
+    "test:rq04": "node src/minerar.js rq04",
+    "test:rq05": "node src/minerar.js rq05",
+    "test:rq06": "node src/minerar.js rq06",
+    "test:rq07": "node src/minerar.js rq07"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "license": "MIT"
+}

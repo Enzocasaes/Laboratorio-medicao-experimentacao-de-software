@@ -1,0 +1,10 @@
+# Token de acesso do GitHub - NUNCA deve ser versionado
+.env
+
+# Dependencias (o projeto nao usa nenhuma, mas fica a protecao)
+node_modules/
+
+# Arquivos de dados gerados pela coleta (serao usados a partir do Lab01S02)
+data/*.csv
+data/*.json
+!data/.gitkeep
