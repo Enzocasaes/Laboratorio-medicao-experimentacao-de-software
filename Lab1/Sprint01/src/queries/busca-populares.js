@@ -70,6 +70,12 @@ export const QUERY_BUSCAR_POPULARES = `
           pullRequests(states: MERGED) {
             totalCount
           }
+          issuesTotal: issues {
+            totalCount
+          }
+          issuesFechadas: issues(states: CLOSED) {
+            totalCount
+          }
         }
       }
     }
