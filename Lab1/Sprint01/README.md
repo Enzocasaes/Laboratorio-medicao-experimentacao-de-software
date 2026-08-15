@@ -79,9 +79,39 @@ Cada execução grava um CSV em [`data/`](data/) (não versionado — ver
 | `test:rq07` | `data/rq07PorLinguagem.csv` | `linguagem_primaria, quantidade_repositorios, mediana_pull_requests_aceitas, mediana_releases, mediana_dias_desde_atualizacao` |
 
 Quantos repositórios coletar é definido pela constante `QUANTIDADE` em
-[src/minerar.js](src/minerar.js) (hoje **100**). Para a coleta oficial dos 1000
-repositórios (Lab01S02) basta trocar esse valor para `1000` — a paginação já é
-automática.
+[src/minerar.js](src/minerar.js) (hoje **1000**, a coleta oficial do Lab01S02).
+
+### Validar os dados coletados
+
+Depois de gerar um CSV, é possível checar sua integridade estrutural sem
+reabrir a API (ver explicação completa em
+["7. Como funciona a validação dos dados (RQ01)"](#7-como-funciona-a-validação-dos-dados-rq01)):
+
+```bash
+npm run validar:rq01
+# equivalente direto:
+node src/validar.js rq01
+node src/validar.js todas   # roda todas as validacoes registradas
+```
+
+Saída esperada (dados OK):
+
+```
+=== Validacao RQ01 - idade do repositorio ===
+Arquivo    : .../data/rq01Validation.csv
+Cabecalho  : repositorio, data_criacao, idade_anos, idade_detalhada
+Linhas lidas: 1000 (sem contar o cabecalho)
+
+OK    Cabecalho — as colunas do CSV devem ser, nesta ordem: ...
+OK    Quantidade de linhas — o CSV deve ter exatamente 1000 repositorios ...
+OK    Repositorios duplicados — nenhum valor da coluna "repositorio" pode aparecer em mais de uma linha
+OK    Campos vazios — nenhuma celula, em nenhuma coluna, pode estar vazia ou ausente
+
+Resultado: 4/4 checagens passaram — dados validos.
+```
+
+O processo termina com código de saída `1` se alguma checagem falhar (útil
+em CI) e `0` se todas passarem.
 
 ### Demo de 1 repositório (RQ01)
 
@@ -115,12 +145,17 @@ Idade (anos)      : 13.21
 Lab1/Sprint01/
 ├── src/
 │   ├── minerar.js                  # runner ÚNICO: escolhe a(s) RQ(s), grava CSV
+│   ├── validar.js                  # runner de validação: lê o CSV, checa integridade
 │   ├── MineradorDeRepositorios.js  # classe orquestradora: busca + paginação
 │   ├── index.js                    # demo de 1 repositório + funções de idade (reusadas)
 │   ├── github.js                   # comunicação HTTP com a API GraphQL (genérico)
 │   ├── env.js                      # leitor mínimo do arquivo .env (genérico)
-│   ├── csv.js                      # gerador mínimo de CSV (genérico)
+│   ├── csv.js                      # gerador + leitor mínimo de CSV (genérico)
 │   ├── estatisticas.js             # mediana + contagem por categoria (genérico)
+│   ├── validacoes/                 # uma DEFINIÇÃO declarativa de validação por RQ
+│   │   ├── index.js                #   registro central { rq01 }
+│   │   ├── estrutura.js            #   checagens genéricas (cabeçalho, duplicados, vazios...)
+│   │   └── rq01.js                 #   validação da RQ01: cabeçalho + quantidade esperados
 │   ├── tempo-atualizacao.js        # funções de data para a RQ04/RQ07
 │   ├── rqs/                         # uma DEFINIÇÃO declarativa por RQ
 │   │   ├── index.js                #   registro central { rq01..rq07 }
@@ -308,6 +343,69 @@ divisão por zero (`NaN`). Nesses casos a razão é definida como 0.
 Detalhe do GraphQL: erros de consulta costumam vir com **status HTTP 200** e um
 array `errors` no corpo — por isso checar só o status não basta.
 
+### 7. Como funciona a validação dos dados (RQ01)
+
+**Por que existe:** a mineração e a validação são etapas separadas de
+propósito. A mineração *coleta*; ela não garante que o resultado final está
+íntegro (paginação cortada, campo vazio vindo da API, duplicata). A validação
+roda **depois**, direto em cima do CSV já gravado, e serve de portão de
+qualidade antes de usar os dados na análise — sem precisar reconsultar a API.
+
+**Arquitetura — o mesmo padrão de `src/rqs/`, aplicado à validação:**
+
+```
+src/
+├── validar.js                  # runner: le o CSV, roda as checagens, imprime relatorio
+├── csv.js                      # lerCSV() — parser que desfaz o que gerarCSV() gravou
+└── validacoes/
+    ├── index.js                 # registro central { rq01: ... }
+    ├── estrutura.js             # 4 checagens GENERICAS (nao sabem nada de RQ01)
+    └── rq01.js                  # DEFINICAO do que e "correto" para a RQ01
+```
+
+- **[estrutura.js](src/validacoes/estrutura.js)** não conhece a RQ01 — só sabe
+  validar "cabeçalho == X", "N linhas", "sem duplicado na coluna Y", "sem
+  célula vazia". São funções puras: recebem os dados e devolvem uma lista de
+  erros (vazia = passou).
+- **[rq01.js](src/validacoes/rq01.js)** é a única peça que sabe o que é
+  "correto" *para a RQ01*: cabeçalho esperado e quantidade esperada (1000). Só
+  chama as funções genéricas passando esses parâmetros.
+- **[validar.js](src/validar.js)** é o runner: lê o arquivo, chama
+  `validacao.validar(...)`, imprime o relatório e define o exit code. Não sabe
+  nada de RQ01 nem de CSV.
+
+Igual à regra de "adicionar uma RQ" do projeto, **adicionar validação para
+outra RQ = criar `src/validacoes/rqNN.js` e registrar em
+[src/validacoes/index.js](src/validacoes/index.js)** — nenhum outro arquivo
+muda.
+
+**As 4 checagens:**
+
+| Checagem | O que verifica | Exemplo do que pega |
+|---|---|---|
+| Cabeçalho | as 4 colunas existem, na ordem certa | coluna renomeada ou fora de ordem |
+| Quantidade de linhas | exatamente 1000 repositórios (sem contar cabeçalho) | paginação parou antes do fim, ou passou de 1000 |
+| Repositórios duplicados | nenhum valor de `repositorio` se repete | o mesmo repo entrou 2x na coleta |
+| Campos vazios | nenhuma célula, em nenhuma linha/coluna, está vazia | um `createdAt` veio nulo da API |
+
+Todas as 4 rodam de forma independente — uma falhar não impede as outras de
+rodar, então o relatório sempre mostra o quadro completo (`X/4 checagens
+passaram`) em vez de parar no primeiro erro.
+
+**O que fica de fora, por decisão consciente (não por esquecimento):**
+formato de data (`data_criacao` ser ISO 8601 válido e não estar no futuro),
+corretude do cálculo (recalcular `idade_anos` a partir de `data_criacao` e
+comparar com o valor gravado) e plausibilidade/outliers (idade negativa,
+repositório "criado" antes de 2008 — fundação do GitHub). São checagens de
+**corretude**, não de **estrutura**; dá para adicionar depois em cima do mesmo
+padrão, sem mexer em `validar.js`.
+
+**Como foi testado:** rodar contra o CSV bom não prova muito, porque ele já
+passaria de qualquer jeito. O script foi testado injetando problemas de
+propósito (repositório duplicado, campo esvaziado, linhas removidas) num CSV
+em memória e confirmando que cada checagem correspondente acusou exatamente o
+problema certo, com o repositório/linha identificado.
+
 ---
 
 ## Como adicionar uma nova RQ
@@ -324,6 +422,19 @@ array `errors` no corpo — por isso checar só o status não basta.
 
 Nenhum outro arquivo precisa mudar — o runner e o orquestrador são genéricos.
 
+## Como adicionar validação para uma nova RQ
+
+1. Crie `src/validacoes/rqNN.js` exportando um objeto com `chave`, `titulo`,
+   `arquivoCSV` e `validar(cabecalho, linhas)`, que devolve uma lista de
+   `{ checagem, descricao, erros }` — reaproveite as funções genéricas de
+   [src/validacoes/estrutura.js](src/validacoes/estrutura.js) (ou crie novas
+   lá, se a checagem servir para mais de uma RQ).
+2. Registre a validação em [src/validacoes/index.js](src/validacoes/index.js).
+3. (Opcional) Adicione um atalho em `scripts` no [package.json](package.json)
+   (ex.: `"validar:rq02": "node src/validar.js rq02"`).
+
+Nenhum outro arquivo precisa mudar — `src/validar.js` é genérico.
+
 ## Coleta oficial dos 1000 repositórios (Lab01S02)
 
 Basta trocar `QUANTIDADE = 100` por `1000` em [src/minerar.js](src/minerar.js) e
@@ -335,6 +446,14 @@ automaticamente pelo `MineradorDeRepositorios`, em lotes de 10.
 - O cálculo da idade foi verificado contra casos de borda do calendário:
   aniversário exato, um dia antes, virada de fevereiro em ano bissexto,
   repositório criado em 29/02 e criação no dia 31 seguida de mês curto.
-- A coleta foi executada com sucesso para os 100 repositórios mais populares,
-  gerando os sete CSVs; o caminho HTTP foi verificado contra a API real
-  (resposta 401 com token inválido, e re-tentativa em 504/respostas temporárias).
+- A coleta foi executada com sucesso para os 1000 repositórios mais populares
+  (Lab01S02), gerando os sete CSVs; o caminho HTTP foi verificado contra a API
+  real (resposta 401 com token inválido, e re-tentativa em 504/respostas
+  temporárias).
+- O CSV da RQ01 (`data/rq01Validation.csv`) foi validado estruturalmente com
+  `npm run validar:rq01` (ver
+  ["7. Como funciona a validação dos dados (RQ01)"](#7-como-funciona-a-validação-dos-dados-rq01)):
+  4/4 checagens passaram contra os 1000 repositórios coletados. O script em si
+  foi testado injetando problemas de propósito (duplicata, campo vazio, linha
+  faltando) e confirmando que cada checagem correspondente acusou o problema
+  certo.
