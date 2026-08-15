@@ -15,18 +15,6 @@ export const QUERY_BUSCAR_POPULARES = `
           primaryLanguage {
             name
           }
-          releases {
-            totalCount
-          }
-          pullRequests(states: MERGED) {
-            totalCount
-          }
-          issuesTotal: issues {
-            totalCount
-          }
-          issuesFechadas: issues(states: CLOSED) {
-            totalCount
-          }
         }
       }
     }

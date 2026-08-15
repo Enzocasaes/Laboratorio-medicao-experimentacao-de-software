@@ -1,5 +1,5 @@
 const URL_API_GRAPHQL = "https://api.github.com/graphql";
-const TENTATIVAS_EM_FALHA_TEMPORARIA = 2;
+const TENTATIVAS_EM_FALHA_TEMPORARIA = 5;
 
 function esperar(milissegundos) {
   return new Promise((resolver) => setTimeout(resolver, milissegundos));
@@ -38,8 +38,9 @@ export async function executarQueryGraphQL(query, variaveis = {}) {
     }
     const falhaTemporaria = !resposta || [502, 503, 504].includes(resposta.status);
     if (!falhaTemporaria || tentativa === TENTATIVAS_EM_FALHA_TEMPORARIA) break;
-    console.log(`Resposta temporariamente indisponivel; nova tentativa em ${(tentativa + 1) * 2}s...`);
-    await esperar((tentativa + 1) * 2000);
+    const esperaEmSegundos = Math.min(2 ** (tentativa + 1), 30);
+    console.log(`Resposta temporariamente indisponivel; nova tentativa em ${esperaEmSegundos}s...`);
+    await esperar(esperaEmSegundos * 1000);
   }
   if (!resposta) {
     throw new Error(`Falha de rede ao acessar ${URL_API_GRAPHQL}: ${ultimoErroDeRede?.message ?? "sem resposta"}`);
