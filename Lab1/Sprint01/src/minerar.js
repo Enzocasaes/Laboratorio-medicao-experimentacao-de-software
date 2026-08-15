@@ -6,7 +6,7 @@ import { MineradorDeRepositorios } from "./MineradorDeRepositorios.js";
 import { RQS } from "./rqs/index.js";
 import { gerarCSV } from "./csv.js";
 
-const QUANTIDADE = 100;
+const QUANTIDADE = 1000;
 
 const DIRETORIO_DE_DADOS = resolve(dirname(fileURLToPath(import.meta.url)), "..", "data");
 
@@ -66,7 +66,7 @@ async function main() {
   }
 
   const minerador = new MineradorDeRepositorios({ quantidade: QUANTIDADE });
-  console.log(`Coletando os ${QUANTIDADE} repositorios mais populares (busca unica paginada)...\n`);
+  console.log(`Coletando os ${QUANTIDADE} repositorios mais populares (busca paginada + detalhes em lote)...\n`);
   const repositorios = await minerador.coletarRepositorios();
 
   const contexto = { agora: new Date() };
