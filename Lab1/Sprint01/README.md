@@ -85,12 +85,14 @@ Quantos repositórios coletar é definido pela constante `QUANTIDADE` em
 
 Depois de gerar um CSV, é possível checar sua integridade estrutural sem
 reabrir a API (ver explicação completa em
-["7. Como funciona a validação dos dados (RQ01)"](#7-como-funciona-a-validação-dos-dados-rq01)):
+["7. Como funciona a validação dos dados"](#7-como-funciona-a-validação-dos-dados)):
 
 ```bash
 npm run validar:rq01
+npm run validar:rq02
 # equivalente direto:
 node src/validar.js rq01
+node src/validar.js rq02
 node src/validar.js todas   # roda todas as validacoes registradas
 ```
 
@@ -153,9 +155,10 @@ Lab1/Sprint01/
 │   ├── csv.js                      # gerador + leitor mínimo de CSV (genérico)
 │   ├── estatisticas.js             # mediana + contagem por categoria (genérico)
 │   ├── validacoes/                 # uma DEFINIÇÃO declarativa de validação por RQ
-│   │   ├── index.js                #   registro central { rq01 }
+│   │   ├── index.js                #   registro central { rq01, rq02 }
 │   │   ├── estrutura.js            #   checagens genéricas (cabeçalho, duplicados, vazios...)
-│   │   └── rq01.js                 #   validação da RQ01: cabeçalho + quantidade esperados
+│   │   ├── rq01.js                 #   validação da RQ01: cabeçalho + quantidade esperados
+│   │   └── rq02.js                 #   validação da RQ02: cabeçalho + quantidade esperados
 │   ├── tempo-atualizacao.js        # funções de data para a RQ04/RQ07
 │   ├── rqs/                         # uma DEFINIÇÃO declarativa por RQ
 │   │   ├── index.js                #   registro central { rq01..rq07 }
@@ -343,7 +346,7 @@ divisão por zero (`NaN`). Nesses casos a razão é definida como 0.
 Detalhe do GraphQL: erros de consulta costumam vir com **status HTTP 200** e um
 array `errors` no corpo — por isso checar só o status não basta.
 
-### 7. Como funciona a validação dos dados (RQ01)
+### 7. Como funciona a validação dos dados
 
 **Por que existe:** a mineração e a validação são etapas separadas de
 propósito. A mineração *coleta*; ela não garante que o resultado final está
@@ -363,13 +366,15 @@ src/
     └── rq01.js                  # DEFINICAO do que e "correto" para a RQ01
 ```
 
-- **[estrutura.js](src/validacoes/estrutura.js)** não conhece a RQ01 — só sabe
-  validar "cabeçalho == X", "N linhas", "sem duplicado na coluna Y", "sem
-  célula vazia". São funções puras: recebem os dados e devolvem uma lista de
-  erros (vazia = passou).
-- **[rq01.js](src/validacoes/rq01.js)** é a única peça que sabe o que é
-  "correto" *para a RQ01*: cabeçalho esperado e quantidade esperada (1000). Só
-  chama as funções genéricas passando esses parâmetros.
+- **[estrutura.js](src/validacoes/estrutura.js)** não conhece nenhuma RQ
+  específica — só sabe validar "cabeçalho == X", "N linhas", "sem duplicado na
+  coluna Y", "sem célula vazia". São funções puras: recebem os dados e
+  devolvem uma lista de erros (vazia = passou).
+- **[rq01.js](src/validacoes/rq01.js)** e **[rq02.js](src/validacoes/rq02.js)**
+  são as únicas peças que sabem o que é "correto" *para cada RQ*: cabeçalho
+  esperado e quantidade esperada (1000). Cada uma só chama as funções
+  genéricas passando esses parâmetros — a RQ02 troca apenas o cabeçalho
+  esperado (`repositorio, pull_requests_aceitas`) e o arquivo (`rq02Validation.csv`).
 - **[validar.js](src/validar.js)** é o runner: lê o arquivo, chama
   `validacao.validar(...)`, imprime o relatório e define o exit code. Não sabe
   nada de RQ01 nem de CSV.
@@ -452,8 +457,12 @@ automaticamente pelo `MineradorDeRepositorios`, em lotes de 10.
   temporárias).
 - O CSV da RQ01 (`data/rq01Validation.csv`) foi validado estruturalmente com
   `npm run validar:rq01` (ver
-  ["7. Como funciona a validação dos dados (RQ01)"](#7-como-funciona-a-validação-dos-dados-rq01)):
+  ["7. Como funciona a validação dos dados"](#7-como-funciona-a-validação-dos-dados)):
   4/4 checagens passaram contra os 1000 repositórios coletados. O script em si
   foi testado injetando problemas de propósito (duplicata, campo vazio, linha
   faltando) e confirmando que cada checagem correspondente acusou o problema
   certo.
+- O CSV da RQ02 (`data/rq02Validation.csv`) foi validado da mesma forma com
+  `npm run validar:rq02`: 4/4 checagens passaram (cabeçalho
+  `repositorio, pull_requests_aceitas`, 1000 linhas, sem repositórios
+  duplicados, sem campos vazios) contra os 1000 repositórios coletados.
