@@ -35,6 +35,11 @@ calculada sobre os mesmos dados coletados.
   minoria de projetos maduros (frameworks, linguagens, ferramentas de
   infraestrutura) deve concentrar centenas. Esperado: proporção relevante de
   `total_releases = 0` e outliers fortes no topo da distribuição.
+- **RQ04 (dias desde a última atualização):** a mediana deve ser baixa (dias a
+  poucas semanas). Popularidade (estrelas) tende a andar junto com atividade —
+  mesmo mudanças pequenas (CI, dependabot, docs) já atualizam `updatedAt`.
+  Esperado: poucos outliers de repositórios "arquivados"/estáveis sem mudanças
+  há mais de um ano.
 
 ---
 
@@ -105,8 +110,9 @@ reabrir a API (ver explicação completa em
 npm run validar:rq01
 npm run validar:rq02
 npm run validar:rq03
+npm run validar:rq04
 # equivalente direto:
-node src/validar.js rq03
+node src/validar.js rq04
 node src/validar.js todas   # roda todas as validacoes registradas
 ```
 
@@ -169,10 +175,10 @@ Lab1/Sprint01/
 │   ├── csv.js                      # gerador + leitor mínimo de CSV (genérico)
 │   ├── estatisticas.js             # mediana, quartis, contagem por categoria, outliers via IQR (genérico)
 │   ├── validacoes/                 # uma DEFINIÇÃO declarativa de validação por RQ
-│   │   ├── index.js                #   registro central { rq01, rq02, rq03 }
+│   │   ├── index.js                #   registro central { rq01, rq02, rq03, rq04 }
 │   │   ├── estrutura.js            #   checagens genéricas (cabeçalho, duplicados, vazios, numéricos)
 │   │   ├── rq01.js / rq02.js       #   cabeçalho + quantidade esperados
-│   │   └── rq03.js                 #   idem + faixa numérica + relatório de distribuição/outliers (IQR)
+│   │   └── rq03.js / rq04.js       #   idem + faixa numérica + relatório de distribuição/outliers (IQR)
 │   ├── tempo-atualizacao.js        # funções de data para a RQ04/RQ07
 │   ├── rqs/                         # uma DEFINIÇÃO declarativa por RQ
 │   │   ├── index.js                #   registro central { rq01..rq07 }
@@ -375,20 +381,20 @@ src/
 ├── validar.js                  # runner: le o CSV, roda as checagens, imprime relatorio (+ relatorio() opcional)
 ├── csv.js                      # lerCSV() — parser que desfaz o que gerarCSV() gravou
 └── validacoes/
-    ├── index.js                 # registro central { rq01, rq02, rq03 }
+    ├── index.js                 # registro central { rq01, rq02, rq03, rq04 }
     ├── estrutura.js             # checagens GENERICAS (nao sabem nada de nenhuma RQ)
     ├── rq01.js / rq02.js        # DEFINICAO do que e "correto" para a RQ01/RQ02
-    └── rq03.js                  # idem, com checagem de faixa numerica + relatorio de distribuicao
+    └── rq03.js / rq04.js        # idem, com checagem de faixa numerica + relatorio de distribuicao
 ```
 
 - **[estrutura.js](src/validacoes/estrutura.js)** não conhece nenhuma RQ
   específica — só sabe validar "cabeçalho == X", "N linhas", "sem duplicado na
   coluna Y", "sem célula vazia" e "coluna numérica dentro de uma faixa". São
   funções puras: recebem os dados e devolvem uma lista de erros (vazia = passou).
-- **`rq01.js` / `rq02.js` / `rq03.js`** são as únicas peças que sabem o que é
-  "correto" *para cada RQ*: cabeçalho esperado, quantidade esperada e (para a
-  RQ03) a faixa numérica válida da coluna. Cada uma só chama as funções
-  genéricas passando esses parâmetros.
+- **`rq01.js` … `rq04.js`** são as únicas peças que sabem o que é "correto"
+  *para cada RQ*: cabeçalho esperado, quantidade esperada e (para RQ03/RQ04) a
+  faixa numérica válida da coluna. Cada uma só chama as funções genéricas
+  passando esses parâmetros.
 - **[validar.js](src/validar.js)** é o runner: lê o arquivo, chama
   `validacao.validar(...)`, imprime o relatório e define o exit code. Não sabe
   nada de nenhuma RQ nem de CSV.
@@ -398,7 +404,7 @@ outra RQ = criar `src/validacoes/rqNN.js` e registrar em
 [src/validacoes/index.js](src/validacoes/index.js)** — nenhum outro arquivo
 muda.
 
-**Checagens estruturais (RQ01/RQ02 — 4 checagens; RQ03 — 5):**
+**Checagens estruturais (RQ01/RQ02 — 4 checagens; RQ03/RQ04 — 5):**
 
 | Checagem | O que verifica | Exemplo do que pega |
 |---|---|---|
@@ -406,14 +412,14 @@ muda.
 | Quantidade de linhas | exatamente 1000 repositórios (sem contar cabeçalho) | paginação parou antes do fim, ou passou de 1000 |
 | Repositórios duplicados | nenhum valor de `repositorio` se repete | o mesmo repo entrou 2x na coleta |
 | Campos vazios | nenhuma célula, em nenhuma linha/coluna, está vazia | um `createdAt` veio nulo da API |
-| Valores numéricos (RQ03) | a coluna é um número dentro da faixa válida (ex.: releases ≥ 0) | valor negativo ou não numérico — sinal de bug na coleta, não da API |
+| Valores numéricos (RQ03/RQ04) | a coluna é um número dentro da faixa válida (ex.: releases ≥ 0, dias ≥ 0) | valor negativo ou não numérico — sinal de bug na coleta, não da API |
 
 Todas as checagens rodam de forma independente — uma falhar não impede as
 outras de rodar, então o relatório sempre mostra o quadro completo (`X/N
 checagens passaram`) em vez de parar no primeiro erro.
 
-**Consistência dos dados (distribuição e outliers) — RQ03:** além das
-checagens estruturais (pass/fail), essa validação expõe um método opcional
+**Consistência dos dados (distribuição e outliers) — RQ03/RQ04:** além das
+checagens estruturais (pass/fail), essas validações expõem um método opcional
 `relatorio(linhas)` que `validar.js` chama automaticamente quando existe. Ele
 não falha a validação — outliers aqui são dado real (ex.: o Linux kernel tem
 muito mais releases que a mediana), não erro de coleta — apenas imprime
@@ -497,8 +503,12 @@ para o resultado da última coleta.
   validação (`npm run validar:rq03`) rodaram contra os 1000 repositórios
   reais — **5/5 checagens passaram**, sem dado ausente, duplicado ou fora de
   faixa.
+- **RQ04** (`validacoes/rq04.js`): mesmo processo — CSV sintético com
+  outliers injetados testado primeiro, depois `npm run test:rq04` +
+  `npm run validar:rq04` contra os 1000 repositórios reais — **5/5 checagens
+  passaram**.
 
-### Resultados reais — RQ03 (hipótese vs. dado)
+### Resultados reais — RQ03 e RQ04 (hipótese vs. dado)
 
 **RQ03 — total de releases:** mínimo 0, Q1 0, **mediana 38**, Q3 146, máximo
 1000, IQR 146 (faixa não-outlier: até 365). 290/1000 repositórios (29%) nunca
@@ -507,3 +517,13 @@ lançaram uma release; 92/1000 (9,2%) são outliers acima do IQR (ex.:
 limita `totalCount` de releases nesse valor). **Hipótese confirmada:**
 mediana baixa e distribuição fortemente assimétrica à direita, com quase 1/3
 dos repositórios sem nenhuma release formal.
+
+**RQ04 — dias desde a última atualização:** mínimo 0,00, Q1 0,01, **mediana
+0,04** (~1h), Q3 0,11, máximo 2,53 dias. **100% dos 1000 repositórios foram
+atualizados na última semana** e nenhum ficou mais de 1 ano sem mudanças.
+**Hipótese confirmada e além do esperado:** a mediana era esperada "baixa (dias
+a semanas)", mas o resultado real é ainda mais extremo — na prática, todo
+repositório popular tem `updatedAt` de horas atrás. Ressalva para a discussão
+do relatório: `updatedAt` muda com **qualquer** push (bots de dependência, CI,
+traduções), então esse resultado mede atividade no repositório, não
+necessariamente desenvolvimento humano ativo.
