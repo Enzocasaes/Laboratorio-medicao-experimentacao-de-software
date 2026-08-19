@@ -40,6 +40,14 @@ calculada sobre os mesmos dados coletados.
   mesmo mudanças pequenas (CI, dependabot, docs) já atualizam `updatedAt`.
   Esperado: poucos outliers de repositórios "arquivados"/estáveis sem mudanças
   há mais de um ano.
+- **RQ07 (métricas por linguagem):** linguagens associadas a
+  ferramentas/infraestrutura (ex.: Go, Rust, TypeScript) devem ter medianas
+  mais altas de PRs aceitas e de releases do que linguagens usadas
+  majoritariamente em conteúdo/dados (ex.: Jupyter Notebook), refletindo
+  ecossistemas com contribuição e versionamento mais estruturados. Como essa
+  RQ agrega por linguagem, grupos com poucos repositórios (linguagens de
+  nicho) devem ter medianas pouco confiáveis — checado explicitamente na
+  validação (ver abaixo).
 
 ---
 
@@ -111,9 +119,10 @@ npm run validar:rq01
 npm run validar:rq02
 npm run validar:rq03
 npm run validar:rq04
+npm run validar:rq07
+npm run validar:todas   # roda todas as validacoes registradas
 # equivalente direto:
-node src/validar.js rq04
-node src/validar.js todas   # roda todas as validacoes registradas
+node src/validar.js rq07
 ```
 
 Saída esperada (dados OK):
@@ -175,10 +184,11 @@ Lab1/Sprint01/
 │   ├── csv.js                      # gerador + leitor mínimo de CSV (genérico)
 │   ├── estatisticas.js             # mediana, quartis, contagem por categoria, outliers via IQR (genérico)
 │   ├── validacoes/                 # uma DEFINIÇÃO declarativa de validação por RQ
-│   │   ├── index.js                #   registro central { rq01, rq02, rq03, rq04 }
-│   │   ├── estrutura.js            #   checagens genéricas (cabeçalho, duplicados, vazios, numéricos)
+│   │   ├── index.js                #   registro central { rq01, rq02, rq03, rq04, rq07 }
+│   │   ├── estrutura.js            #   checagens genéricas (cabeçalho, duplicados, vazios, numéricos, soma)
 │   │   ├── rq01.js / rq02.js       #   cabeçalho + quantidade esperados
-│   │   └── rq03.js / rq04.js       #   idem + faixa numérica + relatório de distribuição/outliers (IQR)
+│   │   ├── rq03.js / rq04.js       #   idem + faixa numérica + relatório de distribuição/outliers (IQR)
+│   │   └── rq07.js                 #   validação agregada (1 linha por linguagem, não por repo)
 │   ├── tempo-atualizacao.js        # funções de data para a RQ04/RQ07
 │   ├── rqs/                         # uma DEFINIÇÃO declarativa por RQ
 │   │   ├── index.js                #   registro central { rq01..rq07 }
@@ -381,20 +391,21 @@ src/
 ├── validar.js                  # runner: le o CSV, roda as checagens, imprime relatorio (+ relatorio() opcional)
 ├── csv.js                      # lerCSV() — parser que desfaz o que gerarCSV() gravou
 └── validacoes/
-    ├── index.js                 # registro central { rq01, rq02, rq03, rq04 }
+    ├── index.js                 # registro central { rq01, rq02, rq03, rq04, rq07 }
     ├── estrutura.js             # checagens GENERICAS (nao sabem nada de nenhuma RQ)
     ├── rq01.js / rq02.js        # DEFINICAO do que e "correto" para a RQ01/RQ02
-    └── rq03.js / rq04.js        # idem, com checagem de faixa numerica + relatorio de distribuicao
+    └── rq03.js / rq04.js / rq07.js  # idem, com checagem de faixa numerica + relatorio de distribuicao
 ```
 
 - **[estrutura.js](src/validacoes/estrutura.js)** não conhece nenhuma RQ
   específica — só sabe validar "cabeçalho == X", "N linhas", "sem duplicado na
-  coluna Y", "sem célula vazia" e "coluna numérica dentro de uma faixa". São
-  funções puras: recebem os dados e devolvem uma lista de erros (vazia = passou).
-- **`rq01.js` … `rq04.js`** são as únicas peças que sabem o que é "correto"
-  *para cada RQ*: cabeçalho esperado, quantidade esperada e (para RQ03/RQ04) a
-  faixa numérica válida da coluna. Cada uma só chama as funções genéricas
-  passando esses parâmetros.
+  coluna Y", "sem célula vazia", "coluna numérica dentro de uma faixa" e "soma
+  de uma coluna == N". São funções puras: recebem os dados e devolvem uma
+  lista de erros (vazia = passou).
+- **`rq01.js` … `rq07.js`** são as únicas peças que sabem o que é "correto"
+  *para cada RQ*: cabeçalho esperado, quantidade esperada e (para RQ03/RQ04/RQ07)
+  a faixa numérica válida de cada coluna. Cada uma só chama as funções
+  genéricas passando esses parâmetros.
 - **[validar.js](src/validar.js)** é o runner: lê o arquivo, chama
   `validacao.validar(...)`, imprime o relatório e define o exit code. Não sabe
   nada de nenhuma RQ nem de CSV.
@@ -404,35 +415,40 @@ outra RQ = criar `src/validacoes/rqNN.js` e registrar em
 [src/validacoes/index.js](src/validacoes/index.js)** — nenhum outro arquivo
 muda.
 
-**Checagens estruturais (RQ01/RQ02 — 4 checagens; RQ03/RQ04 — 5):**
+**Checagens estruturais (RQ01/RQ02 — 4 checagens; RQ03/RQ04 — 5; RQ07 — 5, layout agregado):**
 
 | Checagem | O que verifica | Exemplo do que pega |
 |---|---|---|
 | Cabeçalho | as colunas existem, na ordem certa | coluna renomeada ou fora de ordem |
 | Quantidade de linhas | exatamente 1000 repositórios (sem contar cabeçalho) | paginação parou antes do fim, ou passou de 1000 |
-| Repositórios duplicados | nenhum valor de `repositorio` se repete | o mesmo repo entrou 2x na coleta |
+| Repositórios/linguagens duplicados | nenhum valor da coluna-chave se repete | o mesmo repo (ou a mesma linguagem, na RQ07) entrou 2x |
 | Campos vazios | nenhuma célula, em nenhuma linha/coluna, está vazia | um `createdAt` veio nulo da API |
-| Valores numéricos (RQ03/RQ04) | a coluna é um número dentro da faixa válida (ex.: releases ≥ 0, dias ≥ 0) | valor negativo ou não numérico — sinal de bug na coleta, não da API |
+| Valores numéricos (RQ03/RQ04/RQ07) | a coluna é um número dentro da faixa válida (ex.: releases ≥ 0, dias ≥ 0) | valor negativo ou não numérico — sinal de bug na coleta, não da API |
+| Cobertura dos repositórios (RQ07) | a soma de `quantidade_repositorios` de todos os grupos é exatamente 1000 | repositório perdido, ou contado 2x, ao agrupar por linguagem |
 
 Todas as checagens rodam de forma independente — uma falhar não impede as
 outras de rodar, então o relatório sempre mostra o quadro completo (`X/N
 checagens passaram`) em vez de parar no primeiro erro.
 
-**Consistência dos dados (distribuição e outliers) — RQ03/RQ04:** além das
-checagens estruturais (pass/fail), essas validações expõem um método opcional
-`relatorio(linhas)` que `validar.js` chama automaticamente quando existe. Ele
-não falha a validação — outliers aqui são dado real (ex.: o Linux kernel tem
-muito mais releases que a mediana), não erro de coleta — apenas imprime
-min/Q1/mediana/Q3/máx e os outliers fora do intervalo interquartil
-(`calcularQuartis`/`detectarOutliers` em [estatisticas.js](src/estatisticas.js),
-critério `Q1 - 1.5×IQR` / `Q3 + 1.5×IQR`, o mesmo de um boxplot).
+**Consistência dos dados (distribuição e outliers) — RQ03/RQ04/RQ07:** além
+das checagens estruturais (pass/fail), essas três validações expõem um método
+opcional `relatorio(linhas)` que `validar.js` chama automaticamente quando
+existe. Ele não falha a validação — outliers aqui são dado real (ex.: o Linux
+kernel tem muito mais releases que a mediana), não erro de coleta — apenas
+imprime min/Q1/mediana/Q3/máx e os outliers fora do intervalo interquartil
+(`calcularQuartis`/`detectarOutliers` em
+[estatisticas.js](src/estatisticas.js), critério `Q1 - 1.5×IQR` /
+`Q3 + 1.5×IQR`, o mesmo de um boxplot). Na RQ07, como cada linha já é um grupo
+(linguagem) e não um repositório, o relatório aponta os grupos com menos de 5
+repositórios — medianas calculadas sobre poucas amostras, que devem ser lidas
+com ressalva na discussão dos resultados.
 
 **O que fica de fora, por decisão consciente (não por esquecimento):**
-formato de data (`data_criacao` ser ISO 8601 válido e não estar no futuro) e
-corretude do cálculo (recalcular a métrica a partir dos campos brutos e
-comparar com o valor gravado no CSV). São checagens de **corretude**, não de
-**estrutura/consistência**; dá para adicionar depois em cima do mesmo padrão,
-sem mexer em `validar.js`.
+formato de data (`data_criacao`/`data_ultima_atualizacao` serem ISO 8601
+válidos e não estarem no futuro) e corretude do cálculo (recalcular a métrica
+a partir dos campos brutos e comparar com o valor gravado no CSV). São
+checagens de **corretude**, não de **estrutura/consistência**; dá para
+adicionar depois em cima do mesmo padrão, sem mexer em `validar.js`.
 
 **Como foi testado:** rodar contra o CSV bom não prova muito, porque ele já
 passaria de qualquer jeito. O script foi testado injetando problemas de
@@ -507,8 +523,13 @@ para o resultado da última coleta.
   outliers injetados testado primeiro, depois `npm run test:rq04` +
   `npm run validar:rq04` contra os 1000 repositórios reais — **5/5 checagens
   passaram**.
+- **RQ07** (`validacoes/rq07.js`): CSV sintético agregado (4 linguagens, uma
+  delas com grupo pequeno de propósito) testado primeiro, depois
+  `npm run test:rq07` + `npm run validar:rq07` contra os 1000 repositórios
+  reais — **5/5 checagens passaram**, incluindo a cobertura (soma de
+  `quantidade_repositorios` == 1000).
 
-### Resultados reais — RQ03 e RQ04 (hipótese vs. dado)
+### Resultados reais — RQ03, RQ04 e RQ07 (hipótese vs. dado)
 
 **RQ03 — total de releases:** mínimo 0, Q1 0, **mediana 38**, Q3 146, máximo
 1000, IQR 146 (faixa não-outlier: até 365). 290/1000 repositórios (29%) nunca
@@ -527,3 +548,16 @@ repositório popular tem `updatedAt` de horas atrás. Ressalva para a discussão
 do relatório: `updatedAt` muda com **qualquer** push (bots de dependência, CI,
 traduções), então esse resultado mede atividade no repositório, não
 necessariamente desenvolvimento humano ativo.
+
+**RQ07 — métricas por linguagem:** 44 linguagens distintas; 24/44 grupos têm
+menos de 5 repositórios (medianas pouco confiáveis nesses casos — ex.: o maior
+valor isolado, LLVM com mediana de 97.149 PRs, vem de **1 único repositório**,
+não de uma tendência da linguagem). Olhando só os grupos com amostra razoável
+(≥ 24 repositórios): TypeScript (n=174, mediana 2003 PRs / 132,5 releases),
+Go (n=76, 1703 PRs / 141 releases) e Rust (n=58, 2353,5 PRs / 96 releases)
+têm medianas de PRs aceitas e releases claramente acima de Python (n=227, 559
+PRs / 20 releases) e, principalmente, de Jupyter Notebook (n=24, **78 PRs /
+0 releases** de mediana). **Hipótese confirmada:** linguagens de
+infraestrutura/tooling (Go, Rust, TypeScript) têm contribuição e
+versionamento mais estruturados que linguagens de conteúdo/dados (Jupyter
+Notebook).

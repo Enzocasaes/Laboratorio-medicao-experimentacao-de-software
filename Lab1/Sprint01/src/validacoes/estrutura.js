@@ -62,3 +62,12 @@ export function validarValoresNumericos(linhas, indiceColuna, { minimo = -Infini
   });
   return erros;
 }
+
+export function validarSomaColuna(linhas, indiceColuna, somaEsperada) {
+  const erros = [];
+  const soma = linhas.reduce((total, linha) => total + Number(linha[indiceColuna] ?? 0), 0);
+  if (soma !== somaEsperada) {
+    erros.push(`Soma da coluna incorreta: esperado ${somaEsperada}, encontrado ${soma}.`);
+  }
+  return erros;
+}
