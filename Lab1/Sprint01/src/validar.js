@@ -38,6 +38,10 @@ function validarCSV(validacao) {
     }
   }
 
+  if (typeof validacao.relatorio === "function") {
+    validacao.relatorio(linhas);
+  }
+
   const passou = checagensComFalha === 0;
   console.log(
     `\nResultado: ${resultados.length - checagensComFalha}/${resultados.length} checagens passaram — ` +

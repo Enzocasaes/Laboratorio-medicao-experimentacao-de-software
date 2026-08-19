@@ -22,6 +22,20 @@ calculada sobre os mesmos dados coletados.
 > por ser a mesma plataforma que estamos minerando. Essa referência é mantida
 > por todo o laboratório.
 
+### Hipóteses informais — RQ03, RQ04 e RQ07 (Lab01S02)
+
+> Hipóteses levantadas **antes** de olhar os resultados finais, para depois
+> comparar com os valores medianos reais (ver ["Validação realizada"](#validação-realizada)).
+
+- **RQ03 (releases):** a mediana deve ficar baixa (poucas dezenas), com
+  distribuição bem assimétrica à direita. "Fazer release" é uma prática de
+  engenharia (versionamento, changelog) que exige disciplina de manutenção —
+  nem todo repositório popular tem esse processo (ex.: listas `awesome-*`,
+  dotfiles, tutoriais tendem a nunca lançar uma release formal), enquanto uma
+  minoria de projetos maduros (frameworks, linguagens, ferramentas de
+  infraestrutura) deve concentrar centenas. Esperado: proporção relevante de
+  `total_releases = 0` e outliers fortes no topo da distribuição.
+
 ---
 
 ## Como executar
@@ -90,9 +104,9 @@ reabrir a API (ver explicação completa em
 ```bash
 npm run validar:rq01
 npm run validar:rq02
+npm run validar:rq03
 # equivalente direto:
-node src/validar.js rq01
-node src/validar.js rq02
+node src/validar.js rq03
 node src/validar.js todas   # roda todas as validacoes registradas
 ```
 
@@ -153,12 +167,12 @@ Lab1/Sprint01/
 │   ├── github.js                   # comunicação HTTP com a API GraphQL (genérico)
 │   ├── env.js                      # leitor mínimo do arquivo .env (genérico)
 │   ├── csv.js                      # gerador + leitor mínimo de CSV (genérico)
-│   ├── estatisticas.js             # mediana + contagem por categoria (genérico)
+│   ├── estatisticas.js             # mediana, quartis, contagem por categoria, outliers via IQR (genérico)
 │   ├── validacoes/                 # uma DEFINIÇÃO declarativa de validação por RQ
-│   │   ├── index.js                #   registro central { rq01, rq02 }
-│   │   ├── estrutura.js            #   checagens genéricas (cabeçalho, duplicados, vazios...)
-│   │   ├── rq01.js                 #   validação da RQ01: cabeçalho + quantidade esperados
-│   │   └── rq02.js                 #   validação da RQ02: cabeçalho + quantidade esperados
+│   │   ├── index.js                #   registro central { rq01, rq02, rq03 }
+│   │   ├── estrutura.js            #   checagens genéricas (cabeçalho, duplicados, vazios, numéricos)
+│   │   ├── rq01.js / rq02.js       #   cabeçalho + quantidade esperados
+│   │   └── rq03.js                 #   idem + faixa numérica + relatório de distribuição/outliers (IQR)
 │   ├── tempo-atualizacao.js        # funções de data para a RQ04/RQ07
 │   ├── rqs/                         # uma DEFINIÇÃO declarativa por RQ
 │   │   ├── index.js                #   registro central { rq01..rq07 }
@@ -358,52 +372,61 @@ qualidade antes de usar os dados na análise — sem precisar reconsultar a API.
 
 ```
 src/
-├── validar.js                  # runner: le o CSV, roda as checagens, imprime relatorio
+├── validar.js                  # runner: le o CSV, roda as checagens, imprime relatorio (+ relatorio() opcional)
 ├── csv.js                      # lerCSV() — parser que desfaz o que gerarCSV() gravou
 └── validacoes/
-    ├── index.js                 # registro central { rq01: ... }
-    ├── estrutura.js             # 4 checagens GENERICAS (nao sabem nada de RQ01)
-    └── rq01.js                  # DEFINICAO do que e "correto" para a RQ01
+    ├── index.js                 # registro central { rq01, rq02, rq03 }
+    ├── estrutura.js             # checagens GENERICAS (nao sabem nada de nenhuma RQ)
+    ├── rq01.js / rq02.js        # DEFINICAO do que e "correto" para a RQ01/RQ02
+    └── rq03.js                  # idem, com checagem de faixa numerica + relatorio de distribuicao
 ```
 
 - **[estrutura.js](src/validacoes/estrutura.js)** não conhece nenhuma RQ
   específica — só sabe validar "cabeçalho == X", "N linhas", "sem duplicado na
-  coluna Y", "sem célula vazia". São funções puras: recebem os dados e
-  devolvem uma lista de erros (vazia = passou).
-- **[rq01.js](src/validacoes/rq01.js)** e **[rq02.js](src/validacoes/rq02.js)**
-  são as únicas peças que sabem o que é "correto" *para cada RQ*: cabeçalho
-  esperado e quantidade esperada (1000). Cada uma só chama as funções
-  genéricas passando esses parâmetros — a RQ02 troca apenas o cabeçalho
-  esperado (`repositorio, pull_requests_aceitas`) e o arquivo (`rq02Validation.csv`).
+  coluna Y", "sem célula vazia" e "coluna numérica dentro de uma faixa". São
+  funções puras: recebem os dados e devolvem uma lista de erros (vazia = passou).
+- **`rq01.js` / `rq02.js` / `rq03.js`** são as únicas peças que sabem o que é
+  "correto" *para cada RQ*: cabeçalho esperado, quantidade esperada e (para a
+  RQ03) a faixa numérica válida da coluna. Cada uma só chama as funções
+  genéricas passando esses parâmetros.
 - **[validar.js](src/validar.js)** é o runner: lê o arquivo, chama
   `validacao.validar(...)`, imprime o relatório e define o exit code. Não sabe
-  nada de RQ01 nem de CSV.
+  nada de nenhuma RQ nem de CSV.
 
 Igual à regra de "adicionar uma RQ" do projeto, **adicionar validação para
 outra RQ = criar `src/validacoes/rqNN.js` e registrar em
 [src/validacoes/index.js](src/validacoes/index.js)** — nenhum outro arquivo
 muda.
 
-**As 4 checagens:**
+**Checagens estruturais (RQ01/RQ02 — 4 checagens; RQ03 — 5):**
 
 | Checagem | O que verifica | Exemplo do que pega |
 |---|---|---|
-| Cabeçalho | as 4 colunas existem, na ordem certa | coluna renomeada ou fora de ordem |
+| Cabeçalho | as colunas existem, na ordem certa | coluna renomeada ou fora de ordem |
 | Quantidade de linhas | exatamente 1000 repositórios (sem contar cabeçalho) | paginação parou antes do fim, ou passou de 1000 |
 | Repositórios duplicados | nenhum valor de `repositorio` se repete | o mesmo repo entrou 2x na coleta |
 | Campos vazios | nenhuma célula, em nenhuma linha/coluna, está vazia | um `createdAt` veio nulo da API |
+| Valores numéricos (RQ03) | a coluna é um número dentro da faixa válida (ex.: releases ≥ 0) | valor negativo ou não numérico — sinal de bug na coleta, não da API |
 
-Todas as 4 rodam de forma independente — uma falhar não impede as outras de
-rodar, então o relatório sempre mostra o quadro completo (`X/4 checagens
-passaram`) em vez de parar no primeiro erro.
+Todas as checagens rodam de forma independente — uma falhar não impede as
+outras de rodar, então o relatório sempre mostra o quadro completo (`X/N
+checagens passaram`) em vez de parar no primeiro erro.
+
+**Consistência dos dados (distribuição e outliers) — RQ03:** além das
+checagens estruturais (pass/fail), essa validação expõe um método opcional
+`relatorio(linhas)` que `validar.js` chama automaticamente quando existe. Ele
+não falha a validação — outliers aqui são dado real (ex.: o Linux kernel tem
+muito mais releases que a mediana), não erro de coleta — apenas imprime
+min/Q1/mediana/Q3/máx e os outliers fora do intervalo interquartil
+(`calcularQuartis`/`detectarOutliers` em [estatisticas.js](src/estatisticas.js),
+critério `Q1 - 1.5×IQR` / `Q3 + 1.5×IQR`, o mesmo de um boxplot).
 
 **O que fica de fora, por decisão consciente (não por esquecimento):**
-formato de data (`data_criacao` ser ISO 8601 válido e não estar no futuro),
-corretude do cálculo (recalcular `idade_anos` a partir de `data_criacao` e
-comparar com o valor gravado) e plausibilidade/outliers (idade negativa,
-repositório "criado" antes de 2008 — fundação do GitHub). São checagens de
-**corretude**, não de **estrutura**; dá para adicionar depois em cima do mesmo
-padrão, sem mexer em `validar.js`.
+formato de data (`data_criacao` ser ISO 8601 válido e não estar no futuro) e
+corretude do cálculo (recalcular a métrica a partir dos campos brutos e
+comparar com o valor gravado no CSV). São checagens de **corretude**, não de
+**estrutura/consistência**; dá para adicionar depois em cima do mesmo padrão,
+sem mexer em `validar.js`.
 
 **Como foi testado:** rodar contra o CSV bom não prova muito, porque ele já
 passaria de qualquer jeito. O script foi testado injetando problemas de
@@ -442,9 +465,11 @@ Nenhum outro arquivo precisa mudar — `src/validar.js` é genérico.
 
 ## Coleta oficial dos 1000 repositórios (Lab01S02)
 
-Basta trocar `QUANTIDADE = 100` por `1000` em [src/minerar.js](src/minerar.js) e
-rodar `npm run minerar:todas`. A paginação (`pageInfo.endCursor`) já é seguida
-automaticamente pelo `MineradorDeRepositorios`, em lotes de 10.
+`QUANTIDADE` em [src/minerar.js](src/minerar.js) já está em `1000` e a
+paginação (`pageInfo.endCursor`) é seguida automaticamente pelo
+`MineradorDeRepositorios`. Basta rodar `npm run minerar:todas` com um
+`GITHUB_TOKEN` válido no `.env` — ver ["Validação realizada"](#validação-realizada)
+para o resultado da última coleta.
 
 ## Validação realizada
 
@@ -466,3 +491,19 @@ automaticamente pelo `MineradorDeRepositorios`, em lotes de 10.
   `npm run validar:rq02`: 4/4 checagens passaram (cabeçalho
   `repositorio, pull_requests_aceitas`, 1000 linhas, sem repositórios
   duplicados, sem campos vazios) contra os 1000 repositórios coletados.
+- **RQ03** (`validacoes/rq03.js`): a lógica foi testada com um CSV sintético
+  (1000 linhas geradas em memória, com outliers propositais) antes de rodar
+  contra dados reais. Em seguida a coleta oficial (`npm run test:rq03`) e a
+  validação (`npm run validar:rq03`) rodaram contra os 1000 repositórios
+  reais — **5/5 checagens passaram**, sem dado ausente, duplicado ou fora de
+  faixa.
+
+### Resultados reais — RQ03 (hipótese vs. dado)
+
+**RQ03 — total de releases:** mínimo 0, Q1 0, **mediana 38**, Q3 146, máximo
+1000, IQR 146 (faixa não-outlier: até 365). 290/1000 repositórios (29%) nunca
+lançaram uma release; 92/1000 (9,2%) são outliers acima do IQR (ex.:
+`langchain-ai/langchain` e `vercel/next.js`, ambos no teto de 1000 — a API
+limita `totalCount` de releases nesse valor). **Hipótese confirmada:**
+mediana baixa e distribuição fortemente assimétrica à direita, com quase 1/3
+dos repositórios sem nenhuma release formal.

@@ -13,3 +13,27 @@ export function contarPorCategoria(valores) {
   }
   return [...contagem.entries()].sort((a, b) => b[1] - a[1]);
 }
+
+export function calcularQuartis(numeros) {
+  const ordenados = [...numeros].sort((a, b) => a - b);
+  const meio = Math.floor(ordenados.length / 2);
+  const inferior = ordenados.slice(0, meio);
+  const superior = ordenados.length % 2 === 0 ? ordenados.slice(meio) : ordenados.slice(meio + 1);
+  return { q1: calcularMediana(inferior), q3: calcularMediana(superior) };
+}
+
+// Deteccao de outliers pelo metodo do intervalo interquartil (IQR * 1.5), o
+// mesmo criterio usado no desenho de boxplots.
+export function detectarOutliers(numeros) {
+  const { q1, q3 } = calcularQuartis(numeros);
+  const iqr = q3 - q1;
+  const limiteInferior = q1 - 1.5 * iqr;
+  const limiteSuperior = q3 + 1.5 * iqr;
+
+  const indices = [];
+  numeros.forEach((valor, indice) => {
+    if (valor < limiteInferior || valor > limiteSuperior) indices.push(indice);
+  });
+
+  return { q1, q3, iqr, limiteInferior, limiteSuperior, indices };
+}

@@ -81,9 +81,8 @@ Cada execução grava um CSV em [`data/`](data/) (não versionado — ver
 | `test:rq07` | `data/rq07PorLinguagem.csv` | `linguagem_primaria, quantidade_repositorios, mediana_pull_requests_aceitas, mediana_releases, mediana_dias_desde_atualizacao` |
 
 Quantos repositórios coletar é definido pela constante `QUANTIDADE` em
-[src/minerar.js](src/minerar.js) (hoje **100**). Para a coleta oficial dos 1000
-repositórios (Lab01S02) basta trocar esse valor para `1000` — a paginação já é
-automática.
+[src/minerar.js](src/minerar.js) (hoje **1000**, a coleta oficial do Lab01S02
+— a paginação é automática).
 
 ### Demo de 1 repositório (RQ01)
 
