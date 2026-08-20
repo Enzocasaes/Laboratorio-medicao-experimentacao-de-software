@@ -16,7 +16,8 @@
     "test:rq06": "node src/minerar.js rq06",
     "test:rq07": "node src/minerar.js rq07",
     "validar:rq01": "node src/validar.js rq01",
-    "validar:rq02": "node src/validar.js rq02"
+    "validar:rq02": "node src/validar.js rq02",
+    "validar:rq05": "node src/validar.js rq05"
   },
   "engines": {
     "node": ">=18.0.0"
