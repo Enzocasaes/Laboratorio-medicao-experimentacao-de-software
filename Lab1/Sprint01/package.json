@@ -18,7 +18,8 @@
     "validar:rq01": "node src/validar.js rq01",
     "validar:rq02": "node src/validar.js rq02",
     "validar:rq05": "node src/validar.js rq05",
-    "validar:rq06": "node src/validar.js rq06"
+    "validar:rq06": "node src/validar.js rq06",
+    "dashboard": "node src/dashboard.js"
   },
   "engines": {
     "node": ">=18.0.0"
