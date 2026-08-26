@@ -21,6 +21,8 @@
     "validar:rq04": "node src/validar.js rq04",
     "validar:rq05": "node src/validar.js rq05",
     "validar:rq06": "node src/validar.js rq06",
+    "validar:rq07": "node src/validar.js rq07",
+    "validar:todas": "node src/validar.js todas",
     "dashboard": "node src/dashboard.js"
   },
   "engines": {
