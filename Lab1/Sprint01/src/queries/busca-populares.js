@@ -12,6 +12,7 @@ export const QUERY_BUSCAR_POPULARES = `
           nameWithOwner
           createdAt
           updatedAt
+          stargazerCount
           primaryLanguage {
             name
           }
