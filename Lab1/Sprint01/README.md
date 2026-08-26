@@ -172,6 +172,35 @@ embutidos no HTML). Abra o arquivo direto no navegador (duplo clique). O
 painel inclui só as RQs cujo CSV já existe; rode `npm run minerar:todas` (ou
 uma RQ específica) antes para ver todas as seções.
 
+### Snapshot do board (fim de sprint)
+
+```bash
+npm run snapshot -- S02
+```
+
+Exporta os itens do GitHub Projects (v2) do grupo e a coluna em que cada um
+está **no momento da execução**, gravando em
+[`sprint_snapshots/`](../../sprint_snapshots/) um arquivo por sprint, no formato
+`snapshot_S02_2026-08-26.csv`. Colunas do CSV:
+
+```
+snapshot_date,sprint,number,title,repository,state,status_column,assignee
+```
+
+Deve ser rodado **ao final de cada sprint**, antes de mexer no board para a
+sprint seguinte. O Projects não guarda histórico de mudança de coluna
+consultável via API, então é a série acumulada desses arquivos que registra a
+evolução do quadro — e ela é a base dos Labs 04 e 05. Por isso os CSVs de
+`sprint_snapshots/` **são versionados**, ao contrário dos de `data/`.
+
+O projeto é descoberto sozinho a partir do repositório do grupo. Se houver mais
+de um Project vinculado, o script lista os números encontrados e você escolhe:
+`npm run snapshot -- S02 1`.
+
+> **Escopo do token:** este comando exige `read:project` no `GITHUB_TOKEN`. O
+> `public_repo`, que basta para minerar repositórios, não dá acesso ao Projects
+> v2 — se faltar, o script explica como corrigir.
+
 ### Demo de 1 repositório (RQ01)
 
 Além da mineração em lote, há um ponto de entrada que consulta **um** repositório
