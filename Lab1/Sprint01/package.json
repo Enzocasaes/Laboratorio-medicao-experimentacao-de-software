@@ -23,7 +23,8 @@
     "validar:rq06": "node src/validar.js rq06",
     "validar:rq07": "node src/validar.js rq07",
     "validar:todas": "node src/validar.js todas",
-    "dashboard": "node src/dashboard.js"
+    "dashboard": "node src/dashboard.js",
+    "snapshot": "node src/snapshot.js"
   },
   "engines": {
     "node": ">=18.0.0"
