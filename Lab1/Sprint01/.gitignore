@@ -8,3 +8,6 @@ node_modules/
 data/*.csv
 data/*.json
 !data/.gitkeep
+
+# Painel HTML gerado a partir dos CSVs (npm run dashboard)
+dashboard.html

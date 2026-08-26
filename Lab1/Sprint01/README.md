@@ -144,6 +144,18 @@ Resultado: 4/4 checagens passaram — dados validos.
 O processo termina com código de saída `1` se alguma checagem falhar (útil
 em CI) e `0` se todas passarem.
 
+### Painel visual (dashboard)
+
+```bash
+npm run dashboard
+```
+
+Lê os CSVs já gerados em [`data/`](data/) e escreve `dashboard.html` na raiz do
+projeto — uma página estática, sem dependências e sem back-end (os dados ficam
+embutidos no HTML). Abra o arquivo direto no navegador (duplo clique). O
+painel inclui só as RQs cujo CSV já existe; rode `npm run minerar:todas` (ou
+uma RQ específica) antes para ver todas as seções.
+
 ### Demo de 1 repositório (RQ01)
 
 Além da mineração em lote, há um ponto de entrada que consulta **um** repositório
