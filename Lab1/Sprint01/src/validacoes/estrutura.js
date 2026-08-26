@@ -42,3 +42,23 @@ export function validarSemCamposVazios(cabecalho, linhas) {
   });
   return erros;
 }
+
+export function validarValoresNumericos(linhas, indiceColuna, { minimo = -Infinity, inteiro = false } = {}) {
+  const erros = [];
+  linhas.forEach((linha, indiceDaLinha) => {
+    const bruto = linha[indiceColuna];
+    const valor = Number(bruto);
+
+    if (bruto === undefined || bruto.trim() === "" || Number.isNaN(valor)) {
+      erros.push(`Linha ${indiceDaLinha + 2}: valor nao numerico "${bruto}" (repositorio: ${linha[0] || "?"}).`);
+      return;
+    }
+    if (valor < minimo) {
+      erros.push(`Linha ${indiceDaLinha + 2}: valor ${valor} abaixo do minimo permitido (${minimo}) (repositorio: ${linha[0] || "?"}).`);
+    }
+    if (inteiro && !Number.isInteger(valor)) {
+      erros.push(`Linha ${indiceDaLinha + 2}: valor ${valor} deveria ser um numero inteiro (repositorio: ${linha[0] || "?"}).`);
+    }
+  });
+  return erros;
+}
