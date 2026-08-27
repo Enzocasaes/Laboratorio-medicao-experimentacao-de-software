@@ -18,13 +18,26 @@ export const RQ08 = {
     const releasesPorRepo = [];
     const diasPorRepo = [];
 
+    let falhas = 0;
     for (const repo of repositorios) {
       const est = repo.stargazerCount;
       const prs = repo.pullRequests?.totalCount;
       const releases = repo.releases?.totalCount;
       if (typeof est !== "number" || typeof prs !== "number" || typeof releases !== "number") continue;
 
-      const dias = calcularDiasDesdeAtualizacao(converterUpdatedAt(repo.updatedAt), agora);
+      // calcularDiasDesdeAtualizacao lanca erro se updatedAt for invalido ou
+      // (por causa de deriva de relogio entre esta maquina e o servidor do
+      // GitHub) vier "no futuro" em relacao a `agora`. Isso e uma condicao de
+      // 1 repositorio, entao isolamos por repositorio - sem o try/catch, uma
+      // unica falha derrubaria a analise inteira e nenhum CSV seria gravado.
+      let dias;
+      try {
+        dias = calcularDiasDesdeAtualizacao(converterUpdatedAt(repo.updatedAt), agora);
+      } catch (erro) {
+        console.log(`FALHA ${repo.nameWithOwner.padEnd(30)} ${erro.message}`);
+        falhas += 1;
+        continue;
+      }
 
       linhas.push([repo.nameWithOwner, est, prs, releases, dias.toFixed(2)]);
       estrelas.push(est);
@@ -38,6 +51,7 @@ export const RQ08 = {
     const rDias = correlacaoPearson(estrelas, diasPorRepo);
 
     console.log(`Processados: ${linhas.length}/${repositorios.length}`);
+    if (falhas > 0) console.log(`Falhas (data invalida ou no futuro): ${falhas}`);
     console.log("\nCorrelacao de Pearson entre estrelas e cada metrica (-1 a 1):");
     console.log(`  estrelas x pull_requests_aceitas      : r = ${rPrs.toFixed(3)}`);
     console.log(`  estrelas x total_releases              : r = ${rReleases.toFixed(3)}`);
