@@ -5,6 +5,7 @@ import { RQ04 } from "./rq04.js";
 import { RQ05 } from "./rq05.js";
 import { RQ06 } from "./rq06.js";
 import { RQ07 } from "./rq07.js";
+import { RQ08 } from "./rq08.js";
 
 export const RQS = {
   rq01: RQ01,
@@ -14,4 +15,5 @@ export const RQS = {
   rq05: RQ05,
   rq06: RQ06,
   rq07: RQ07,
+  rq08: RQ08,
 };

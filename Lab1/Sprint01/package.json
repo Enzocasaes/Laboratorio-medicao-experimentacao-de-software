@@ -15,6 +15,7 @@
     "test:rq05": "node src/minerar.js rq05",
     "test:rq06": "node src/minerar.js rq06",
     "test:rq07": "node src/minerar.js rq07",
+    "test:rq08": "node src/minerar.js rq08",
     "validar:rq01": "node src/validar.js rq01",
     "validar:rq02": "node src/validar.js rq02",
     "validar:rq03": "node src/validar.js rq03",
@@ -22,6 +23,7 @@
     "validar:rq05": "node src/validar.js rq05",
     "validar:rq06": "node src/validar.js rq06",
     "validar:rq07": "node src/validar.js rq07",
+    "validar:rq08": "node src/validar.js rq08",
     "validar:todas": "node src/validar.js todas",
     "dashboard": "node src/dashboard.js",
     "snapshot": "node src/snapshot.js"

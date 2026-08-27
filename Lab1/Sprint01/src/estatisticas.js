@@ -37,3 +37,31 @@ export function detectarOutliers(numeros) {
 
   return { q1, q3, iqr, limiteInferior, limiteSuperior, indices };
 }
+
+// Coeficiente de correlacao de Pearson: mede o quanto duas variaveis andam
+// juntas de forma linear, de -1 (inversa perfeita) a 1 (direta perfeita).
+// Correlacao nao implica causalidade - so diz se ha (ou nao) uma tendencia
+// conjunta nos dados.
+export function correlacaoPearson(x, y) {
+  if (x.length !== y.length || x.length === 0) {
+    throw new Error("correlacaoPearson exige dois vetores do mesmo tamanho e nao vazios.");
+  }
+
+  const n = x.length;
+  const mediaX = x.reduce((soma, v) => soma + v, 0) / n;
+  const mediaY = y.reduce((soma, v) => soma + v, 0) / n;
+
+  let covariancia = 0;
+  let varianciaX = 0;
+  let varianciaY = 0;
+  for (let i = 0; i < n; i++) {
+    const dx = x[i] - mediaX;
+    const dy = y[i] - mediaY;
+    covariancia += dx * dy;
+    varianciaX += dx * dx;
+    varianciaY += dy * dy;
+  }
+
+  const denominador = Math.sqrt(varianciaX * varianciaY);
+  return denominador === 0 ? 0 : covariancia / denominador;
+}

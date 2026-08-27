@@ -22,6 +22,14 @@ calculada sobre os mesmos dados coletados.
 > por ser a mesma plataforma que estamos minerando. Essa referência é mantida
 > por todo o laboratório.
 
+> **RQ08 — inovação proposta pelo grupo (não faz parte do enunciado):** as
+> RQ01–07 usam popularidade (estrelas) só como critério de amostragem — nenhuma
+> delas testa se estrelas de fato *se relacionam* com as outras características
+> medidas. A RQ08 fecha essa lacuna: **existe correlação entre o número de
+> estrelas e as métricas de RQ02/RQ03/RQ04 (PRs aceitas, releases, dias desde
+> atualização)?** Métrica: coeficiente de correlação de Pearson entre
+> `stargazerCount` e cada uma das outras três colunas.
+
 ### Hipóteses informais — RQ03, RQ04 e RQ07 (Lab01S02)
 
 > Hipóteses levantadas **antes** de olhar os resultados finais, para depois
@@ -48,6 +56,11 @@ calculada sobre os mesmos dados coletados.
   RQ agrega por linguagem, grupos com poucos repositórios (linguagens de
   nicho) devem ter medianas pouco confiáveis — checado explicitamente na
   validação (ver abaixo).
+- **RQ08 (correlação estrelas × métricas, inovação):** espera-se correlação
+  positiva fraca a moderada entre estrelas e PRs aceitas (mais visibilidade
+  tende a atrair mais contribuidores externos), e correlação fraca ou nula
+  entre estrelas e releases/atualização — essas duas dependem mais da
+  disciplina de manutenção do mantenedor do que da popularidade em si.
 
 ---
 
@@ -86,6 +99,7 @@ npm run test:rq04     # dias desde a última atualização
 npm run test:rq05     # linguagem primária
 npm run test:rq06     # razão de issues fechadas
 npm run test:rq07     # métricas por linguagem (agregada)
+npm run test:rq08     # correlação estrelas x metricas (inovação)
 
 # equivalente direto, sem npm:
 node src/minerar.js todas
@@ -104,6 +118,7 @@ Cada execução grava um CSV em [`data/`](data/) (não versionado — ver
 | `test:rq05` | `data/rq05Validation.csv` | `repositorio, linguagem_primaria` |
 | `test:rq06` | `data/rq06Validation.csv` | `repositorio, issues_fechadas, issues_total, razao_fechadas` |
 | `test:rq07` | `data/rq07PorLinguagem.csv` | `linguagem_primaria, quantidade_repositorios, mediana_pull_requests_aceitas, mediana_releases, mediana_dias_desde_atualizacao` |
+| `test:rq08` | `data/rq08Correlacao.csv` | `repositorio, estrelas, pull_requests_aceitas, total_releases, dias_desde_atualizacao` |
 
 Quantos repositórios coletar é definido pela constante `QUANTIDADE` em
 [src/minerar.js](src/minerar.js) (hoje **1000**, a coleta oficial do Lab01S02).
@@ -120,9 +135,10 @@ npm run validar:rq02
 npm run validar:rq03
 npm run validar:rq04
 npm run validar:rq07
+npm run validar:rq08
 npm run validar:todas   # roda todas as validacoes registradas
 # equivalente direto:
-node src/validar.js rq07
+node src/validar.js rq08
 ```
 
 Saída esperada (dados OK):
@@ -223,17 +239,18 @@ Lab1/Sprint01/
 │   ├── github.js                   # comunicação HTTP com a API GraphQL (genérico)
 │   ├── env.js                      # leitor mínimo do arquivo .env (genérico)
 │   ├── csv.js                      # gerador + leitor mínimo de CSV (genérico)
-│   ├── estatisticas.js             # mediana, quartis, contagem por categoria, outliers via IQR (genérico)
+│   ├── estatisticas.js             # mediana, quartis, contagem por categoria, outliers via IQR, correlacao de Pearson (genérico)
 │   ├── validacoes/                 # uma DEFINIÇÃO declarativa de validação por RQ
-│   │   ├── index.js                #   registro central { rq01, rq02, rq03, rq04, rq07 }
+│   │   ├── index.js                #   registro central { rq01, rq02, rq03, rq04, rq07, rq08 }
 │   │   ├── estrutura.js            #   checagens genéricas (cabeçalho, duplicados, vazios, numéricos, soma)
 │   │   ├── rq01.js / rq02.js       #   cabeçalho + quantidade esperados
 │   │   ├── rq03.js / rq04.js       #   idem + faixa numérica + relatório de distribuição/outliers (IQR)
-│   │   └── rq07.js                 #   validação agregada (1 linha por linguagem, não por repo)
-│   ├── tempo-atualizacao.js        # funções de data para a RQ04/RQ07
+│   │   ├── rq07.js                 #   validação agregada (1 linha por linguagem, não por repo)
+│   │   └── rq08.js                 #   validação da RQ08 (inovação) + relatório de correlação de Pearson
+│   ├── tempo-atualizacao.js        # funções de data para a RQ04/RQ07/RQ08
 │   ├── rqs/                         # uma DEFINIÇÃO declarativa por RQ
-│   │   ├── index.js                #   registro central { rq01..rq07 }
-│   │   └── rq01.js … rq07.js       #   cada RQ: extrair/resumir (ou analisar)
+│   │   ├── index.js                #   registro central { rq01..rq08 }
+│   │   └── rq01.js … rq08.js       #   cada RQ: extrair/resumir (ou analisar)
 │   └── queries/
 │       ├── busca-populares.js      # busca por estrelas COM todos os campos das RQs
 │       └── rq01.js                 # consulta de 1 repositório (usada pelo npm start)
@@ -302,6 +319,7 @@ query BuscarRepositoriosPopulares($quantidade: Int!, $cursor: String) {
         nameWithOwner
         createdAt                               # RQ01
         updatedAt                               # RQ04
+        stargazerCount                          # RQ08 (inovação)
         primaryLanguage { name }                # RQ05
         releases { totalCount }                 # RQ03
         pullRequests(states: MERGED) { totalCount }   # RQ02
@@ -393,6 +411,7 @@ da máquina.
 | RQ05 | `primaryLanguage.name` | categórico (nulo → "Sem linguagem") | **contagem por linguagem** |
 | RQ06 | `issuesTotal`, `issuesFechadas` | razão fechadas/total (0 se total = 0) | mín / máx / mediana (%) |
 | RQ07 | PRs, releases, `updatedAt`, linguagem | agrupa por linguagem | mediana de cada métrica por grupo |
+| RQ08 *(inovação)* | `stargazerCount`, PRs, releases, `updatedAt` | correlação de Pearson (estrelas × cada métrica) | coeficiente `r` de -1 a 1 |
 
 **Por que `MERGED` representa uma PR aceita (RQ02):** o enum `PullRequestState`
 tem `OPEN`, `CLOSED` e `MERGED`. Uma PR `CLOSED` sem merge foi
@@ -432,10 +451,10 @@ src/
 ├── validar.js                  # runner: le o CSV, roda as checagens, imprime relatorio (+ relatorio() opcional)
 ├── csv.js                      # lerCSV() — parser que desfaz o que gerarCSV() gravou
 └── validacoes/
-    ├── index.js                 # registro central { rq01, rq02, rq03, rq04, rq07 }
+    ├── index.js                 # registro central { rq01, rq02, rq03, rq04, rq07, rq08 }
     ├── estrutura.js             # checagens GENERICAS (nao sabem nada de nenhuma RQ)
     ├── rq01.js / rq02.js        # DEFINICAO do que e "correto" para a RQ01/RQ02
-    └── rq03.js / rq04.js / rq07.js  # idem, com checagem de faixa numerica + relatorio de distribuicao
+    └── rq03.js / rq04.js / rq07.js / rq08.js  # idem, com checagem de faixa numerica + relatorio de distribuicao/correlacao
 ```
 
 - **[estrutura.js](src/validacoes/estrutura.js)** não conhece nenhuma RQ
@@ -483,6 +502,13 @@ imprime min/Q1/mediana/Q3/máx e os outliers fora do intervalo interquartil
 (linguagem) e não um repositório, o relatório aponta os grupos com menos de 5
 repositórios — medianas calculadas sobre poucas amostras, que devem ser lidas
 com ressalva na discussão dos resultados.
+
+**RQ08 (inovação) tem seu próprio tipo de relatório:** em vez de distribuição/
+outliers de uma única coluna, o `relatorio(linhas)` da RQ08 calcula o
+coeficiente de correlação de Pearson (`correlacaoPearson` em
+[estatisticas.js](src/estatisticas.js)) entre `estrelas` e cada uma das outras
+três colunas — é a métrica que a própria RQ08 propõe, não uma checagem de
+qualidade adicional.
 
 **O que fica de fora, por decisão consciente (não por esquecimento):**
 formato de data (`data_criacao`/`data_ultima_atualizacao` serem ISO 8601
@@ -569,6 +595,13 @@ para o resultado da última coleta.
   `npm run test:rq07` + `npm run validar:rq07` contra os 1000 repositórios
   reais — **5/5 checagens passaram**, incluindo a cobertura (soma de
   `quantidade_repositorios` == 1000).
+- **RQ08 — inovação** (`validacoes/rq08.js`): a função `correlacaoPearson` foi
+  testada primeiro contra 3 casos conhecidos (correlação perfeita positiva,
+  perfeita negativa e nula), depois a validação estrutural com CSV sintético
+  (incluindo um valor de `estrelas` fora da faixa, para confirmar que a
+  checagem numérica realmente falha quando deveria). Em seguida
+  `npm run test:rq08` + `npm run validar:rq08` rodaram contra os 1000
+  repositórios reais — **5/5 checagens passaram**.
 
 ### Resultados reais — RQ03, RQ04 e RQ07 (hipótese vs. dado)
 
@@ -602,3 +635,20 @@ PRs / 20 releases) e, principalmente, de Jupyter Notebook (n=24, **78 PRs /
 infraestrutura/tooling (Go, Rust, TypeScript) têm contribuição e
 versionamento mais estruturados que linguagens de conteúdo/dados (Jupyter
 Notebook).
+
+### Resultado real — RQ08, inovação (hipótese vs. dado)
+
+**RQ08 — correlação entre estrelas e as demais métricas:** coeficiente de
+Pearson `r = 0,084` (estrelas × PRs aceitas), `r = -0,025` (estrelas ×
+releases) e `r = -0,209` (estrelas × dias desde atualização), todos
+calculados sobre os 1000 repositórios reais. **Hipótese refutada:** esperava-se
+correlação positiva fraca a moderada entre estrelas e PRs aceitos, mas o valor
+encontrado (0,084) é praticamente nulo — dentro do top-1000 por estrelas, ter
+*ainda mais* estrelas não anda junto com receber mais contribuição externa. A
+única correlação não-desprezível é a de estrelas com dias desde atualização
+(-0,209, fraca): repositórios com mais estrelas tendem a estar marginalmente
+mais atualizados, mas o efeito é pequeno. **Achado principal do laboratório:**
+dentro da amostra dos repositórios já populares, popularidade **não** é um bom
+preditor de contribuição externa nem de disciplina de releases — reforça, com
+dado direto (não só a comparação indireta das outras RQs), a motivação
+apresentada na Introdução do relatório.

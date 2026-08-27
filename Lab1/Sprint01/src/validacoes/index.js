@@ -5,6 +5,7 @@ import { VALIDACAO_RQ04 } from "./rq04.js";
 import { VALIDACAO_RQ05 } from "./rq05.js";
 import { VALIDACAO_RQ06 } from "./rq06.js";
 import { VALIDACAO_RQ07 } from "./rq07.js";
+import { VALIDACAO_RQ08 } from "./rq08.js";
 
 export const VALIDACOES = {
   rq01: VALIDACAO_RQ01,
@@ -14,4 +15,5 @@ export const VALIDACOES = {
   rq05: VALIDACAO_RQ05,
   rq06: VALIDACAO_RQ06,
   rq07: VALIDACAO_RQ07,
+  rq08: VALIDACAO_RQ08,
 };
