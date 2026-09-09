@@ -1,0 +1,7 @@
+# Dependencias (o projeto nao usa nenhuma, mas fica a protecao)
+node_modules/
+
+# Dados gerados durante a execucao dos trials
+data/*.csv
+data/*.json
+!data/.gitkeep
