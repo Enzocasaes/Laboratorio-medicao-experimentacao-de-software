@@ -1,0 +1,22 @@
+{
+  "name": "lab02-ia-vs-manual",
+  "version": "0.1.0",
+  "description": "Laboratorio 02 - Assistentes de IA vs. codificacao manual (Lab02S01 - cronometro / coleta de tempo)",
+  "type": "module",
+  "main": "src/cronometro.js",
+  "scripts": {
+    "test": "node --test",
+    "cronometro": "node src/cronometro.js",
+    "trial:iniciar": "node src/cronometro.js iniciar",
+    "trial:status": "node src/cronometro.js status",
+    "trial:parar": "node src/cronometro.js parar",
+    "trial:abortar": "node src/cronometro.js abortar",
+    "trial:registrar": "node src/cronometro.js registrar",
+    "trial:listar": "node src/cronometro.js listar",
+    "katas:validar": "node src/validar-katas.js"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "license": "MIT"
+}

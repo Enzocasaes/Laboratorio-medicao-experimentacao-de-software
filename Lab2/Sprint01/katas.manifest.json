@@ -1,0 +1,189 @@
+{
+  "descricao": "Katas candidatos do Lab02 (experimento IA vs. codificacao manual). Cada entrada e' validada por src/validar-katas.js contra as regras de (a) equivalencia de dificuldade e (b) baixa indexacao. Campos 'medido' sao preenchidos automaticamente quando existe a pasta katas/<id>/; campos 'indexacao.hits_*' sao preenchidos a mao seguindo o protocolo em ../Docs/ValidacaoDosKatas.md.",
+  "regras": {
+    "testes_aceitacao_min": 8,
+    "testes_aceitacao_max": 12,
+    "loc_solucao_referencia_min": 40,
+    "loc_solucao_referencia_max": 80,
+    "amplitude_testes_max": 4,
+    "amplitude_loc_max": 40,
+    "hits_google_max": 10,
+    "hits_github_code_max": 5
+  },
+  "katas": [
+    {
+      "id": "kata-01",
+      "titulo": "Normalizador de mini-formato de notas",
+      "dominio": "processamento de texto",
+      "autoral": true,
+      "fonte": "autoral (grupo)",
+      "assinatura": "normalizarNotas(texto: string): string",
+      "enunciado_resumo": "Recebe um bloco de texto em um mini-formato interno (titulos com '# ', itens com '- ', linhas em branco duplas) e devolve o texto normalizado: colapsa espacos multiplos, garante exatamente uma linha em branco entre blocos, transforma '* ' em '- ', capitaliza a primeira letra de cada titulo e remove espacos no fim das linhas.",
+      "conceitos": ["parsing linha a linha", "regex", "maquina de estado simples"],
+      "planejado": {
+        "num_testes_aceitacao": 10,
+        "loc_solucao_referencia": 55,
+        "dependencias_externas": 0,
+        "io_rede_ou_arquivo": false
+      },
+      "medido": { "num_testes_aceitacao": null, "loc_solucao_referencia": null },
+      "indexacao": {
+        "frases_distintivas": [
+          "\"normalizador de mini-formato de notas\"",
+          "normalizarNotas colapsa espacos titulo item kata",
+          "kata normalizar notas \"# \" \"- \" linha em branco dupla"
+        ],
+        "hits_google": null,
+        "hits_github_code": null,
+        "reconhecido_pelo_assistente": null,
+        "medido_em": null,
+        "observacao": "preencher apos busca manual - ver protocolo"
+      }
+    },
+    {
+      "id": "kata-02",
+      "titulo": "Agendador de salas sem conflito",
+      "dominio": "agenda / intervalos",
+      "autoral": true,
+      "fonte": "autoral (grupo)",
+      "assinatura": "alocarReservas(reservas: {sala, inicioMin, fimMin}[]): {alocadas, recusadas}",
+      "enunciado_resumo": "Dada uma lista de pedidos de reserva (sala, inicio e fim em minutos do dia), processa os pedidos na ordem recebida e aceita um pedido apenas se ele nao se sobrepoe a nenhum ja aceito para a mesma sala (fim exclusivo). Devolve as reservas alocadas e as recusadas, preservando a ordem original.",
+      "conceitos": ["ordenacao estavel", "teste de sobreposicao de intervalos", "agrupamento por chave"],
+      "planejado": {
+        "num_testes_aceitacao": 11,
+        "loc_solucao_referencia": 50,
+        "dependencias_externas": 0,
+        "io_rede_ou_arquivo": false
+      },
+      "medido": { "num_testes_aceitacao": null, "loc_solucao_referencia": null },
+      "indexacao": {
+        "frases_distintivas": [
+          "\"agendador de salas sem conflito\" kata alocarReservas",
+          "alocarReservas sala inicioMin fimMin recusadas kata",
+          "kata reservas sala sobreposicao \"fim exclusivo\" ordem original"
+        ],
+        "hits_google": null,
+        "hits_github_code": null,
+        "reconhecido_pelo_assistente": null,
+        "medido_em": null,
+        "observacao": "preencher apos busca manual - ver protocolo"
+      }
+    },
+    {
+      "id": "kata-03",
+      "titulo": "Tarifador de estacionamento por faixas",
+      "dominio": "regra de negocio / tempo",
+      "autoral": true,
+      "fonte": "autoral (grupo)",
+      "assinatura": "calcularTarifa(entrada: string, saida: string, tabela): number",
+      "enunciado_resumo": "Calcula o valor a pagar entre 'entrada' e 'saida' (timestamps HH:MM no mesmo dia) segundo uma tabela: os primeiros 15 min sao gratis; ate 1 h cobra a diaria minima; depois cobra por hora iniciada; existe um teto diario. Arredonda o resultado para 2 casas.",
+      "conceitos": ["diferenca de tempo", "faixas condicionais", "teto/piso", "arredondamento"],
+      "planejado": {
+        "num_testes_aceitacao": 12,
+        "loc_solucao_referencia": 48,
+        "dependencias_externas": 0,
+        "io_rede_ou_arquivo": false
+      },
+      "medido": { "num_testes_aceitacao": null, "loc_solucao_referencia": null },
+      "indexacao": {
+        "frases_distintivas": [
+          "\"tarifador de estacionamento por faixas\" kata calcularTarifa",
+          "calcularTarifa entrada saida tabela \"15 min\" gratis teto diario kata",
+          "kata estacionamento \"hora iniciada\" \"teto diario\" 15 minutos gratis"
+        ],
+        "hits_google": null,
+        "hits_github_code": null,
+        "reconhecido_pelo_assistente": null,
+        "medido_em": null,
+        "observacao": "preencher apos busca manual - ver protocolo"
+      }
+    },
+    {
+      "id": "kata-04",
+      "titulo": "Validador de regras de cupom",
+      "dominio": "regra de negocio / e-commerce",
+      "autoral": true,
+      "fonte": "autoral (grupo)",
+      "assinatura": "aplicarCupom(carrinho, cupom): {aplicavel, motivo, desconto, total}",
+      "enunciado_resumo": "Dado um carrinho (itens com preco, quantidade e categoria) e um cupom (percentual ou valor fixo, valor minimo de compra, categorias elegiveis, limite de desconto, data de validade), decide se o cupom e' aplicavel; se for, calcula o desconto (respeitando o limite) e o total. Se nao for, devolve o motivo especifico da recusa.",
+      "conceitos": ["encadeamento de validacoes", "soma condicional por categoria", "limites"],
+      "planejado": {
+        "num_testes_aceitacao": 12,
+        "loc_solucao_referencia": 70,
+        "dependencias_externas": 0,
+        "io_rede_ou_arquivo": false
+      },
+      "medido": { "num_testes_aceitacao": null, "loc_solucao_referencia": null },
+      "indexacao": {
+        "frases_distintivas": [
+          "\"validador de regras de cupom\" kata aplicarCupom motivo recusa",
+          "aplicarCupom carrinho cupom \"categorias elegiveis\" \"limite de desconto\" kata",
+          "kata cupom percentual \"valor minimo de compra\" motivo especifico recusa"
+        ],
+        "hits_google": null,
+        "hits_github_code": null,
+        "reconhecido_pelo_assistente": null,
+        "medido_em": null,
+        "observacao": "preencher apos busca manual - ver protocolo"
+      }
+    },
+    {
+      "id": "kata-05",
+      "titulo": "Ranking com criterios de desempate",
+      "dominio": "classificacao / ordenacao multichave",
+      "autoral": true,
+      "fonte": "autoral (grupo)",
+      "assinatura": "classificar(participantes): {nome, posicao}[]",
+      "enunciado_resumo": "Ordena participantes por pontos (desc); em empate, por numero de vitorias (desc); persistindo o empate, por saldo (desc); persistindo, por nome (asc). Participantes verdadeiramente empatados em todos os criterios recebem a MESMA posicao, e a posicao seguinte pula os lugares ocupados (ranking estilo '1,2,2,4').",
+      "conceitos": ["comparador multichave", "ranking com empates", "estabilidade"],
+      "planejado": {
+        "num_testes_aceitacao": 10,
+        "loc_solucao_referencia": 45,
+        "dependencias_externas": 0,
+        "io_rede_ou_arquivo": false
+      },
+      "medido": { "num_testes_aceitacao": null, "loc_solucao_referencia": null },
+      "indexacao": {
+        "frases_distintivas": [
+          "\"ranking com criterios de desempate\" kata classificar pontos vitorias saldo",
+          "classificar participantes \"mesma posicao\" \"1,2,2,4\" pontos vitorias saldo nome kata",
+          "kata ranking desempate pontos vitorias saldo nome posicao repetida"
+        ],
+        "hits_google": null,
+        "hits_github_code": null,
+        "reconhecido_pelo_assistente": null,
+        "medido_em": null,
+        "observacao": "preencher apos busca manual - ver protocolo"
+      }
+    },
+    {
+      "id": "kata-06",
+      "titulo": "Interpretador de datas relativas",
+      "dominio": "calendario / parsing",
+      "autoral": true,
+      "fonte": "autoral (grupo)",
+      "assinatura": "resolverData(expr: string, base: string): string",
+      "enunciado_resumo": "Resolve expressoes como '+3 dias', '-2 semanas', 'proxima segunda', 'ultimo dia do mes' e '+5 dias uteis' (sabado/domingo nao contam) a partir de uma data-base (YYYY-MM-DD) e devolve a data resultante em YYYY-MM-DD. Expressao invalida lanca erro com mensagem padronizada.",
+      "conceitos": ["parsing de tokens", "aritmetica de calendario", "dias uteis"],
+      "planejado": {
+        "num_testes_aceitacao": 12,
+        "loc_solucao_referencia": 72,
+        "dependencias_externas": 0,
+        "io_rede_ou_arquivo": false
+      },
+      "medido": { "num_testes_aceitacao": null, "loc_solucao_referencia": null },
+      "indexacao": {
+        "frases_distintivas": [
+          "\"interpretador de datas relativas\" kata resolverData \"dias uteis\"",
+          "resolverData expr base \"proxima segunda\" \"ultimo dia do mes\" \"+5 dias uteis\" kata",
+          "kata datas relativas \"+3 dias\" \"-2 semanas\" \"dias uteis\" YYYY-MM-DD"
+        ],
+        "hits_google": null,
+        "hits_github_code": null,
+        "reconhecido_pelo_assistente": null,
+        "medido_em": null,
+        "observacao": "preencher apos busca manual - ver protocolo"
+      }
+    }
+  ]
+}
