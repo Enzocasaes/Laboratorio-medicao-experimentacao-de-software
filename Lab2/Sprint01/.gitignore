@@ -5,3 +5,7 @@ node_modules/
 data/*.csv
 data/*.json
 !data/.gitkeep
+
+# O codigo final de cada trial (trials/<trial_id>/) E' dado bruto do experimento
+# e DEVE ser versionado - aqui so' entra o que nao faz parte da medicao.
+trials/**/node_modules/
