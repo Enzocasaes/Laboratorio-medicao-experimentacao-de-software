@@ -130,10 +130,14 @@ teste de hipótese formal).
 | `num_prompts_ia` | contagem | RQ1 | exploratória | registrado no `parar`/`registrar` do cronômetro |
 | `taxa_sucesso` | % (0–1) | RQ2 | **primária** | `testes_passando / testes_total` ao fim do time-box |
 | `testes_falhando` | contagem | RQ2 | complementar | `testes_total − testes_passando` |
-| `complexidade_ciclomatica_media` | McCabe / função | RQ3a | **primária** | ferramenta estática sobre o código final do trial (ver Passo 2) |
-| `duplicacao_percentual` | % linhas | RQ3b | **primária** | `jscpd` (ou equivalente) sobre o código final |
-| `loc` | linhas | RQ3 | **controle obrigatório** | mesma ferramenta estática |
-| `indice_manutenibilidade` | 0–100 | RQ3 | aprofundamento | MI (complexidade + LOC + Halstead) |
+| `complexidade_ciclomatica_media` | McCabe / função | RQ3a | **primária** | [`src/metricas.js`](../Sprint01/src/metricas.js) sobre o código final do trial (`trials/<trial_id>/`) |
+| `duplicacao_percentual` | % linhas | RQ3b | **primária** | idem (detecção estilo PMD CPD, janela de 5 linhas) |
+| `loc` | linhas | RQ3 | **controle obrigatório** | idem (mesmo `contarLOC` do `validar-katas.js`) |
+| `indice_manutenibilidade` | 0–100 | RQ3 | aprofundamento | idem — MI normalizado 0–100 (fórmula do `radon mi`) |
+
+Definições exatas de cada métrica estática (o que conta como ponto de decisão, a
+janela de duplicação, a fórmula do MI) e o ambiente de execução:
+[`Ambiente.md`](Ambiente.md).
 
 ---
 
@@ -175,9 +179,11 @@ observador/screencast para garantir que nenhum assistente de IA foi consultado.
   - solução de referência de **40–80 LOC**, sem dependências externas, sem I/O de
     rede/arquivo;
   - domínio "de negócio" neutro (nada de algoritmo de entrevista famoso).
-- **Linguagem fixada em JavaScript** para casar com a ferramenta de métricas
-  estáticas escolhida no Passo 2 (`jscpd` para duplicação + ferramenta de
-  complexidade/MI para JS — papel equivalente ao de CK/PMD, que exigem Java).
+- **Linguagem fixada em JavaScript**; como CK exige Java e Radon exige Python, o
+  Passo 2 adotou [`src/metricas.js`](../Sprint01/src/metricas.js) — coletor em
+  Node puro que calcula as mesmas métricas (McCabe, duplicação estilo PMD CPD,
+  LOC e MI do Radon) com as definições clássicas, documentadas em
+  [`Ambiente.md`](Ambiente.md).
 - **Katas candidatos, rubrica de equivalência e protocolo de baixa indexação:**
   ver [`ValidacaoDosKatas.md`](ValidacaoDosKatas.md), o manifesto
   [`../Sprint01/katas.manifest.json`](../Sprint01/katas.manifest.json) e o
@@ -319,8 +325,8 @@ resultado e a mitigação adotada no desenho.
 - [ ] Verde = 100% dos testes de aceitação do kata; nada além disso encerra o trial.
 - [ ] `testes_passando/total` copiados do relatório do runner, não estimados.
 - [ ] Pausa de ~10 min antes do próximo trial; no máx. 3 por sessão.
-- [ ] CK/PMD-equivalente (jscpd + complexidade) rodado sobre o **código final** de
-      cada trial e salvo com o `trial_id`.
+- [ ] Código final copiado para `trials/<trial_id>/` e `npm run metricas` rodado
+      sobre ele (equivalente ao CK/PMD do enunciado — ver [`Ambiente.md`](Ambiente.md)).
 
 ---
 
@@ -333,7 +339,7 @@ _(exigido no Passo 1 e a repetir no Relatório Final)_
 | **RQ1** | **time-to-green** (s), censurado em 2100 s | mediana + IQR por tratamento | métrica primária recomendada pelo enunciado; mediana pela sensibilidade da média a outliers com N pequeno; censura preserva os trials sem sucesso | nº de prompts (mantida só como exploratória) |
 | **RQ2** | **taxa de sucesso** = % de testes de aceitação passando ao fim do time-box | mediana + IQR; Wilcoxon pareado por kata | normaliza katas com números diferentes de testes; mais robusta que a contagem bruta | nº absoluto de testes falhando (mantida como complementar); densidade por KLOC (katas de tamanho parecido, não agrega valor) |
 | **RQ3a** | **complexidade ciclomática média por função** (McCabe) | mediana + IQR; **sempre reportada junto de LOC** | equivalente em JS à métrica `complexity`/WMC do CK | — |
-| **RQ3b** | **% de linhas duplicadas** (`jscpd` ou equivalente) | mediana + IQR; junto de LOC | equivalente em JS ao PMD CPD | — |
+| **RQ3b** | **% de linhas duplicadas** (janela de 5 linhas) | mediana + IQR; junto de LOC | equivalente em JS ao PMD CPD | — |
 | **RQ3 (controle)** | **LOC** | reportada em toda tabela de RQ3 | obrigatória: código de IA pode ser mais verboso; complexidade/duplicação sem normalizar por LOC engana | — |
 | **RQ3 (aprofundamento)** | **Índice de Manutenibilidade (MI)** | mediana + IQR | métrica composta (complexidade + LOC + Halstead), mais robusta que olhar cada uma isolada | — |
 

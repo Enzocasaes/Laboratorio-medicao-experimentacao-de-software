@@ -1,0 +1,25 @@
+snapshot_date,sprint,number,title,repository,state,status_column,assignee
+2026-08-26,S02,37,Sprint03,Enzocasaes/Laboratorio-medicao-experimentacao-de-software,OPEN,In progress,
+2026-08-26,S02,18,Sprint02,Enzocasaes/Laboratorio-medicao-experimentacao-de-software,CLOSED,Done,
+2026-08-26,S02,27,Validar dados dos 1000 repositórios — RQ 7,Enzocasaes/Laboratorio-medicao-experimentacao-de-software,CLOSED,In progress,caueafonsomoraes
+2026-08-26,S02,41,Criação do Snapshot,Enzocasaes/Laboratorio-medicao-experimentacao-de-software,OPEN,In progress,VianaLeo13
+2026-08-26,S02,23,Validar dados dos 1000 repositórios — RQ 3,Enzocasaes/Laboratorio-medicao-experimentacao-de-software,CLOSED,In progress,caueafonsomoraes
+2026-08-26,S02,24,Validar dados dos 1000 repositórios — RQ 4,Enzocasaes/Laboratorio-medicao-experimentacao-de-software,CLOSED,In progress,caueafonsomoraes
+2026-08-26,S02,15,S02 — Paginação e coleta dos 1000 repositórios,Enzocasaes/Laboratorio-medicao-experimentacao-de-software,CLOSED,Done,Enzocasaes
+2026-08-26,S02,26,Validar dados dos 1000 repositórios — RQ 6,Enzocasaes/Laboratorio-medicao-experimentacao-de-software,CLOSED,Done,VianaLeo13
+2026-08-26,S02,17,S02 - Criar primeira versão do relatório,Enzocasaes/Laboratorio-medicao-experimentacao-de-software,OPEN,In progress,VianaLeo13;caueafonsomoraes;Enzocasaes
+2026-08-26,S02,25,Validar dados dos 1000 repositórios — RQ 5,Enzocasaes/Laboratorio-medicao-experimentacao-de-software,CLOSED,Done,VianaLeo13
+2026-08-26,S02,10,S01 - RQ 06,Enzocasaes/Laboratorio-medicao-experimentacao-de-software,CLOSED,Done,VianaLeo13
+2026-08-26,S02,3,"S01 - GitHub Projects criado, com colunas (Status) e limite de WIP definidos e primeiras Issues em uso.",Enzocasaes/Laboratorio-medicao-experimentacao-de-software,CLOSED,Done,Enzocasaes
+2026-08-26,S02,5,S01 - RQ 01 e implementacao de  busca automatica dos repositorios mais populares e a exportacao em CSV,Enzocasaes/Laboratorio-medicao-experimentacao-de-software,CLOSED,Done,Enzocasaes
+2026-08-26,S02,6,S01 - RQ 02,Enzocasaes/Laboratorio-medicao-experimentacao-de-software,CLOSED,Done,Enzocasaes
+2026-08-26,S02,7,S01 - RQ03,Enzocasaes/Laboratorio-medicao-experimentacao-de-software,CLOSED,Done,caueafonsomoraes
+2026-08-26,S02,8,S01 - RQ 04,Enzocasaes/Laboratorio-medicao-experimentacao-de-software,CLOSED,Done,caueafonsomoraes
+2026-08-26,S02,9,S01 - RQ 05,Enzocasaes/Laboratorio-medicao-experimentacao-de-software,CLOSED,Done,VianaLeo13
+2026-08-26,S02,11,S01 - RQ Bonus,Enzocasaes/Laboratorio-medicao-experimentacao-de-software,CLOSED,Done,caueafonsomoraes
+2026-08-26,S02,1,S01 - Integração da consulta GraphQL,Enzocasaes/Laboratorio-medicao-experimentacao-de-software,CLOSED,Done,VianaLeo13
+2026-08-26,S02,20,Paginacao e coleta de 1000 repositorios,Enzocasaes/Laboratorio-medicao-experimentacao-de-software,CLOSED,Done,Enzocasaes
+2026-08-26,S02,21,Validar dados dos 1000 repositórios — RQ 1,Enzocasaes/Laboratorio-medicao-experimentacao-de-software,CLOSED,Done,Enzocasaes
+2026-08-26,S02,22,Validar dados dos 1000 repositórios — RQ 2,Enzocasaes/Laboratorio-medicao-experimentacao-de-software,CLOSED,Done,Enzocasaes
+2026-08-26,S02,38,"elaboração do documento final (ver seção ""Relatório Final"" acima)",Enzocasaes/Laboratorio-medicao-experimentacao-de-software,OPEN,Backlog,VianaLeo13;caueafonsomoraes;Enzocasaes
+2026-08-26,S02,39,Implementação dashboard web,Enzocasaes/Laboratorio-medicao-experimentacao-de-software,CLOSED,Done,
