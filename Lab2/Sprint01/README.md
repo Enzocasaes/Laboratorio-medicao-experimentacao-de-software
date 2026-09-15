@@ -66,6 +66,28 @@ node src/cronometro.js parar --testes-passando 8 --testes-total 12
 - Só há **um trial ativo por vez** (arquivo `data/sessao-ativa.json`). Use
   `npm run trial:abortar` para descartar sem gravar, ou `--forcar` no `iniciar`.
 
+## Sequência de execução — Enzo (P1)
+
+A divisão do trabalho na Execução (S02) já é individual por desenho: cada
+integrante resolve os **6 katas sozinho** (3 `com-ia`, 3 `sem-ia`), na ordem
+contrabalanceada da linha `P1` da
+[matriz de tratamento](../Docs/DesenhoDoExperimento.md#matriz-de-tratamento-integrante--kata).
+Sequência de Enzo, pronta para copiar/colar (cada trial: `trial:iniciar` →
+resolver → `npm test` → `trial:parar` → congelar o código em `trials/<trial_id>/`):
+
+| ordem | kata | tratamento | comando de início |
+|---|---|---|---|
+| 1 | kata-01 | com-ia | `npm run trial:iniciar -- --participante enzo --kata kata-01 --tratamento com-ia --ordem 1` |
+| 2 | kata-04 | sem-ia | `npm run trial:iniciar -- --participante enzo --kata kata-04 --tratamento sem-ia --ordem 2` |
+| 3 | kata-02 | com-ia | `npm run trial:iniciar -- --participante enzo --kata kata-02 --tratamento com-ia --ordem 3` |
+| 4 | kata-05 | sem-ia | `npm run trial:iniciar -- --participante enzo --kata kata-05 --tratamento sem-ia --ordem 4` |
+| 5 | kata-03 | com-ia | `npm run trial:iniciar -- --participante enzo --kata kata-03 --tratamento com-ia --ordem 5` |
+| 6 | kata-06 | sem-ia | `npm run trial:iniciar -- --participante enzo --kata kata-06 --tratamento sem-ia --ordem 6` |
+
+Sessões de no máx. 3 trials (ver ameaça I2 no desenho); pausa de ~10 min entre
+elas. Antes de cada sessão: `npm run ambiente:verificar` e, no T0 (`sem-ia`),
+o procedimento de desligamento da IA ([Ambiente.md](../Docs/Ambiente.md)).
+
 ## Lançar um trial cronometrado à mão
 
 Se o tempo foi medido por fora (celular, cronômetro de parede) e o `iniciar` não
@@ -177,8 +199,9 @@ npm run katas:validar          # valida katas.manifest.json -> data/validacao-ka
 - Manifesto dos 6 katas candidatos: [katas.manifest.json](katas.manifest.json)
 - Rubrica, protocolo de baixa indexação e resultados:
   [../Docs/ValidacaoDosKatas.md](../Docs/ValidacaoDosKatas.md)
-- Quando a pasta `katas/<id>/` existir (S02), o script mede LOC e nº de testes
-  reais; sem ela, usa os valores planejados no manifesto.
+- [`katas/<id>/`](katas/) (S02) tem, para os 6 katas, `enunciado.md`,
+  `solucao-referencia.js` e `<id>.test.js`; o script mede LOC/nº de testes
+  reais a partir daí — **6 APROVADO, 0 REPROVADO**, conjunto homogêneo.
 - Código de saída **1** se algum kata estiver `REPROVADO` (útil em CI).
 
 ## Hipóteses e ameaças à validade
@@ -239,6 +262,7 @@ Lab2/Sprint01/
 │   ├── metricas.test.js
 │   └── verificar-ambiente.test.js
 ├── trials/<trial_id>/        # codigo final de cada trial (dado bruto, versionado)
+├── katas/<id>/                # enunciado + solucao-referencia + testes de aceitacao (S02)
 ├── katas.manifest.json       # 6 katas candidatos + regras de validacao
 ├── data/                     # sessao-ativa.json, trials.csv, metricas.csv, ... (nao versionados)
 ├── .nvmrc                    # Node 18

@@ -8,6 +8,12 @@ contrabalanceado, _time-boxed_.
 > Itens entre colchetes `[ ... ]` são decisões do grupo a fixar na S02 (nomes dos
 > integrantes, ferramenta de IA e versão, temas dos katas). O restante já é o
 > desenho adotado.
+>
+> **Status na S02:** ferramenta de IA fixada (Claude, claude.ai free), IDE
+> fixada (VS Code), os 6 katas escritos/validados/aprovados (ver
+> [`ValidacaoDosKatas.md`](ValidacaoDosKatas.md)) e `P1 = Enzo Casaes`
+> registrado. Ainda em aberto: mapear `P2`/`P3` entre Cauê e Leonardo, e a
+> versão exata do VS Code/SO de cada um (ver [`Ambiente.md`](Ambiente.md)).
 
 ---
 
@@ -154,10 +160,10 @@ documentação oficial) é mantido constante.
 
 | | **T1 — com-ia (tratamento)** | **T0 — sem-ia (controle)** |
 |---|---|---|
-| Assistente de IA generativa | **habilitado** — `[ferramenta única do grupo + versão: ex. ChatGPT free / GitHub Copilot free]`, usado à vontade (chat e/ou autocomplete) | **desligado** — sem chatbot aberto, autocomplete de IA desativado na IDE |
+| Assistente de IA generativa | **habilitado** — **Claude (claude.ai), plano gratuito** (fixado na S02), usado à vontade (chat e/ou autocomplete) | **desligado** — sem chatbot aberto, autocomplete de IA desativado na IDE |
 | Documentação / referência de linguagem | permitida | permitida (igual) |
 | Busca na web / StackOverflow | permitida | permitida (igual) |
-| IDE, linguagem, máquina | `[IDE fixa]`, JavaScript (Node 18+), mesma configuração | idem |
+| IDE, linguagem, máquina | VS Code, JavaScript (Node 18+), mesma configuração | idem |
 | Time-box | 35 min | 35 min |
 
 Observação anti-contaminação: o trial `sem-ia` é conferido por
@@ -201,8 +207,15 @@ observador/screencast para garantir que nenhum assistente de IA foi consultado.
 
 **Crossover / within-subject, contrabalanceado (quadrado latino).**
 
-- 3 integrantes (`[P1, P2, P3]`), 6 katas, **cada integrante faz os 6 katas**: 3
-  com `T1` e 3 com `T0`.
+- 3 integrantes, 6 katas, **cada integrante faz os 6 katas, individualmente**:
+  3 com `T1` e 3 com `T0`. A divisão de trabalho da S02/Execução já é
+  individual por construção do desenho — não há artefato compartilhado a
+  repartir entre o trio nesta etapa, cada um roda a própria sequência.
+- **Participantes:** `P1 = Enzo Casaes`; `P2`/`P3 = [Cauê Moraes / Leonardo
+  Viana — mapeamento a confirmar entre os dois]`. A ordem P1/P2/P3 é só um
+  rótulo para a matriz abaixo; o que importa é que cada pessoa segue **uma
+  linha inteira** (6 katas, contrabalanceados) e não troca de linha no meio da
+  coleta.
 - O contrabalanceamento neutraliza três fontes de variação: **(i)** habilidade
   individual (cada pessoa é seu próprio controle), **(ii)** efeito de
   aprendizado/ordem (posição do trial na sequência) e **(iii)** dificuldade

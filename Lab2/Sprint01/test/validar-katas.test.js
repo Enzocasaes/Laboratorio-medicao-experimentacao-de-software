@@ -164,11 +164,11 @@ function comSaida(t) {
   return { dir, run };
 }
 
-test("CLI: valida o manifesto real -> exit 0 (tudo PENDENTE) e grava o CSV", (t) => {
+test("CLI: valida o manifesto real -> exit 0 (6 aprovados) e grava o CSV", (t) => {
   const { dir, run } = comSaida(t);
   const r = run(["--manifest", MANIFESTO_REAL]);
   assert.equal(r.status, 0, r.stderr);
-  assert.match(r.stdout, /6 pendente\(s\)/);
+  assert.match(r.stdout, /6 aprovado\(s\)/);
   assert.match(r.stdout, /conjunto homogeneo: SIM/);
   assert.ok(existsSync(join(dir, "validacao-katas.csv")));
   const { linhas } = readCSV(join(dir, "validacao-katas.csv"));

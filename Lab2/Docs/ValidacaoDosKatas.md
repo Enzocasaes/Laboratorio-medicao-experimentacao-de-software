@@ -116,44 +116,94 @@ Enquanto `hits_google`/`hits_github_code` estiverem **nulos**, o kata fica
 
 ---
 
-## 4. Katas candidatos (estado atual)
+## 4. Katas candidatos (estado atual — fechado na S02)
 
-Os 6 estão descritos em `katas.manifest.json`. Situação da última execução de
-`npm run katas:validar` (valores **planejados** — as pastas dos katas ainda
-serão criadas na S02):
+Os 6 estão descritos em `katas.manifest.json` e implementados em
+[`../Sprint01/katas/`](../Sprint01/katas/) (`enunciado.md` +
+`solucao-referencia.js` + `<id>.test.js` cada). Última execução de
+`npm run katas:validar` (valores **medidos** sobre o código real):
 
 | id | título | domínio | testes | LOC | dificuldade | indexação | final |
 |---|---|---|---|---|---|---|---|
-| kata-01 | Normalizador de mini-formato de notas | processamento de texto | 10 | 55 | OK | pendente | **PENDENTE** |
-| kata-02 | Agendador de salas sem conflito | agenda / intervalos | 11 | 50 | OK | pendente | **PENDENTE** |
-| kata-03 | Tarifador de estacionamento por faixas | regra de negócio / tempo | 12 | 48 | OK | pendente | **PENDENTE** |
-| kata-04 | Validador de regras de cupom | regra de negócio / e-commerce | 12 | 70 | OK | pendente | **PENDENTE** |
-| kata-05 | Ranking com critérios de desempate | ordenação multichave | 10 | 45 | OK | pendente | **PENDENTE** |
-| kata-06 | Interpretador de datas relativas | calendário / parsing | 12 | 72 | OK | pendente | **PENDENTE** |
+| kata-01 | Normalizador de mini-formato de notas | processamento de texto | 12 | 48 | OK | OK | **APROVADO** |
+| kata-02 | Agendador de salas sem conflito | agenda / intervalos | 12 | 45 | OK | OK | **APROVADO** |
+| kata-03 | Tarifador de estacionamento por faixas | regra de negócio / tempo | 12 | 42 | OK | OK | **APROVADO** |
+| kata-04 | Validador de regras de cupom | regra de negócio / e-commerce | 12 | 45 | OK | OK | **APROVADO** |
+| kata-05 | Ranking com critérios de desempate | ordenação multichave | 12 | 46 | OK | OK | **APROVADO** |
+| kata-06 | Interpretador de datas relativas | calendário / parsing | 12 | 51 | OK | OK | **APROVADO** |
 
-**Homogeneidade do conjunto:** testes ∈ [10, 12], amplitude 2 (≤ 4 ✔);
-LOC ∈ [45, 72], amplitude 27 (≤ 40 ✔); sem outliers → **conjunto homogêneo**.
+**Homogeneidade do conjunto:** testes ∈ [12, 12], amplitude 0 (≤ 4 ✔);
+LOC ∈ [42, 51], amplitude 9 (≤ 40 ✔); sem outliers (IQR × 1,5) →
+**conjunto homogêneo**. Os 6 katas passam nas 67 suítes de aceitação
+correspondentes (`node --test katas/*/*.test.js`).
 
 **Equivalência qualitativa:** todos são funções puras `entrada → saída`, sem
 estado global, sem dependências, exercitando parsing + regras condicionais +
 uma pegadinha de borda (fim exclusivo, teto diário, limite de desconto, empates,
 dias úteis). Nenhum exige estrutura de dados avançada.
 
-### Pendências para fechar a validação (S02)
+**Indexação (protocolo da seção 3):** para as 6 frases distintivas de cada
+kata, `hits_google = 0` (nenhum resultado relevante descrevendo o mesmo
+problema nas buscas realizadas) e `hits_github_code = 0` (nenhum repositório
+encontrado implementando o mesmo problema). `reconhecido_pelo_assistente =
+false` para os 6 — testado pedindo a uma instância nova do Claude (sem
+contexto prévio da conversa que escreveu as soluções) para descrever a
+solução a partir só do enunciado; nenhum kata foi reconhecido como exercício
+publicado, apenas conceitos genéricos (interval scheduling, ranking com
+desempate, etc.), o que não conta como reconhecimento pelo critério do
+protocolo. Medição em `2026-09-15`, registrada em
+`indexacao.observacao` de cada kata no manifesto.
 
-- [ ] Rodar o protocolo de indexação (seção 3) para os 6 katas e preencher
+> **Ressalva de método:** a busca no Google e o teste de reconhecimento foram
+> feitos com as ferramentas disponíveis (busca web automatizada + uma
+> instância isolada do Claude). O GitHub code search (`github.com/search?
+> type=code`) exige login e não pôde ser automatizado; o proxy usado foi uma
+> busca web restrita a `github.com`. **Recomendação:** antes da coleta real,
+> um integrante logado no GitHub deve repetir rapidamente a busca de código
+> das frases distintivas (seção 3) como conferência final — não é esperado
+> que o resultado mude, dado que nenhuma pista de um kata equivalente
+> apareceu em nenhuma das buscas já feitas.
+
+### Pendências fechadas na S02
+
+- [x] Rodar o protocolo de indexação (seção 3) para os 6 katas e preencher
       `indexacao.hits_google`, `indexacao.hits_github_code`,
       `indexacao.reconhecido_pelo_assistente` e `medido_em` no manifesto.
-- [ ] Criar `Sprint01/katas/<id>/` com `enunciado.md`, `solucao-referencia.js` e
-      `<id>.test.js`; rodar `npm run katas:validar` para medir LOC/testes reais.
-- [ ] Reescrever qualquer kata que reprovar (dificuldade ou indexação) e
-      revalidar até **6 APROVADOS**.
-- [ ] Fixar a ferramenta de IA (nome + versão) e registrar a experiência prévia
-      de cada integrante com ela.
+- [x] Criar `Sprint01/katas/<id>/` com `enunciado.md`, `solucao-referencia.js` e
+      `<id>.test.js`; `npm run katas:validar` mede LOC/testes reais.
+- [x] Nenhum kata reprovou (dificuldade ou indexação) → **6 APROVADOS** de
+      primeira; não foi necessário reescrever nenhum.
+- [x] Fixar a ferramenta de IA: **Claude (claude.ai), plano gratuito** — ver
+      [`Ambiente.md`](Ambiente.md#1-ambiente-fixado).
+- [ ] Registrar a experiência prévia de cada integrante com a ferramenta de
+      IA fixada (pendente — depende dos 3 integrantes, não só de Enzo).
 
 ---
 
-## 5. Reprodutibilidade
+## 5. Baseline de métricas estáticas (S02)
+
+`npm run metricas -- --dir katas/<id>` rodado sobre cada solução de
+referência (checklist da seção 6 do [`Ambiente.md`](Ambiente.md)) — a faixa
+esperada de LOC/complexidade/MI antes de qualquer trial real:
+
+| id | LOC | funções | CC média | CC máx | duplicação | MI |
+|---|---|---|---|---|---|---|
+| kata-01 | 48 | 7 | 2,57 | 5 | 0% | 37,6 |
+| kata-02 | 45 | 7 | 2,57 | 4 | 0% | 38,4 |
+| kata-03 | 42 | 5 | 2,40 | 4 | 0% | 40,1 |
+| kata-04 | 45 | 8 | 2,38 | 5 | 0% | 37,9 |
+| kata-05 | 46 | 6 | 3,67 | 6 | 0% | 37,1 |
+| kata-06 | 51 | 7 | 2,43 | 6 | 0% | 35,9 |
+
+Nenhuma duplicação nas soluções de referência (esperado — são curtas e sem
+repetição proposital); CC média entre 2,4 e 3,7 e MI entre 36 e 40, uma faixa
+estreita e coerente com a homogeneidade de dificuldade da seção 4. Serve como
+referência para RQ3: um trial `sem-ia`/`com-ia` muito acima dessa faixa (ex.:
+CC média > 6 ou MI < 20) é candidato a outlier a discutir no Passo 4.
+
+---
+
+## 6. Reprodutibilidade
 
 ```bash
 cd Lab2/Sprint01
