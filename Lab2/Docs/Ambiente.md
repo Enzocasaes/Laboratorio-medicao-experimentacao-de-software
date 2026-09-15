@@ -22,9 +22,9 @@ dos katas ([`ValidacaoDosKatas.md`](ValidacaoDosKatas.md)).
 | Runtime | **Node.js ≥ 18** (fixado em [`../Sprint01/.nvmrc`](../Sprint01/.nvmrc)) | roda a suíte de aceitação dos katas com `node --test`, sem instalar nada |
 | Dependências | **nenhuma** — não rodar `npm install` | mesma regra do Lab01: qualquer máquina reproduz o experimento só com o Node |
 | Runner de testes | `node:test` (nativo) | a contagem `testes_passando/testes_total` sai do relatório do runner, não do olho (ameaça I4) |
-| IDE | `[preencher - IDE + versão, ex.: VS Code 1.9x]` | a mesma nos dois tratamentos e para os 3 integrantes (ameaça I6) |
-| Assistente de IA (T1) | `[preencher - ferramenta + versão, ex.: GitHub Copilot (Student Pack) ou ChatGPT free]` | **ferramenta única** para o trio, exigência do enunciado e mitigação da ameaça I7 |
-| Sistema operacional | `[preencher - SO de cada integrante]` | registrado para o Relatório Final; não deve variar dentro de um mesmo integrante |
+| IDE | **VS Code** (versão exata a confirmar via `Code > About` em cada máquina — `[preencher por integrante]`) | a mesma nos dois tratamentos e para os 3 integrantes (ameaça I6) |
+| Assistente de IA (T1) | **Claude (claude.ai), plano gratuito** — versão do modelo web no momento da coleta a registrar no Relatório Final | **ferramenta única** para o trio, exigência do enunciado e mitigação da ameaça I7; fixada pelo grupo na S02 |
+| Sistema operacional | Enzo: **macOS 26.6.2 (Darwin 25.6.0)**. Cauê / Leonardo: `[preencher]` | registrado para o Relatório Final; não deve variar dentro de um mesmo integrante |
 | Time-box | 35 min por trial | regra da turma; só pode ser reduzido |
 
 ### Os dois tratamentos, em termos de ambiente
@@ -222,12 +222,14 @@ e do Node usados na medição — exigência de replicação).
 - [ ] Node ≥ 18 instalado nas três máquinas (`node -v`).
 - [ ] `npm run ambiente:verificar` sem nenhuma FALHA em cada máquina.
 - [ ] `npm test` passando (cronômetro, katas, CSV, estatísticas e métricas).
-- [ ] IDE e versão decididas e preenchidas na seção 1.
-- [ ] Assistente de IA e versão decididos e preenchidos na seção 1; os 3
-      integrantes com acesso à **mesma** ferramenta.
+- [x] IDE decidida (VS Code); versão exata por máquina ainda a confirmar.
+- [x] Assistente de IA e versão decididos (Claude, claude.ai free) e
+      preenchidos na seção 1; os 3 integrantes precisam de acesso à **mesma**
+      ferramenta.
 - [ ] Procedimento de desligamento do T0 testado por cada integrante.
-- [ ] 6 katas em `katas/<id>/` com enunciado, solução de referência e suíte de
-      aceitação; `npm run katas:validar` sem REPROVADO.
-- [ ] Baseline: `npm run metricas -- --dir katas/<id>` rodado em cada solução de
-      referência, para saber a faixa esperada de LOC/complexidade.
+- [x] 6 katas em `katas/<id>/` com enunciado, solução de referência e suíte de
+      aceitação; `npm run katas:validar` → **6 APROVADO, 0 REPROVADO** (S02).
+- [x] Baseline: `npm run metricas -- --dir katas/<id>` rodado em cada solução de
+      referência — ver tabela em
+      [`ValidacaoDosKatas.md`](ValidacaoDosKatas.md#5-baseline-de-métricas-estáticas-s02).
 - [ ] Kata de aquecimento (fora da análise) executado por cada integrante.
