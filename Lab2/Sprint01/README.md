@@ -88,6 +88,33 @@ Sessões de no máx. 3 trials (ver ameaça I2 no desenho); pausa de ~10 min entr
 elas. Antes de cada sessão: `npm run ambiente:verificar` e, no T0 (`sem-ia`),
 o procedimento de desligamento da IA ([Ambiente.md](../Docs/Ambiente.md)).
 
+## Sequência de execução — Cauê (P2)
+
+Linha `P2` da
+[matriz de tratamento](../Docs/DesenhoDoExperimento.md#matriz-de-tratamento-integrante--kata).
+As pastas `trials/caue_<kata>_<tratamento>/` já estão montadas com o
+`enunciado.md`, a suíte de aceitação (importando `./solucao.js`) e um
+`solucao.js` vazio — o código do trial é escrito direto nesse arquivo.
+
+| ordem | kata | tratamento | comando de início | testes do trial |
+|---|---|---|---|---|
+| 1 | kata-06 | sem-ia | `npm run trial:iniciar -- --participante caue --kata kata-06 --tratamento sem-ia --ordem 1` | `node --test trials/caue_kata-06_sem-ia/kata-06.test.js` |
+| 2 | kata-03 | com-ia | `npm run trial:iniciar -- --participante caue --kata kata-03 --tratamento com-ia --ordem 2` | `node --test trials/caue_kata-03_com-ia/kata-03.test.js` |
+| 3 | kata-01 | sem-ia | `npm run trial:iniciar -- --participante caue --kata kata-01 --tratamento sem-ia --ordem 3` | `node --test trials/caue_kata-01_sem-ia/kata-01.test.js` |
+| 4 | kata-04 | com-ia | `npm run trial:iniciar -- --participante caue --kata kata-04 --tratamento com-ia --ordem 4` | `node --test trials/caue_kata-04_com-ia/kata-04.test.js` |
+| 5 | kata-02 | sem-ia | `npm run trial:iniciar -- --participante caue --kata kata-02 --tratamento sem-ia --ordem 5` | `node --test trials/caue_kata-02_sem-ia/kata-02.test.js` |
+| 6 | kata-05 | com-ia | `npm run trial:iniciar -- --participante caue --kata kata-05 --tratamento com-ia --ordem 6` | `node --test trials/caue_kata-05_com-ia/kata-05.test.js` |
+
+Sessão 1 = ordens 1–3, sessão 2 = ordens 4–6.
+
+- Passe o **arquivo** de teste para o `node --test`, não a pasta — no Node 24
+  uma pasta é executada como se fosse um arquivo e o resultado sai errado.
+- Todo kata tem **12 testes**. Se o runner mostrar `tests 1` / `fail 1` com
+  `does not provide an export named ...`, a função ainda não está exportada:
+  registre `--testes-passando 0 --testes-total 12`, não `0/1`.
+- O `enunciado.md` só é lido **depois** do `trial:iniciar` (ler antes tira
+  tempo do cronômetro). Nunca abrir `katas/<id>/solucao-referencia.js`.
+
 ## Lançar um trial cronometrado à mão
 
 Se o tempo foi medido por fora (celular, cronômetro de parede) e o `iniciar` não

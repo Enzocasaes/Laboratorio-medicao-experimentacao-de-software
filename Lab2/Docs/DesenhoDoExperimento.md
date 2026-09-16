@@ -11,9 +11,9 @@ contrabalanceado, _time-boxed_.
 >
 > **Status na S02:** ferramenta de IA fixada (Claude, claude.ai free), IDE
 > fixada (VS Code), os 6 katas escritos/validados/aprovados (ver
-> [`ValidacaoDosKatas.md`](ValidacaoDosKatas.md)) e `P1 = Enzo Casaes`
-> registrado. Ainda em aberto: mapear `P2`/`P3` entre Cauê e Leonardo, e a
-> versão exata do VS Code/SO de cada um (ver [`Ambiente.md`](Ambiente.md)).
+> [`ValidacaoDosKatas.md`](ValidacaoDosKatas.md)), `P1 = Enzo Casaes` e
+> `P2 = Cauê Moraes` registrados (logo, `P3 = Leonardo Viana`). Ainda em
+> aberto: versão do VS Code/SO do Leonardo (ver [`Ambiente.md`](Ambiente.md)).
 
 ---
 
@@ -211,8 +211,8 @@ observador/screencast para garantir que nenhum assistente de IA foi consultado.
   3 com `T1` e 3 com `T0`. A divisão de trabalho da S02/Execução já é
   individual por construção do desenho — não há artefato compartilhado a
   repartir entre o trio nesta etapa, cada um roda a própria sequência.
-- **Participantes:** `P1 = Enzo Casaes`; `P2`/`P3 = [Cauê Moraes / Leonardo
-  Viana — mapeamento a confirmar entre os dois]`. A ordem P1/P2/P3 é só um
+- **Participantes:** `P1 = Enzo Casaes`; `P2 = Cauê Moraes`;
+  `P3 = Leonardo Viana`. A ordem P1/P2/P3 é só um
   rótulo para a matriz abaixo; o que importa é que cada pessoa segue **uma
   linha inteira** (6 katas, contrabalanceados) e não troca de linha no meio da
   coleta.
