@@ -1,0 +1,7 @@
+trial_id,registrado_em,participante,kata,tratamento,ordem,inicio,fim,duracao_segundos,duracao_hms,time_box_segundos,censurado,sucesso,testes_passando,testes_total,taxa_sucesso,num_prompts_ia,observacoes
+caue_kata-06_sem-ia,2026-09-17T02:32:19.644Z,caue,kata-06,sem-ia,1,2026-09-17T02:13:13.808Z,2026-09-17T02:32:19.644Z,1146,00:19:06,2100,0,1,12,12,1,0,"tirou duvidas de procedimento com IA (onde escrever, arquivo nao salvo), sem ajuda na logica"
+caue_kata-03_com-ia,2026-09-17T02:40:14.578Z,caue,kata-03,com-ia,2,2026-09-17T02:34:19.439Z,2026-09-17T02:40:14.578Z,355,00:05:55,2100,0,1,12,12,1,2,testes passaram por volta de 4min26s; parada atrasada por duvida de procedimento
+caue_kata-01_sem-ia,2026-09-17T02:57:46.938Z,caue,kata-01,sem-ia,3,2026-09-17T02:43:04.805Z,2026-09-17T02:57:46.938Z,882,00:14:42,2100,0,1,12,12,1,0,"duvidas de procedimento com IA (comandos de teste e de parar), sem ajuda na logica"
+caue_kata-04_com-ia,2026-09-17T04:08:56.783Z,caue,kata-04,com-ia,4,2026-09-17T04:07:46.799Z,2026-09-17T04:08:56.783Z,70,00:01:10,2100,0,1,12,12,1,2,"abriu solucao-referencia do kata-04 por engano antes do trial, sem ler"
+caue_kata-02_sem-ia,2026-09-17T04:36:31.927Z,caue,kata-02,sem-ia,5,2026-09-17T04:13:03.774Z,2026-09-17T04:36:31.927Z,1408,00:23:28,2100,0,1,12,12,1,0,
+caue_kata-05_com-ia,2026-09-17T04:39:08.912Z,caue,kata-05,com-ia,6,2026-09-17T04:37:39.465Z,2026-09-17T04:39:08.912Z,89,00:01:29,2100,0,1,12,12,1,1,

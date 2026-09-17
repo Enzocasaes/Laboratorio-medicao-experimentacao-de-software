@@ -22,9 +22,9 @@ dos katas ([`ValidacaoDosKatas.md`](ValidacaoDosKatas.md)).
 | Runtime | **Node.js ≥ 18** (fixado em [`../Sprint01/.nvmrc`](../Sprint01/.nvmrc)) | roda a suíte de aceitação dos katas com `node --test`, sem instalar nada |
 | Dependências | **nenhuma** — não rodar `npm install` | mesma regra do Lab01: qualquer máquina reproduz o experimento só com o Node |
 | Runner de testes | `node:test` (nativo) | a contagem `testes_passando/testes_total` sai do relatório do runner, não do olho (ameaça I4) |
-| IDE | **VS Code** (versão exata a confirmar via `Code > About` em cada máquina — `[preencher por integrante]`) | a mesma nos dois tratamentos e para os 3 integrantes (ameaça I6) |
+| IDE | **VS Code** (versão exata a confirmar via `Code > About` em cada máquina). Cauê: **1.100.3 (x64)**. Enzo / Leonardo: `[preencher]` | a mesma nos dois tratamentos e para os 3 integrantes (ameaça I6) |
 | Assistente de IA (T1) | **Claude (claude.ai), plano gratuito** — versão do modelo web no momento da coleta a registrar no Relatório Final | **ferramenta única** para o trio, exigência do enunciado e mitigação da ameaça I7; fixada pelo grupo na S02 |
-| Sistema operacional | Enzo: **macOS 26.6.2 (Darwin 25.6.0)**. Cauê / Leonardo: `[preencher]` | registrado para o Relatório Final; não deve variar dentro de um mesmo integrante |
+| Sistema operacional | Enzo: **macOS 26.6.2 (Darwin 25.6.0)**. Cauê: **Windows 11 Home Single Language 10.0.26200** (Node v24.11.0). Leonardo: `[preencher]` | registrado para o Relatório Final; não deve variar dentro de um mesmo integrante |
 | Time-box | 35 min por trial | regra da turma; só pode ser reduzido |
 
 ### Os dois tratamentos, em termos de ambiente
