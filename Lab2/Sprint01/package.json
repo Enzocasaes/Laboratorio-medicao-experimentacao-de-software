@@ -13,6 +13,7 @@
     "trial:abortar": "node src/cronometro.js abortar",
     "trial:registrar": "node src/cronometro.js registrar",
     "trial:listar": "node src/cronometro.js listar",
+    "trial:preparar": "node src/preparar-trial.js",
     "katas:validar": "node src/validar-katas.js",
     "metricas": "node src/metricas.js",
     "metricas:juntar": "node src/metricas.js --juntar",
