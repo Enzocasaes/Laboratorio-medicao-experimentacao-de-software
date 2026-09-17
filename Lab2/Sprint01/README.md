@@ -88,6 +88,46 @@ Sessões de no máx. 3 trials (ver ameaça I2 no desenho); pausa de ~10 min entr
 elas. Antes de cada sessão: `npm run ambiente:verificar` e, no T0 (`sem-ia`),
 o procedimento de desligamento da IA ([Ambiente.md](../Docs/Ambiente.md)).
 
+## Sequência de execução — Leo (P3)
+
+Mesma lógica, na ordem contrabalanceada da linha `P3` da
+[tabela de ordem](../Docs/DesenhoDoExperimento.md#ordem-de-execução-posição-16--evita-confundir-tratamento-com-ordem).
+Leo **começa pelo `sem-ia`**, alternando os tratamentos:
+
+| ordem | kata | tratamento | preparar a pasta | iniciar o cronômetro |
+|---|---|---|---|---|
+| 1 | kata-02 | **sem-ia** | `npm run trial:preparar -- --participante leo --kata kata-02 --tratamento sem-ia` | `npm run trial:iniciar -- --participante leo --kata kata-02 --tratamento sem-ia --ordem 1` |
+| 2 | kata-05 | com-ia | `npm run trial:preparar -- --participante leo --kata kata-05 --tratamento com-ia` | `npm run trial:iniciar -- --participante leo --kata kata-05 --tratamento com-ia --ordem 2` |
+| 3 | kata-03 | **sem-ia** | `npm run trial:preparar -- --participante leo --kata kata-03 --tratamento sem-ia` | `npm run trial:iniciar -- --participante leo --kata kata-03 --tratamento sem-ia --ordem 3` |
+| 4 | kata-06 | com-ia | `npm run trial:preparar -- --participante leo --kata kata-06 --tratamento com-ia` | `npm run trial:iniciar -- --participante leo --kata kata-06 --tratamento com-ia --ordem 4` |
+| 5 | kata-04 | **sem-ia** | `npm run trial:preparar -- --participante leo --kata kata-04 --tratamento sem-ia` | `npm run trial:iniciar -- --participante leo --kata kata-04 --tratamento sem-ia --ordem 5` |
+| 6 | kata-01 | com-ia | `npm run trial:preparar -- --participante leo --kata kata-01 --tratamento com-ia` | `npm run trial:iniciar -- --participante leo --kata kata-01 --tratamento com-ia --ordem 6` |
+
+O `trial:preparar` roda **antes** do `trial:iniciar` — ele copia o enunciado e a
+suíte de aceitação para `trials/<trial_id>/` e cria o `solucao.js` vazio, para
+que nenhum minuto do time-box seja gasto com setup. Ele **não** copia a
+`solucao-referencia.js`, e ela não deve ser aberta antes do trial (ameaça G7).
+
+Durante o trial, rode **só a suíte do seu kata**, pelo caminho do **arquivo**:
+
+```bash
+node --test trials/leo_kata-02_sem-ia/kata-02.test.js
+```
+
+```
+# tests 12
+# pass 2
+# fail 10      <- é daqui que sai o --testes-passando
+```
+
+Duas armadilhas de instrumentação (ameaça I4) que isso evita: `npm test` roda os
+168 testes do projeto inteiro, e passar a **pasta** em vez do arquivo agrega
+tudo em `# tests 1`, escondendo a contagem individual.
+
+Cada kata tem **12 testes de aceitação**, então o `trial:parar` fica
+`--testes-passando <n> --testes-total 12`. Nos trials `com-ia`, some também
+`--num-prompts <n>` (nº de interações com o assistente).
+
 ## Lançar um trial cronometrado à mão
 
 Se o tempo foi medido por fora (celular, cronômetro de parede) e o `iniciar` não
@@ -236,6 +276,9 @@ npm test          # equivale a: node --test
   `&&`/`??`/ternário, `switch`, `catch`, arrow, método, função aninhada),
   duplicação (janela, fronteira entre arquivos), Halstead/MI e integração do CLI
   (CSV gerado, testes ignorados, `--trial`, `--dir`, `--juntar`).
+- [test/preparar-trial.test.js](test/preparar-trial.test.js) — redirecionamento do
+  import da suíte, esqueleto da solução, e as garantias do CLI: não copia a
+  solução de referência, não sobrescreve código já escrito.
 - [test/verificar-ambiente.test.js](test/verificar-ambiente.test.js) — versão do
   Node, detecção de decisões em aberto no `Ambiente.md` e integração do CLI.
 
@@ -250,6 +293,7 @@ Lab2/Sprint01/
 ├── src/
 │   ├── cronometro.js         # CLI: iniciar / status / parar / abortar / registrar / listar
 │   ├── metricas.js           # CLI: metricas estaticas dos trials (RQ3) + --juntar
+│   ├── preparar-trial.js     # monta trials/<trial_id>/ antes de iniciar o cronometro
 │   ├── validar-katas.js      # valida os katas candidatos (dificuldade + indexacao)
 │   ├── verificar-ambiente.js # confere o ambiente antes da coleta
 │   ├── csv.js                # gerador/leitor de CSV (parser em passada unica)
@@ -260,6 +304,7 @@ Lab2/Sprint01/
 │   ├── cronometro.test.js
 │   ├── validar-katas.test.js
 │   ├── metricas.test.js
+│   ├── preparar-trial.test.js
 │   └── verificar-ambiente.test.js
 ├── trials/<trial_id>/        # codigo final de cada trial (dado bruto, versionado)
 ├── katas/<id>/                # enunciado + solucao-referencia + testes de aceitacao (S02)
