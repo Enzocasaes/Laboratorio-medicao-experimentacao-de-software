@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lab02 - Dashboard IA vs. codificacao manual</title>
+<style>
+  :root {
+    color-scheme: light;
+    --surface: #fcfcfb; --plano: #f3f2ee; --texto: #0b0b0b; --texto-2: #52514e;
+    --muted: #898781; --grid: #e7e6e0; --axis: #c3c2b7; --borda: rgba(11,11,11,0.09);
+    --sombra: 0 1px 2px rgba(11,11,11,0.04), 0 8px 24px -12px rgba(11,11,11,0.12);
+    --sombra-hover: 0 1px 2px rgba(11,11,11,0.05), 0 16px 32px -14px rgba(11,11,11,0.18);
+    --aviso: #fab219; --aviso-fundo: #fff8e8;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      color-scheme: dark;
+      --surface: #1e1e1d; --plano: #101010; --texto: #ffffff; --texto-2: #c3c2b7;
+      --muted: #8f8d86; --grid: #2f2f2d; --axis: #45443f; --borda: rgba(255,255,255,0.09);
+      --sombra: 0 1px 2px rgba(0,0,0,0.3), 0 8px 24px -12px rgba(0,0,0,0.5);
+      --sombra-hover: 0 1px 2px rgba(0,0,0,0.35), 0 16px 32px -14px rgba(0,0,0,0.6);
+      --aviso: #c98500; --aviso-fundo: #2a2114;
+    }
+  }
+  :root[data-theme="dark"] {
+    color-scheme: dark;
+    --surface: #1e1e1d; --plano: #101010; --texto: #ffffff; --texto-2: #c3c2b7;
+    --muted: #8f8d86; --grid: #2f2f2d; --axis: #45443f; --borda: rgba(255,255,255,0.09);
+    --sombra: 0 1px 2px rgba(0,0,0,0.3), 0 8px 24px -12px rgba(0,0,0,0.5);
+    --sombra-hover: 0 1px 2px rgba(0,0,0,0.35), 0 16px 32px -14px rgba(0,0,0,0.6);
+    --aviso: #c98500; --aviso-fundo: #2a2114;
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0; padding: 0 20px 72px; background: var(--plano); color: var(--texto);
+    font-family: system-ui, -apple-system, "Segoe UI", sans-serif; line-height: 1.45;
+    background-image:
+      linear-gradient(90deg, #2a78d6, #eb6834);
+    background-repeat: no-repeat;
+    background-size: 100% 5px;
+  }
+  .container { max-width: 1180px; margin: 0 auto; padding-top: 32px; }
+  header.topo { margin-bottom: 28px; }
+  .overline { font-size: 0.72rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); margin: 0 0 6px; }
+  h1 { font-size: 1.85rem; font-weight: 700; margin: 0 0 8px; letter-spacing: -0.01em; }
+  h2 { font-size: 1.15rem; font-weight: 700; margin: 40px 0 14px; padding-bottom: 8px; border-bottom: 1px solid var(--grid); }
+  h3 { font-size: 0.97rem; font-weight: 600; margin: 0 0 2px; display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; }
+  .rq { font-size: 0.68rem; font-weight: 700; letter-spacing: 0.03em; color: var(--muted); background: var(--plano); border: 1px solid var(--borda); border-radius: 999px; padding: 1px 8px; }
+  p.subtitulo { color: var(--texto-2); margin: 0; max-width: 72ch; font-size: 0.96rem; }
+  p.aviso {
+    display: flex; gap: 10px; align-items: flex-start;
+    background: var(--aviso-fundo); border: 1px solid var(--borda); border-left: 4px solid var(--aviso);
+    border-radius: 10px; padding: 12px 16px; color: var(--texto-2); max-width: 78ch; font-size: 0.88rem;
+    margin: 20px 0 0;
+  }
+  svg.icone-aviso { width: 18px; height: 18px; flex: none; margin-top: 2px; }
+  p.aviso strong { color: var(--texto); }
+  p.aviso code { background: var(--surface); border: 1px solid var(--borda); border-radius: 4px; padding: 1px 5px; font-size: 0.85em; }
+  .legenda-topo { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin: 20px 0 0; }
+  .chip {
+    display: inline-flex; align-items: center; gap: 7px; font-size: 0.82rem; color: var(--texto-2);
+    background: var(--surface); border: 1px solid var(--borda); border-radius: 999px; padding: 5px 12px 5px 10px;
+  }
+  .chip .swatch { display: inline-block; width: 10px; height: 10px; border-radius: 50%; }
+  .grade { display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 18px; }
+  .cartao {
+    background: var(--surface); border: 1px solid var(--borda); border-radius: 14px; padding: 18px 20px 14px;
+    box-shadow: var(--sombra); transition: box-shadow .18s ease, transform .18s ease;
+  }
+  .cartao:hover { box-shadow: var(--sombra-hover); transform: translateY(-1px); }
+  .legenda-direcao { color: var(--muted); font-size: 0.78rem; margin: 2px 0 10px; }
+  svg { width: 100%; height: auto; display: block; overflow: visible; }
+  .tick { fill: var(--muted); font-size: 10.5px; }
+  .tick-x { fill: var(--texto-2); font-size: 12px; font-weight: 600; }
+  .tick.pendente { fill: var(--muted); font-style: italic; font-size: 11px; }
+  .rotulo-valor { font-size: 12.5px; font-weight: 700; fill: var(--texto); }
+  table { border-collapse: collapse; width: 100%; font-size: 0.8rem; margin-top: 4px; }
+  caption { text-align: left; color: var(--texto-2); font-size: 0.85rem; margin-bottom: 8px; }
+  th, td { border-bottom: 1px solid var(--grid); padding: 7px 10px; text-align: left; white-space: nowrap; }
+  th { color: var(--muted); font-weight: 700; font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.03em; position: sticky; top: 0; background: var(--surface); }
+  tbody tr:nth-child(even) { background: color-mix(in srgb, var(--plano) 55%, var(--surface)); }
+  tbody tr:hover { background: var(--plano); }
+  details { margin-top: 40px; }
+  details section.cartao { margin-top: 12px; padding: 16px 18px; }
+  summary { cursor: pointer; color: var(--texto-2); font-weight: 600; font-size: 0.9rem; padding: 4px 0; }
+  summary:hover { color: var(--texto); }
+  .rolagem { overflow-x: auto; }
+  footer.rodape { margin-top: 48px; padding-top: 16px; border-top: 1px solid var(--grid); color: var(--muted); font-size: 0.78rem; }
+</style>
+</head>
+<body>
+<div class="container">
+  <header class="topo">
+    <p class="overline">Lab02 · Passo 6</p>
+    <h1>Dashboard de visualização — IA vs. codificação manual</h1>
+    <p class="subtitulo">12 trials coletados · participantes: caue, enzo · katas: kata-01, kata-02, kata-03, kata-04, kata-05, kata-06.</p>
+
+    <p class="aviso"><svg class="icone-aviso" viewBox="0 0 20 20" aria-hidden="true"><path d="M10 2 1 18h18L10 2Z" fill="none" stroke="var(--aviso)" stroke-width="1.6" stroke-linejoin="round"/><line x1="10" y1="8" x2="10" y2="12" stroke="var(--aviso)" stroke-width="1.6" stroke-linecap="round"/><circle cx="10" cy="15" r="1" fill="var(--aviso)"/></svg><span><strong>Dados parciais:</strong> 2 de 3 participantes coletados
+    (matriz completa = P1 Enzo, P2 Cauê, P3 Leonardo). Os katas kata-03, kata-06 ainda não têm os dois tratamentos fechados — não entram no par tempo × kata abaixo.
+    Os gráficos abaixo são descritivos (mediana/IQR); a leitura inferencial (Wilcoxon + Holm) fica para quando a coleta fechar
+    (ver <code>npm run analise</code>).</span></p>
+
+    <div class="legenda-topo">
+      <span class="chip"><span class="swatch" style="background:#2a78d6"></span>com-ia</span>
+      <span class="chip"><span class="swatch" style="background:#eb6834"></span>sem-ia</span>
+      <span class="chip"><span class="swatch" style="background:#898781; opacity:.55"></span>par pendente (falta o outro tratamento naquele kata)</span>
+    </div>
+  </header>
+
+  <h2>Comparação por tratamento (RQ1–RQ3)</h2>
+  <div class="grade">
+    
+      <section class="cartao">
+        <h3>Tempo ate verde (time-to-green) <span class="rq">RQ1</span></h3>
+        <p class="legenda-direcao">menor e melhor · n=6 com-ia, 6 sem-ia</p>
+        
+    <svg viewBox="0 0 420 260" role="img" aria-label="Tempo ate verde (time-to-green): com-ia vs sem-ia, barras com mediana e IQR">
+      <line x1="48" x2="400" y1="220.0" y2="220.0" stroke="var(--grid)" stroke-width="1"/><text x="42" y="220.0" text-anchor="end" dominant-baseline="middle" class="tick">0:00</text><line x1="48" x2="400" y1="163.8" y2="163.8" stroke="var(--grid)" stroke-width="1"/><text x="42" y="163.8" text-anchor="end" dominant-baseline="middle" class="tick">8:20</text><line x1="48" x2="400" y1="107.5" y2="107.5" stroke="var(--grid)" stroke-width="1"/><text x="42" y="107.5" text-anchor="end" dominant-baseline="middle" class="tick">16:40</text><line x1="48" x2="400" y1="51.3" y2="51.3" stroke="var(--grid)" stroke-width="1"/><text x="42" y="51.3" text-anchor="end" dominant-baseline="middle" class="tick">25:00</text>
+      <line x1="48" x2="400" y1="220.0" y2="220.0" stroke="var(--axis)" stroke-width="1"/>
+      
+      <path d="M 114.6 220.0 L 114.6 219.1 Q 114.6 215.1 118.6 215.1 L 174.6 215.1 Q 178.6 215.1 178.6 219.1 L 178.6 220.0 Z" fill="#2a78d6"><title>com-ia: mediana 0:44 (IQR 0:18-1:29, n=6)</title></path>
+      
+      <line x1="146.56" x2="146.56" y1="218.0" y2="210.0" stroke="var(--surface)" stroke-width="2.5" stroke-linecap="round"/>
+      <line x1="140.6" x2="152.6" y1="218.0" y2="218.0" stroke="var(--surface)" stroke-width="2" stroke-linecap="round"/>
+      <line x1="140.6" x2="152.6" y1="210.0" y2="210.0" stroke="var(--surface)" stroke-width="2" stroke-linecap="round"/>
+    
+      <text x="146.56" y="205.1" text-anchor="middle" class="rotulo-valor">0:44</text>
+      <text x="146.56" y="240" text-anchor="middle" class="tick-x">com-ia</text>
+    
+      
+      <path d="M 269.4 220.0 L 269.4 125.7 Q 269.4 121.7 273.4 121.7 L 329.4 121.7 Q 333.4 121.7 333.4 125.7 L 333.4 220.0 Z" fill="#eb6834"><title>sem-ia: mediana 14:34 (IQR 10:21-19:06, n=6)</title></path>
+      
+      <line x1="301.44" x2="301.44" y1="150.2" y2="91.1" stroke="var(--surface)" stroke-width="2.5" stroke-linecap="round"/>
+      <line x1="295.4" x2="307.4" y1="150.2" y2="150.2" stroke="var(--surface)" stroke-width="2" stroke-linecap="round"/>
+      <line x1="295.4" x2="307.4" y1="91.1" y2="91.1" stroke="var(--surface)" stroke-width="2" stroke-linecap="round"/>
+    
+      <text x="301.44" y="111.7" text-anchor="middle" class="rotulo-valor">14:34</text>
+      <text x="301.44" y="240" text-anchor="middle" class="tick-x">sem-ia</text>
+    
+    </svg>
+  
+      </section>
+    
+      <section class="cartao">
+        <h3>Taxa de sucesso dos testes de aceitacao <span class="rq">RQ2</span></h3>
+        <p class="legenda-direcao">maior e melhor · n=6 com-ia, 6 sem-ia</p>
+        
+    <svg viewBox="0 0 420 260" role="img" aria-label="Taxa de sucesso dos testes de aceitacao: com-ia vs sem-ia, barras com mediana e IQR">
+      <line x1="48" x2="400" y1="220.0" y2="220.0" stroke="var(--grid)" stroke-width="1"/><text x="42" y="220.0" text-anchor="end" dominant-baseline="middle" class="tick">0%</text><line x1="48" x2="400" y1="140.8" y2="140.8" stroke="var(--grid)" stroke-width="1"/><text x="42" y="140.8" text-anchor="end" dominant-baseline="middle" class="tick">50%</text><line x1="48" x2="400" y1="61.7" y2="61.7" stroke="var(--grid)" stroke-width="1"/><text x="42" y="61.7" text-anchor="end" dominant-baseline="middle" class="tick">100%</text>
+      <line x1="48" x2="400" y1="220.0" y2="220.0" stroke="var(--axis)" stroke-width="1"/>
+      
+      <path d="M 114.6 220.0 L 114.6 65.7 Q 114.6 61.7 118.6 61.7 L 174.6 61.7 Q 178.6 61.7 178.6 65.7 L 178.6 220.0 Z" fill="#2a78d6"><title>com-ia: mediana 100% (IQR 100%-100%, n=6)</title></path>
+      
+      <text x="146.56" y="51.7" text-anchor="middle" class="rotulo-valor">100%</text>
+      <text x="146.56" y="240" text-anchor="middle" class="tick-x">com-ia</text>
+    
+      
+      <path d="M 269.4 220.0 L 269.4 65.7 Q 269.4 61.7 273.4 61.7 L 329.4 61.7 Q 333.4 61.7 333.4 65.7 L 333.4 220.0 Z" fill="#eb6834"><title>sem-ia: mediana 100% (IQR 100%-100%, n=6)</title></path>
+      
+      <text x="301.44" y="51.7" text-anchor="middle" class="rotulo-valor">100%</text>
+      <text x="301.44" y="240" text-anchor="middle" class="tick-x">sem-ia</text>
+    
+    </svg>
+  
+      </section>
+    
+      <section class="cartao">
+        <h3>Complexidade ciclomatica media / funcao (McCabe) <span class="rq">RQ3a</span></h3>
+        <p class="legenda-direcao">sem direcao esperada · n=6 com-ia, 6 sem-ia</p>
+        
+    <svg viewBox="0 0 420 260" role="img" aria-label="Complexidade ciclomatica media / funcao (McCabe): com-ia vs sem-ia, barras com mediana e IQR">
+      <line x1="48" x2="400" y1="220.0" y2="220.0" stroke="var(--grid)" stroke-width="1"/><text x="42" y="220.0" text-anchor="end" dominant-baseline="middle" class="tick">0.00</text><line x1="48" x2="400" y1="154.0" y2="154.0" stroke="var(--grid)" stroke-width="1"/><text x="42" y="154.0" text-anchor="end" dominant-baseline="middle" class="tick">5.00</text><line x1="48" x2="400" y1="88.1" y2="88.1" stroke="var(--grid)" stroke-width="1"/><text x="42" y="88.1" text-anchor="end" dominant-baseline="middle" class="tick">10.00</text>
+      <line x1="48" x2="400" y1="220.0" y2="220.0" stroke="var(--axis)" stroke-width="1"/>
+      
+      <path d="M 114.6 220.0 L 114.6 139.4 Q 114.6 135.4 118.6 135.4 L 174.6 135.4 Q 178.6 135.4 178.6 139.4 L 178.6 220.0 Z" fill="#2a78d6"><title>com-ia: mediana 6.42 (IQR 4.25-10.00, n=6)</title></path>
+      
+      <line x1="146.56" x2="146.56" y1="163.9" y2="88.1" stroke="var(--surface)" stroke-width="2.5" stroke-linecap="round"/>
+      <line x1="140.6" x2="152.6" y1="163.9" y2="163.9" stroke="var(--surface)" stroke-width="2" stroke-linecap="round"/>
+      <line x1="140.6" x2="152.6" y1="88.1" y2="88.1" stroke="var(--surface)" stroke-width="2" stroke-linecap="round"/>
+    
+      <text x="146.56" y="125.4" text-anchor="middle" class="rotulo-valor">6.42</text>
+      <text x="146.56" y="240" text-anchor="middle" class="tick-x">com-ia</text>
+    
+      
+      <path d="M 269.4 220.0 L 269.4 172.9 Q 269.4 168.9 273.4 168.9 L 329.4 168.9 Q 333.4 168.9 333.4 172.9 L 333.4 220.0 Z" fill="#eb6834"><title>sem-ia: mediana 3.88 (IQR 2.75-5.00, n=6)</title></path>
+      
+      <line x1="301.44" x2="301.44" y1="183.7" y2="154.0" stroke="var(--surface)" stroke-width="2.5" stroke-linecap="round"/>
+      <line x1="295.4" x2="307.4" y1="183.7" y2="183.7" stroke="var(--surface)" stroke-width="2" stroke-linecap="round"/>
+      <line x1="295.4" x2="307.4" y1="154.0" y2="154.0" stroke="var(--surface)" stroke-width="2" stroke-linecap="round"/>
+    
+      <text x="301.44" y="158.9" text-anchor="middle" class="rotulo-valor">3.88</text>
+      <text x="301.44" y="240" text-anchor="middle" class="tick-x">sem-ia</text>
+    
+    </svg>
+  
+      </section>
+    
+      <section class="cartao">
+        <h3>Duplicacao de codigo (% de linhas) <span class="rq">RQ3b</span></h3>
+        <p class="legenda-direcao">sem direcao esperada · n=6 com-ia, 6 sem-ia</p>
+        
+    <svg viewBox="0 0 420 260" role="img" aria-label="Duplicacao de codigo (% de linhas): com-ia vs sem-ia, barras com mediana e IQR">
+      <line x1="48" x2="400" y1="220.0" y2="220.0" stroke="var(--grid)" stroke-width="1"/><text x="42" y="220.0" text-anchor="end" dominant-baseline="middle" class="tick">0.0%</text><line x1="48" x2="400" y1="172.5" y2="172.5" stroke="var(--grid)" stroke-width="1"/><text x="42" y="172.5" text-anchor="end" dominant-baseline="middle" class="tick">0.3%</text><line x1="48" x2="400" y1="125.0" y2="125.0" stroke="var(--grid)" stroke-width="1"/><text x="42" y="125.0" text-anchor="end" dominant-baseline="middle" class="tick">0.5%</text><line x1="48" x2="400" y1="77.5" y2="77.5" stroke="var(--grid)" stroke-width="1"/><text x="42" y="77.5" text-anchor="end" dominant-baseline="middle" class="tick">0.8%</text><line x1="48" x2="400" y1="30.0" y2="30.0" stroke="var(--grid)" stroke-width="1"/><text x="42" y="30.0" text-anchor="end" dominant-baseline="middle" class="tick">1.0%</text>
+      <line x1="48" x2="400" y1="220.0" y2="220.0" stroke="var(--axis)" stroke-width="1"/>
+      
+      <path d="" fill="#2a78d6"><title>com-ia: mediana 0.0% (IQR 0.0%-0.0%, n=6)</title></path>
+      
+      <text x="146.56" y="210.0" text-anchor="middle" class="rotulo-valor">0.0%</text>
+      <text x="146.56" y="240" text-anchor="middle" class="tick-x">com-ia</text>
+    
+      
+      <path d="" fill="#eb6834"><title>sem-ia: mediana 0.0% (IQR 0.0%-0.0%, n=6)</title></path>
+      
+      <text x="301.44" y="210.0" text-anchor="middle" class="rotulo-valor">0.0%</text>
+      <text x="301.44" y="240" text-anchor="middle" class="tick-x">sem-ia</text>
+    
+    </svg>
+  
+      </section>
+    
+      <section class="cartao">
+        <h3>LOC (linhas de codigo) <span class="rq">RQ3 (controle)</span></h3>
+        <p class="legenda-direcao">sem direcao esperada · n=6 com-ia, 6 sem-ia</p>
+        
+    <svg viewBox="0 0 420 260" role="img" aria-label="LOC (linhas de codigo): com-ia vs sem-ia, barras com mediana e IQR">
+      <line x1="48" x2="400" y1="220.0" y2="220.0" stroke="var(--grid)" stroke-width="1"/><text x="42" y="220.0" text-anchor="end" dominant-baseline="middle" class="tick">0</text><line x1="48" x2="400" y1="169.9" y2="169.9" stroke="var(--grid)" stroke-width="1"/><text x="42" y="169.9" text-anchor="end" dominant-baseline="middle" class="tick">25</text><line x1="48" x2="400" y1="119.8" y2="119.8" stroke="var(--grid)" stroke-width="1"/><text x="42" y="119.8" text-anchor="end" dominant-baseline="middle" class="tick">50</text><line x1="48" x2="400" y1="69.7" y2="69.7" stroke="var(--grid)" stroke-width="1"/><text x="42" y="69.7" text-anchor="end" dominant-baseline="middle" class="tick">75</text>
+      <line x1="48" x2="400" y1="220.0" y2="220.0" stroke="var(--axis)" stroke-width="1"/>
+      
+      <path d="M 114.6 220.0 L 114.6 143.8 Q 114.6 139.8 118.6 139.8 L 174.6 139.8 Q 178.6 139.8 178.6 143.8 L 178.6 220.0 Z" fill="#2a78d6"><title>com-ia: mediana 40 (IQR 35-48, n=6)</title></path>
+      
+      <line x1="146.56" x2="146.56" y1="149.9" y2="123.8" stroke="var(--surface)" stroke-width="2.5" stroke-linecap="round"/>
+      <line x1="140.6" x2="152.6" y1="149.9" y2="149.9" stroke="var(--surface)" stroke-width="2" stroke-linecap="round"/>
+      <line x1="140.6" x2="152.6" y1="123.8" y2="123.8" stroke="var(--surface)" stroke-width="2" stroke-linecap="round"/>
+    
+      <text x="146.56" y="129.8" text-anchor="middle" class="rotulo-valor">40</text>
+      <text x="146.56" y="240" text-anchor="middle" class="tick-x">com-ia</text>
+    
+      
+      <path d="M 269.4 220.0 L 269.4 151.8 Q 269.4 147.8 273.4 147.8 L 329.4 147.8 Q 333.4 147.8 333.4 151.8 L 333.4 220.0 Z" fill="#eb6834"><title>sem-ia: mediana 36 (IQR 34-78, n=6)</title></path>
+      
+      <line x1="301.44" x2="301.44" y1="151.9" y2="63.7" stroke="var(--surface)" stroke-width="2.5" stroke-linecap="round"/>
+      <line x1="295.4" x2="307.4" y1="151.9" y2="151.9" stroke="var(--surface)" stroke-width="2" stroke-linecap="round"/>
+      <line x1="295.4" x2="307.4" y1="63.7" y2="63.7" stroke="var(--surface)" stroke-width="2" stroke-linecap="round"/>
+    
+      <text x="301.44" y="137.8" text-anchor="middle" class="rotulo-valor">36</text>
+      <text x="301.44" y="240" text-anchor="middle" class="tick-x">sem-ia</text>
+    
+    </svg>
+  
+      </section>
+    
+      <section class="cartao">
+        <h3>Indice de Manutenibilidade (MI) <span class="rq">RQ3 (exploratorio)</span></h3>
+        <p class="legenda-direcao">maior e melhor · n=6 com-ia, 6 sem-ia</p>
+        
+    <svg viewBox="0 0 420 260" role="img" aria-label="Indice de Manutenibilidade (MI): com-ia vs sem-ia, barras com mediana e IQR">
+      <line x1="48" x2="400" y1="220.0" y2="220.0" stroke="var(--grid)" stroke-width="1"/><text x="42" y="220.0" text-anchor="end" dominant-baseline="middle" class="tick">0.0</text><line x1="48" x2="400" y1="147.0" y2="147.0" stroke="var(--grid)" stroke-width="1"/><text x="42" y="147.0" text-anchor="end" dominant-baseline="middle" class="tick">20.0</text><line x1="48" x2="400" y1="74.0" y2="74.0" stroke="var(--grid)" stroke-width="1"/><text x="42" y="74.0" text-anchor="end" dominant-baseline="middle" class="tick">40.0</text>
+      <line x1="48" x2="400" y1="220.0" y2="220.0" stroke="var(--axis)" stroke-width="1"/>
+      
+      <path d="M 114.6 220.0 L 114.6 79.1 Q 114.6 75.1 118.6 75.1 L 174.6 75.1 Q 178.6 75.1 178.6 79.1 L 178.6 220.0 Z" fill="#2a78d6"><title>com-ia: mediana 39.7 (IQR 37.6-41.9, n=6)</title></path>
+      
+      <line x1="146.56" x2="146.56" y1="82.7" y2="67.2" stroke="var(--surface)" stroke-width="2.5" stroke-linecap="round"/>
+      <line x1="140.6" x2="152.6" y1="82.7" y2="82.7" stroke="var(--surface)" stroke-width="2" stroke-linecap="round"/>
+      <line x1="140.6" x2="152.6" y1="67.2" y2="67.2" stroke="var(--surface)" stroke-width="2" stroke-linecap="round"/>
+    
+      <text x="146.56" y="65.1" text-anchor="middle" class="rotulo-valor">39.7</text>
+      <text x="146.56" y="240" text-anchor="middle" class="tick-x">com-ia</text>
+    
+      
+      <path d="M 269.4 220.0 L 269.4 75.4 Q 269.4 71.4 273.4 71.4 L 329.4 71.4 Q 333.4 71.4 333.4 75.4 L 333.4 220.0 Z" fill="#eb6834"><title>sem-ia: mediana 40.7 (IQR 31.8-42.9, n=6)</title></path>
+      
+      <line x1="301.44" x2="301.44" y1="103.9" y2="63.3" stroke="var(--surface)" stroke-width="2.5" stroke-linecap="round"/>
+      <line x1="295.4" x2="307.4" y1="103.9" y2="103.9" stroke="var(--surface)" stroke-width="2" stroke-linecap="round"/>
+      <line x1="295.4" x2="307.4" y1="63.3" y2="63.3" stroke="var(--surface)" stroke-width="2" stroke-linecap="round"/>
+    
+      <text x="301.44" y="61.4" text-anchor="middle" class="rotulo-valor">40.7</text>
+      <text x="301.44" y="240" text-anchor="middle" class="tick-x">sem-ia</text>
+    
+    </svg>
+  
+      </section>
+    
+  </div>
+
+  <h2>Tempo até verde por kata, pareado (unidade de análise do Passo 4)</h2>
+  <section class="cartao">
+    <div class="rolagem">
+    <svg viewBox="0 0 613 352" role="img" aria-label="Tempo ate verde por kata, com-ia vs sem-ia (pareado)">
+      
+      <text x="97.5" y="14.0" text-anchor="middle" class="tick-x">kata-01</text>
+      <line x1="10.0" x2="185.0" y1="146.0" y2="146.0" stroke="var(--axis)" stroke-width="1"/>
+      
+        <path d="M 45.3 146.0 L 45.3 146.0 Q 45.3 144.0 47.3 144.0 L 85.3 144.0 Q 87.3 144.0 87.3 146.0 L 87.3 146.0 Z" fill="#2a78d6"><title>com-ia: 0:18</title></path>
+        <text x="66.3" y="137.0" text-anchor="middle" class="rotulo-valor">0:18</text>
+        <text x="66.3" y="162.0" text-anchor="middle" class="tick-x">com-ia</text>
+      
+      
+        <path d="M 111.6 146.0 L 111.6 53.3 Q 111.6 49.3 115.6 49.3 L 149.6 49.3 Q 153.6 49.3 153.6 53.3 L 153.6 146.0 Z" fill="#eb6834"><title>sem-ia: 14:42</title></path>
+        <text x="132.6" y="42.3" text-anchor="middle" class="rotulo-valor">14:42</text>
+        <text x="132.6" y="162.0" text-anchor="middle" class="tick-x">sem-ia</text>
+      
+    
+      <text x="306.5" y="14.0" text-anchor="middle" class="tick-x">kata-02</text>
+      <line x1="219.0" x2="394.0" y1="146.0" y2="146.0" stroke="var(--axis)" stroke-width="1"/>
+      
+        <path d="M 254.3 146.0 L 254.3 146.0 Q 254.3 144.9 255.4 144.9 L 295.2 144.9 Q 296.3 144.9 296.3 146.0 L 296.3 146.0 Z" fill="#2a78d6"><title>com-ia: 0:16</title></path>
+        <text x="275.3" y="137.9" text-anchor="middle" class="rotulo-valor">0:16</text>
+        <text x="275.3" y="162.0" text-anchor="middle" class="tick-x">com-ia</text>
+      
+      
+        <path d="M 320.6 146.0 L 320.6 53.3 Q 320.6 49.3 324.6 49.3 L 358.6 49.3 Q 362.6 49.3 362.6 53.3 L 362.6 146.0 Z" fill="#eb6834"><title>sem-ia: 23:28</title></path>
+        <text x="341.6" y="42.3" text-anchor="middle" class="rotulo-valor">23:28</text>
+        <text x="341.6" y="162.0" text-anchor="middle" class="tick-x">sem-ia</text>
+      
+    
+      <text x="515.5" y="14.0" text-anchor="middle" class="tick-x">kata-03</text>
+      <line x1="428.0" x2="603.0" y1="146.0" y2="146.0" stroke="var(--axis)" stroke-width="1"/>
+      
+        <path d="M 463.3 146.0 L 463.3 64.1 Q 463.3 60.1 467.3 60.1 L 501.3 60.1 Q 505.3 60.1 505.3 64.1 L 505.3 146.0 Z" fill="#2a78d6"><title>com-ia: 3:07</title></path>
+        <text x="484.3" y="53.1" text-anchor="middle" class="rotulo-valor">3:07</text>
+        <text x="484.3" y="162.0" text-anchor="middle" class="tick-x">com-ia</text>
+      
+      
+          <line x1="529.6" x2="571.6" y1="146.0" y2="146.0" stroke="var(--muted)" stroke-width="2" stroke-dasharray="2 3"/>
+          <text x="550.6" y="138.0" text-anchor="middle" class="tick pendente">pendente</text>
+          <text x="550.6" y="162.0" text-anchor="middle" class="tick-x">sem-ia</text>
+        
+    
+      <text x="97.5" y="194.0" text-anchor="middle" class="tick-x">kata-04</text>
+      <line x1="10.0" x2="185.0" y1="326.0" y2="326.0" stroke="var(--axis)" stroke-width="1"/>
+      
+        <path d="M 45.3 326.0 L 45.3 319.1 Q 45.3 315.1 49.3 315.1 L 83.3 315.1 Q 87.3 315.1 87.3 319.1 L 87.3 326.0 Z" fill="#2a78d6"><title>com-ia: 1:10</title></path>
+        <text x="66.3" y="308.1" text-anchor="middle" class="rotulo-valor">1:10</text>
+        <text x="66.3" y="342.0" text-anchor="middle" class="tick-x">com-ia</text>
+      
+      
+        <path d="M 111.6 326.0 L 111.6 233.3 Q 111.6 229.3 115.6 229.3 L 149.6 229.3 Q 153.6 229.3 153.6 233.3 L 153.6 326.0 Z" fill="#eb6834"><title>sem-ia: 10:21</title></path>
+        <text x="132.6" y="222.3" text-anchor="middle" class="rotulo-valor">10:21</text>
+        <text x="132.6" y="342.0" text-anchor="middle" class="tick-x">sem-ia</text>
+      
+    
+      <text x="306.5" y="194.0" text-anchor="middle" class="tick-x">kata-05</text>
+      <line x1="219.0" x2="394.0" y1="326.0" y2="326.0" stroke="var(--axis)" stroke-width="1"/>
+      
+        <path d="M 254.3 326.0 L 254.3 312.7 Q 254.3 308.7 258.3 308.7 L 292.3 308.7 Q 296.3 308.7 296.3 312.7 L 296.3 326.0 Z" fill="#2a78d6"><title>com-ia: 1:29</title></path>
+        <text x="275.3" y="301.7" text-anchor="middle" class="rotulo-valor">1:29</text>
+        <text x="275.3" y="342.0" text-anchor="middle" class="tick-x">com-ia</text>
+      
+      
+        <path d="M 320.6 326.0 L 320.6 233.3 Q 320.6 229.3 324.6 229.3 L 358.6 229.3 Q 362.6 229.3 362.6 233.3 L 362.6 326.0 Z" fill="#eb6834"><title>sem-ia: 8:17</title></path>
+        <text x="341.6" y="222.3" text-anchor="middle" class="rotulo-valor">8:17</text>
+        <text x="341.6" y="342.0" text-anchor="middle" class="tick-x">sem-ia</text>
+      
+    
+      <text x="515.5" y="194.0" text-anchor="middle" class="tick-x">kata-06</text>
+      <line x1="428.0" x2="603.0" y1="326.0" y2="326.0" stroke="var(--axis)" stroke-width="1"/>
+      
+          <line x1="463.3" x2="505.3" y1="326.0" y2="326.0" stroke="var(--muted)" stroke-width="2" stroke-dasharray="2 3"/>
+          <text x="484.3" y="318.0" text-anchor="middle" class="tick pendente">pendente</text>
+          <text x="484.3" y="342.0" text-anchor="middle" class="tick-x">com-ia</text>
+        
+      
+        <path d="M 529.6 326.0 L 529.6 244.1 Q 529.6 240.1 533.6 240.1 L 567.6 240.1 Q 571.6 240.1 571.6 244.1 L 571.6 326.0 Z" fill="#eb6834"><title>sem-ia: 16:46</title></path>
+        <text x="550.6" y="233.1" text-anchor="middle" class="rotulo-valor">16:46</text>
+        <text x="550.6" y="342.0" text-anchor="middle" class="tick-x">sem-ia</text>
+      
+    
+    </svg>
+  </div>
+  </section>
+
+  <details>
+    <summary>Ver tabela de dados bruta</summary>
+    <section class="cartao">
+      <div class="rolagem"><table><caption>Todos os trials coletados (dado bruto por tras dos graficos)</caption><thead><tr><th>trial_id</th><th>participante</th><th>kata</th><th>tratamento</th><th>ordem</th><th>duracao_hms</th><th>sucesso</th><th>testes_passando</th><th>testes_total</th><th>complexidade_ciclomatica_media</th><th>duplicacao_percentual</th><th>loc</th><th>indice_manutenibilidade</th></tr></thead><tbody><tr><td>caue_kata-06_sem-ia</td><td>caue</td><td>kata-06</td><td>sem-ia</td><td>1</td><td>00:19:06</td><td>1</td><td>12</td><td>12</td><td>5</td><td>0</td><td>79</td><td>31.81</td></tr><tr><td>caue_kata-03_com-ia</td><td>caue</td><td>kata-03</td><td>com-ia</td><td>2</td><td>00:05:55</td><td>1</td><td>12</td><td>12</td><td>12</td><td>0</td><td>35</td><td>41.77</td></tr><tr><td>caue_kata-01_sem-ia</td><td>caue</td><td>kata-01</td><td>sem-ia</td><td>3</td><td>00:14:42</td><td>1</td><td>12</td><td>12</td><td>3</td><td>0</td><td>32</td><td>42.93</td></tr><tr><td>caue_kata-04_com-ia</td><td>caue</td><td>kata-04</td><td>com-ia</td><td>4</td><td>00:01:10</td><td>1</td><td>12</td><td>12</td><td>8.5</td><td>0</td><td>62</td><td>35.05</td></tr><tr><td>caue_kata-02_sem-ia</td><td>caue</td><td>kata-02</td><td>sem-ia</td><td>5</td><td>00:23:28</td><td>1</td><td>12</td><td>12</td><td>7.5</td><td>0</td><td>34</td><td>43.39</td></tr><tr><td>caue_kata-05_com-ia</td><td>caue</td><td>kata-05</td><td>com-ia</td><td>6</td><td>00:01:29</td><td>1</td><td>12</td><td>12</td><td>10</td><td>0</td><td>45</td><td>37.62</td></tr><tr><td>enzo_kata-01_com-ia</td><td>enzo</td><td>kata-01</td><td>com-ia</td><td>1</td><td>00:00:18</td><td>1</td><td>12</td><td>12</td><td>2.57</td><td>0</td><td>48</td><td>37.63</td></tr><tr><td>enzo_kata-04_sem-ia</td><td>enzo</td><td>kata-04</td><td>sem-ia</td><td>2</td><td>00:10:21</td><td>1</td><td>12</td><td>12</td><td>2.5</td><td>0</td><td>36</td><td>41.21</td></tr><tr><td>enzo_kata-02_com-ia</td><td>enzo</td><td>kata-02</td><td>com-ia</td><td>3</td><td>00:00:16</td><td>1</td><td>12</td><td>12</td><td>4.25</td><td>0</td><td>34</td><td>42.01</td></tr><tr><td>enzo_kata-05_sem-ia</td><td>enzo</td><td>kata-05</td><td>sem-ia</td><td>4</td><td>00:08:17</td><td>1</td><td>12</td><td>12</td><td>4.75</td><td>0</td><td>36</td><td>40.21</td></tr><tr><td>enzo_kata-03_com-ia</td><td>enzo</td><td>kata-03</td><td>com-ia</td><td>5</td><td>00:00:18</td><td>1</td><td>12</td><td>12</td><td>4.33</td><td>0</td><td>35</td><td>41.86</td></tr><tr><td>enzo_kata-06_sem-ia</td><td>enzo</td><td>kata-06</td><td>sem-ia</td><td>6</td><td>00:14:26</td><td>1</td><td>12</td><td>12</td><td>2.75</td><td>0</td><td>78</td><td>30.41</td></tr></tbody></table></div>
+    </section>
+  </details>
+
+  <footer class="rodape">Gerado por <code>npm run dashboard</code> (src/dashboard.js) a partir de data/trials.csv + data/metricas.csv — regenere sempre que a coleta mudar.</footer>
+</div>
+</body>
+</html>

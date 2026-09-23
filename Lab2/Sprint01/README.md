@@ -11,6 +11,7 @@ experimento:
 | [`src/cronometro.js`](src/cronometro.js) | `npm run trial:iniciar` | **time-to-green** por trial, com time-box de 35 min → [`data/trials.csv`](data/) (RQ1, RQ2) |
 | [`src/metricas.js`](src/metricas.js) | `npm run metricas` | **complexidade ciclomática, duplicação, LOC e MI** do código final → [`data/metricas.csv`](data/) (RQ3) |
 | [`src/analise.js`](src/analise.js) | `npm run analise` | **Wilcoxon pareado** das hipóteses (Passo 4) → [`data/analise-wilcoxon.csv`](data/) (RQ1, RQ2; RQ3 com `--todas`) |
+| [`src/dashboard.js`](src/dashboard.js) | `npm run dashboard` | **Dashboard de visualização** (Passo 6) → `dashboard/index.html`, comparando tempo, taxa de sucesso e métricas estáticas entre tratamentos |
 | [`src/validar-katas.js`](src/validar-katas.js) | `npm run katas:validar` | dificuldade comparável + baixa indexação dos katas |
 | [`src/verificar-ambiente.js`](src/verificar-ambiente.js) | `npm run ambiente:verificar` | confere o ambiente antes de cada sessão de coleta |
 
@@ -283,6 +284,33 @@ npm run analise -- --rq RQ1 --sem-csv
 > tratamento. Método, poder do teste e estado dos dados estão em
 > [../Docs/AnaliseEstatistica.md](../Docs/AnaliseEstatistica.md).
 
+## Dashboard de visualização (Passo 6)
+
+```bash
+npm run dashboard                    # dashboard/index.html
+node src/dashboard.js --dados <dir>  # outro diretorio de dados
+node src/dashboard.js --saida <arquivo>
+```
+
+Lê o mesmo par `trials.csv` + `metricas.csv` do Passo 4 e gera um dashboard
+HTML autocontido (SVG inline, **sem dependências** — mesma filosofia
+zero-dependência do resto do instrumental; nada de Pandas/Matplotlib, já que o
+grupo não usa Python neste laboratório): um gráfico dot-strip (mediana + IQR +
+pontos individuais) por métrica comparando `com-ia` × `sem-ia` — tempo (RQ1),
+taxa de sucesso (RQ2), complexidade e duplicação (RQ3a/RQ3b), LOC (controle) e
+MI (exploratório) — mais um gráfico *dumbbell* pareado por kata (a unidade de
+análise do Passo 4) e uma tabela com o dado bruto.
+
+- Katas sem os dois tratamentos fechados aparecem com um ponto isolado e a
+  marcação "par pendente", em vez de sumirem do gráfico.
+- Enquanto a coleta não tiver os 3 integrantes, o dashboard mostra um aviso de
+  **dados parciais** no topo — os gráficos são só descritivos; a leitura
+  inferencial fica com `npm run analise`.
+- `dashboard/` não está no `.gitignore`, mas depende de `data/*.csv`
+  (ignorados) — regenere com `npm run dashboard` sempre que os CSVs mudarem,
+  e só versione a versão final (mesma lógica do
+  [aviso sobre `data/*.csv`](#formato-de-datatrialscsv)).
+
 ## Validação dos katas
 
 Artefato do 3º pesquisador na S01: pesquisa e validação dos objetos
@@ -354,6 +382,7 @@ Lab2/Sprint01/
 │   ├── cronometro.js         # CLI: iniciar / status / parar / abortar / registrar / listar
 │   ├── metricas.js           # CLI: metricas estaticas dos trials (RQ3) + --juntar
 │   ├── analise.js            # CLI: Wilcoxon pareado + Holm (Passo 4, RQ1/RQ2)
+│   ├── dashboard.js          # CLI: dashboard HTML/SVG (Passo 6) -> dashboard/index.html
 │   ├── preparar-trial.js     # monta trials/<trial_id>/ antes de iniciar o cronometro
 │   ├── validar-katas.js      # valida os katas candidatos (dificuldade + indexacao)
 │   ├── verificar-ambiente.js # confere o ambiente antes da coleta
