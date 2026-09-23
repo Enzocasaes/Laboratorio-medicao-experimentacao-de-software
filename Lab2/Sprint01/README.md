@@ -11,6 +11,7 @@ experimento:
 | [`src/cronometro.js`](src/cronometro.js) | `npm run trial:iniciar` | **time-to-green** por trial, com time-box de 35 min → [`data/trials.csv`](data/) (RQ1, RQ2) |
 | [`src/metricas.js`](src/metricas.js) | `npm run metricas` | **complexidade ciclomática, duplicação, LOC e MI** do código final → [`data/metricas.csv`](data/) (RQ3) |
 | [`src/analise.js`](src/analise.js) | `npm run analise` | **Wilcoxon pareado** das hipóteses (Passo 4) → [`data/analise-wilcoxon.csv`](data/) (RQ1, RQ2; RQ3 com `--todas`) |
+| [`dashboard-python/dashboard.py`](dashboard-python/dashboard.py) | `python dashboard.py` | **Dashboard de visualização** (Passo 6), em Pandas + Matplotlib/Seaborn → PNGs em `dashboard-python/graficos/`, comparando tempo, taxa de sucesso e métricas estáticas entre tratamentos |
 | [`src/validar-katas.js`](src/validar-katas.js) | `npm run katas:validar` | dificuldade comparável + baixa indexação dos katas |
 | [`src/verificar-ambiente.js`](src/verificar-ambiente.js) | `npm run ambiente:verificar` | confere o ambiente antes de cada sessão de coleta |
 
@@ -283,6 +284,26 @@ npm run analise -- --rq RQ1 --sem-csv
 > tratamento. Método, poder do teste e estado dos dados estão em
 > [../Docs/AnaliseEstatistica.md](../Docs/AnaliseEstatistica.md).
 
+## Dashboard de visualização (Passo 6)
+
+```bash
+cd dashboard-python
+pip install -r requirements.txt
+python dashboard.py
+```
+
+Como pede o enunciado do laboratório, o Passo 6 usa **Pandas +
+Matplotlib/Seaborn** — isolado em [`dashboard-python/`](dashboard-python/),
+com seu próprio `requirements.txt`, para não misturar dependência Python no
+resto do instrumental (Node, sem dependências). Lê o mesmo
+`trials-com-metricas.csv` do Passo 4 (`npm run metricas -- --juntar`) e grava
+em `dashboard-python/graficos/`: um PNG por métrica (mediana + IQR)
+comparando `com-ia` × `sem-ia` — tempo (RQ1), taxa de sucesso (RQ2),
+complexidade e duplicação (RQ3a/RQ3b), LOC (controle) e MI (exploratório) —,
+uma grade combinada e o pareamento por kata em pequenos múltiplos (a unidade
+de análise do Passo 4). Detalhes, limitações e como interpretar os avisos de
+dados parciais: [`dashboard-python/README.md`](dashboard-python/README.md).
+
 ## Validação dos katas
 
 Artefato do 3º pesquisador na S01: pesquisa e validação dos objetos
@@ -370,6 +391,7 @@ Lab2/Sprint01/
 ├── trials/<trial_id>/        # codigo final de cada trial (dado bruto, versionado)
 ├── katas/<id>/                # enunciado + solucao-referencia + testes de aceitacao (S02)
 ├── katas.manifest.json       # 6 katas candidatos + regras de validacao
+├── dashboard-python/          # Passo 6: dashboard.py (Pandas + Matplotlib/Seaborn) -> graficos/*.png
 ├── data/                     # sessao-ativa.json, trials.csv, metricas.csv, ... (nao versionados)
 ├── .nvmrc                    # Node 18
 ├── package.json

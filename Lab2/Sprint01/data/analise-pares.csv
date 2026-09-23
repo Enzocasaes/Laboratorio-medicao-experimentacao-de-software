@@ -1,1 +1,17 @@
 hipotese,rq,metrica,kata,x_com_ia,x_sem_ia,diferenca,n_trials_com_ia,n_trials_sem_ia
+H1,RQ1,duracao_segundos,kata-01,18,882,-864,1,1
+H1,RQ1,duracao_segundos,kata-02,16,1408,-1392,1,1
+H1,RQ1,duracao_segundos,kata-04,70,621,-551,1,1
+H1,RQ1,duracao_segundos,kata-05,89,497,-408,1,1
+H2,RQ2,taxa_sucesso,kata-01,1,1,0,1,1
+H2,RQ2,taxa_sucesso,kata-02,1,1,0,1,1
+H2,RQ2,taxa_sucesso,kata-04,1,1,0,1,1
+H2,RQ2,taxa_sucesso,kata-05,1,1,0,1,1
+H3a,RQ3a,complexidade_ciclomatica_media,kata-01,2.57,3,-0.43000000000000016,1,1
+H3a,RQ3a,complexidade_ciclomatica_media,kata-02,4.25,7.5,-3.25,1,1
+H3a,RQ3a,complexidade_ciclomatica_media,kata-04,8.5,2.5,6,1,1
+H3a,RQ3a,complexidade_ciclomatica_media,kata-05,10,4.75,5.25,1,1
+H3b,RQ3b,duplicacao_percentual,kata-01,0,0,0,1,1
+H3b,RQ3b,duplicacao_percentual,kata-02,0,0,0,1,1
+H3b,RQ3b,duplicacao_percentual,kata-04,0,0,0,1,1
+H3b,RQ3b,duplicacao_percentual,kata-05,0,0,0,1,1
