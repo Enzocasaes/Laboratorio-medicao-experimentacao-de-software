@@ -11,8 +11,7 @@ experimento:
 | [`src/cronometro.js`](src/cronometro.js) | `npm run trial:iniciar` | **time-to-green** por trial, com time-box de 35 min → [`data/trials.csv`](data/) (RQ1, RQ2) |
 | [`src/metricas.js`](src/metricas.js) | `npm run metricas` | **complexidade ciclomática, duplicação, LOC e MI** do código final → [`data/metricas.csv`](data/) (RQ3) |
 | [`src/analise.js`](src/analise.js) | `npm run analise` | **Wilcoxon pareado** das hipóteses (Passo 4) → [`data/analise-wilcoxon.csv`](data/) (RQ1, RQ2; RQ3 com `--todas`) |
-| [`src/dashboard.js`](src/dashboard.js) | `npm run dashboard` | **Dashboard de visualização** (Passo 6) → `dashboard/index.html`, comparando tempo, taxa de sucesso e métricas estáticas entre tratamentos |
-| [`dashboard-python/dashboard.py`](dashboard-python/dashboard.py) | `python dashboard.py` | mesma coisa, em **Pandas + Matplotlib/Seaborn** (como sugere o enunciado) → PNGs em `dashboard-python/graficos/` |
+| [`dashboard-python/dashboard.py`](dashboard-python/dashboard.py) | `python dashboard.py` | **Dashboard de visualização** (Passo 6), em Pandas + Matplotlib/Seaborn → PNGs em `dashboard-python/graficos/`, comparando tempo, taxa de sucesso e métricas estáticas entre tratamentos |
 | [`src/validar-katas.js`](src/validar-katas.js) | `npm run katas:validar` | dificuldade comparável + baixa indexação dos katas |
 | [`src/verificar-ambiente.js`](src/verificar-ambiente.js) | `npm run ambiente:verificar` | confere o ambiente antes de cada sessão de coleta |
 
@@ -288,36 +287,22 @@ npm run analise -- --rq RQ1 --sem-csv
 ## Dashboard de visualização (Passo 6)
 
 ```bash
-npm run dashboard                    # dashboard/index.html
-node src/dashboard.js --dados <dir>  # outro diretorio de dados
-node src/dashboard.js --saida <arquivo>
+cd dashboard-python
+pip install -r requirements.txt
+python dashboard.py
 ```
 
-Lê o mesmo par `trials.csv` + `metricas.csv` do Passo 4 e gera um dashboard
-HTML autocontido (SVG inline, **sem dependências** — mesma filosofia
-zero-dependência do resto do instrumental): um gráfico de barras (mediana +
-IQR) por métrica comparando `com-ia` × `sem-ia` — tempo (RQ1), taxa de
-sucesso (RQ2), complexidade e duplicação (RQ3a/RQ3b), LOC (controle) e MI
-(exploratório) — mais pequenos múltiplos de barras pareados por kata (a
-unidade de análise do Passo 4) e uma tabela com o dado bruto.
-
-- Katas sem os dois tratamentos fechados aparecem com a marcação "pendente"
-  no lugar da barra que falta, em vez de sumirem do gráfico.
-- Enquanto a coleta não tiver os 3 integrantes, o dashboard mostra um aviso de
-  **dados parciais** no topo — os gráficos são só descritivos; a leitura
-  inferencial fica com `npm run analise`.
-- `dashboard/` não está no `.gitignore`, mas depende de `data/*.csv`
-  (ignorados) — regenere com `npm run dashboard` sempre que os CSVs mudarem,
-  e só versione a versão final (mesma lógica do
-  [aviso sobre `data/*.csv`](#formato-de-datatrialscsv)).
-
-### Versão Pandas + Matplotlib/Seaborn
-
-O enunciado do laboratório sugere Pandas + Matplotlib/Seaborn para o Passo 6;
-[`dashboard-python/`](dashboard-python/) tem essa versão (PNGs estáticos,
-mesmas 6 métricas e mesma paleta do dashboard HTML), isolada com seu próprio
-`requirements.txt` para não misturar dependência Python no resto do projeto
-Node. Ver [`dashboard-python/README.md`](dashboard-python/README.md).
+Como pede o enunciado do laboratório, o Passo 6 usa **Pandas +
+Matplotlib/Seaborn** — isolado em [`dashboard-python/`](dashboard-python/),
+com seu próprio `requirements.txt`, para não misturar dependência Python no
+resto do instrumental (Node, sem dependências). Lê o mesmo
+`trials-com-metricas.csv` do Passo 4 (`npm run metricas -- --juntar`) e grava
+em `dashboard-python/graficos/`: um PNG por métrica (mediana + IQR)
+comparando `com-ia` × `sem-ia` — tempo (RQ1), taxa de sucesso (RQ2),
+complexidade e duplicação (RQ3a/RQ3b), LOC (controle) e MI (exploratório) —,
+uma grade combinada e o pareamento por kata em pequenos múltiplos (a unidade
+de análise do Passo 4). Detalhes, limitações e como interpretar os avisos de
+dados parciais: [`dashboard-python/README.md`](dashboard-python/README.md).
 
 ## Validação dos katas
 
@@ -390,7 +375,6 @@ Lab2/Sprint01/
 │   ├── cronometro.js         # CLI: iniciar / status / parar / abortar / registrar / listar
 │   ├── metricas.js           # CLI: metricas estaticas dos trials (RQ3) + --juntar
 │   ├── analise.js            # CLI: Wilcoxon pareado + Holm (Passo 4, RQ1/RQ2)
-│   ├── dashboard.js          # CLI: dashboard HTML/SVG (Passo 6) -> dashboard/index.html
 │   ├── preparar-trial.js     # monta trials/<trial_id>/ antes de iniciar o cronometro
 │   ├── validar-katas.js      # valida os katas candidatos (dificuldade + indexacao)
 │   ├── verificar-ambiente.js # confere o ambiente antes da coleta
@@ -407,6 +391,7 @@ Lab2/Sprint01/
 ├── trials/<trial_id>/        # codigo final de cada trial (dado bruto, versionado)
 ├── katas/<id>/                # enunciado + solucao-referencia + testes de aceitacao (S02)
 ├── katas.manifest.json       # 6 katas candidatos + regras de validacao
+├── dashboard-python/          # Passo 6: dashboard.py (Pandas + Matplotlib/Seaborn) -> graficos/*.png
 ├── data/                     # sessao-ativa.json, trials.csv, metricas.csv, ... (nao versionados)
 ├── .nvmrc                    # Node 18
 ├── package.json

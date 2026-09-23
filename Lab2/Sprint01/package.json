@@ -19,7 +19,6 @@
     "metricas:juntar": "node src/metricas.js --juntar",
     "analise": "node src/analise.js",
     "analise:todas": "node src/analise.js --todas",
-    "dashboard": "node src/dashboard.js",
     "ambiente:verificar": "node src/verificar-ambiente.js"
   },
   "engines": {
