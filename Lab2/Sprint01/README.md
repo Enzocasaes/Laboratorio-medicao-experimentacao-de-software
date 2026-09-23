@@ -10,6 +10,7 @@ experimento:
 |---|---|---|
 | [`src/cronometro.js`](src/cronometro.js) | `npm run trial:iniciar` | **time-to-green** por trial, com time-box de 35 min → [`data/trials.csv`](data/) (RQ1, RQ2) |
 | [`src/metricas.js`](src/metricas.js) | `npm run metricas` | **complexidade ciclomática, duplicação, LOC e MI** do código final → [`data/metricas.csv`](data/) (RQ3) |
+| [`src/analise.js`](src/analise.js) | `npm run analise` | **Wilcoxon pareado** das hipóteses (Passo 4) → [`data/analise-wilcoxon.csv`](data/) (RQ1, RQ2; RQ3 com `--todas`) |
 | [`src/validar-katas.js`](src/validar-katas.js) | `npm run katas:validar` | dificuldade comparável + baixa indexação dos katas |
 | [`src/verificar-ambiente.js`](src/verificar-ambiente.js) | `npm run ambiente:verificar` | confere o ambiente antes de cada sessão de coleta |
 
@@ -254,6 +255,34 @@ correção de Holm) fica no Passo 4.
 O código dos trials **é versionado** — é o dado bruto do Passo 3. Só
 `trials/**/node_modules/` está no [.gitignore](.gitignore).
 
+## Análise inferencial (Passo 4) — RQ1 e RQ2
+
+```bash
+npm run analise           # RQ1 (tempo) e RQ2 (taxa de sucesso)
+npm run analise:todas     # as 4 hipoteses, incluindo RQ3a/RQ3b
+npm run analise -- --rq RQ1 --sem-csv
+```
+
+- **Unidade pareada = o kata**: `D_k` = mediana dos trials `com-ia` daquele kata
+  − mediana dos trials `sem-ia`. Katas sem os dois tratamentos ficam de fora do
+  teste e são listados no relatório.
+- **Wilcoxon signed-rank pareado**, bilateral, `α = 0,05`, com **p exato por
+  enumeração** dos 2ⁿ sinais (n ≤ 20) — com N pequeno a aproximação normal é
+  ruim. Pares com `D = 0` são descartados; empates recebem posto médio.
+- Reporta também **r = |Z|/√n**, a mediana das diferenças, o `p` unilateral e o
+  **`p` ajustado por Holm** sobre as 4 hipóteses (a conclusão principal usa o
+  ajustado).
+- Avisa quando o `n` disponível torna a rejeição de H₀ impossível (com 5 pares,
+  por exemplo, o menor `p` bilateral é 0,0625).
+- Saída: `data/analise-wilcoxon.csv` (uma linha por hipótese) e
+  `data/analise-pares.csv` (os pares usados). Código de saída `2` quando falta
+  par para alguma hipótese pedida.
+
+> Enquanto só um integrante tiver executado os trials, **nenhum par se fecha**:
+> na matriz de tratamento cada integrante resolve cada kata em um único
+> tratamento. Método, poder do teste e estado dos dados estão em
+> [../Docs/AnaliseEstatistica.md](../Docs/AnaliseEstatistica.md).
+
 ## Validação dos katas
 
 Artefato do 3º pesquisador na S01: pesquisa e validação dos objetos
@@ -306,6 +335,10 @@ npm test          # equivale a: node --test
 - [test/preparar-trial.test.js](test/preparar-trial.test.js) — redirecionamento do
   import da suíte, esqueleto da solução, e as garantias do CLI: não copia a
   solução de referência, não sobrescreve código já escrito.
+- [test/analise.test.js](test/analise.test.js) — postos com empate, Wilcoxon
+  exato (conferido contra o exemplo clássico do `wilcox.test` do R: `V = 40`,
+  `p = 0,03906`), descarte de `D = 0`, Holm, pareamento por kata/integrante,
+  descritiva com outliers e integração do CLI.
 - [test/verificar-ambiente.test.js](test/verificar-ambiente.test.js) — versão do
   Node, detecção de decisões em aberto no `Ambiente.md` e integração do CLI.
 
@@ -320,6 +353,7 @@ Lab2/Sprint01/
 ├── src/
 │   ├── cronometro.js         # CLI: iniciar / status / parar / abortar / registrar / listar
 │   ├── metricas.js           # CLI: metricas estaticas dos trials (RQ3) + --juntar
+│   ├── analise.js            # CLI: Wilcoxon pareado + Holm (Passo 4, RQ1/RQ2)
 │   ├── preparar-trial.js     # monta trials/<trial_id>/ antes de iniciar o cronometro
 │   ├── validar-katas.js      # valida os katas candidatos (dificuldade + indexacao)
 │   ├── verificar-ambiente.js # confere o ambiente antes da coleta
