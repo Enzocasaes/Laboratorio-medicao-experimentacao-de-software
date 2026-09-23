@@ -12,6 +12,7 @@ experimento:
 | [`src/metricas.js`](src/metricas.js) | `npm run metricas` | **complexidade ciclomática, duplicação, LOC e MI** do código final → [`data/metricas.csv`](data/) (RQ3) |
 | [`src/analise.js`](src/analise.js) | `npm run analise` | **Wilcoxon pareado** das hipóteses (Passo 4) → [`data/analise-wilcoxon.csv`](data/) (RQ1, RQ2; RQ3 com `--todas`) |
 | [`src/dashboard.js`](src/dashboard.js) | `npm run dashboard` | **Dashboard de visualização** (Passo 6) → `dashboard/index.html`, comparando tempo, taxa de sucesso e métricas estáticas entre tratamentos |
+| [`dashboard-python/dashboard.py`](dashboard-python/dashboard.py) | `python dashboard.py` | mesma coisa, em **Pandas + Matplotlib/Seaborn** (como sugere o enunciado) → PNGs em `dashboard-python/graficos/` |
 | [`src/validar-katas.js`](src/validar-katas.js) | `npm run katas:validar` | dificuldade comparável + baixa indexação dos katas |
 | [`src/verificar-ambiente.js`](src/verificar-ambiente.js) | `npm run ambiente:verificar` | confere o ambiente antes de cada sessão de coleta |
 
@@ -294,15 +295,14 @@ node src/dashboard.js --saida <arquivo>
 
 Lê o mesmo par `trials.csv` + `metricas.csv` do Passo 4 e gera um dashboard
 HTML autocontido (SVG inline, **sem dependências** — mesma filosofia
-zero-dependência do resto do instrumental; nada de Pandas/Matplotlib, já que o
-grupo não usa Python neste laboratório): um gráfico dot-strip (mediana + IQR +
-pontos individuais) por métrica comparando `com-ia` × `sem-ia` — tempo (RQ1),
-taxa de sucesso (RQ2), complexidade e duplicação (RQ3a/RQ3b), LOC (controle) e
-MI (exploratório) — mais um gráfico *dumbbell* pareado por kata (a unidade de
-análise do Passo 4) e uma tabela com o dado bruto.
+zero-dependência do resto do instrumental): um gráfico de barras (mediana +
+IQR) por métrica comparando `com-ia` × `sem-ia` — tempo (RQ1), taxa de
+sucesso (RQ2), complexidade e duplicação (RQ3a/RQ3b), LOC (controle) e MI
+(exploratório) — mais pequenos múltiplos de barras pareados por kata (a
+unidade de análise do Passo 4) e uma tabela com o dado bruto.
 
-- Katas sem os dois tratamentos fechados aparecem com um ponto isolado e a
-  marcação "par pendente", em vez de sumirem do gráfico.
+- Katas sem os dois tratamentos fechados aparecem com a marcação "pendente"
+  no lugar da barra que falta, em vez de sumirem do gráfico.
 - Enquanto a coleta não tiver os 3 integrantes, o dashboard mostra um aviso de
   **dados parciais** no topo — os gráficos são só descritivos; a leitura
   inferencial fica com `npm run analise`.
@@ -310,6 +310,14 @@ análise do Passo 4) e uma tabela com o dado bruto.
   (ignorados) — regenere com `npm run dashboard` sempre que os CSVs mudarem,
   e só versione a versão final (mesma lógica do
   [aviso sobre `data/*.csv`](#formato-de-datatrialscsv)).
+
+### Versão Pandas + Matplotlib/Seaborn
+
+O enunciado do laboratório sugere Pandas + Matplotlib/Seaborn para o Passo 6;
+[`dashboard-python/`](dashboard-python/) tem essa versão (PNGs estáticos,
+mesmas 6 métricas e mesma paleta do dashboard HTML), isolada com seu próprio
+`requirements.txt` para não misturar dependência Python no resto do projeto
+Node. Ver [`dashboard-python/README.md`](dashboard-python/README.md).
 
 ## Validação dos katas
 
