@@ -17,6 +17,8 @@
     "katas:validar": "node src/validar-katas.js",
     "metricas": "node src/metricas.js",
     "metricas:juntar": "node src/metricas.js --juntar",
+    "analise": "node src/analise.js",
+    "analise:todas": "node src/analise.js --todas",
     "ambiente:verificar": "node src/verificar-ambiente.js"
   },
   "engines": {

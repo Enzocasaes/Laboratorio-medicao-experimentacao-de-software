@@ -1,0 +1,5 @@
+hipotese,rq,metrica,n_pares,n_usado,pares_descartados_d0,mediana_diferencas,mediana_com_ia,mediana_sem_ia,v,z,r,p_bilateral,p_unilateral,p_holm,metodo_p,rejeita_h0_holm,alfa
+H1,RQ1,duracao_segundos,0,0,0,,89,1146,,,,,,,indisponivel,,0.05
+H2,RQ2,taxa_sucesso,0,0,0,,1,1,,,,,,,indisponivel,,0.05
+H3a,RQ3a,complexidade_ciclomatica_media,0,0,0,,10,5,,,,,,,indisponivel,,0.05
+H3b,RQ3b,duplicacao_percentual,0,0,0,,0,0,,,,,,,indisponivel,,0.05
