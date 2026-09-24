@@ -1,5 +1,5 @@
 hipotese,rq,metrica,n_pares,n_usado,pares_descartados_d0,mediana_diferencas,mediana_com_ia,mediana_sem_ia,v,z,r,p_bilateral,p_unilateral,p_holm,metodo_p,rejeita_h0_holm,alfa
-H1,RQ1,duracao_segundos,4,4,0,-707.5,44,874,0,-1.8257418583505538,0.9128709291752769,0.125,0.0625,0.25,exato,0,0.05
-H2,RQ2,taxa_sucesso,4,0,4,0,1,1,,,,,,,indisponivel,,0.05
-H3a,RQ3a,complexidade_ciclomatica_media,4,4,0,2.41,6.415,3.875,3,0.7302967433402214,0.3651483716701107,0.625,0.3125,0.625,exato,0,0.05
-H3b,RQ3b,duplicacao_percentual,4,0,4,0,0,0,,,,,,,indisponivel,,0.05
+H1,RQ1,duracao_segundos,6,6,0,-808.5,89,866,0,-2.2013981571160284,0.8987170342729172,0.03125,0.015625,0.0625,exato,0,0.05
+H2,RQ2,taxa_sucesso,6,0,6,0,1,1,,,,,,,indisponivel,,0.05
+H3a,RQ3a,complexidade_ciclomatica_media,6,6,0,1.9375,5,3.75,4,1.3627702877384937,0.5563486402641868,0.21875,0.109375,0.21875,exato,0,0.05
+H3b,RQ3b,duplicacao_percentual,6,0,6,0,0,0,,,,,,,indisponivel,,0.05
