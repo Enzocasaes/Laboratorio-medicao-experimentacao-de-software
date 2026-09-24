@@ -54,7 +54,7 @@ célula (kata × tratamento).
 6. **Descritiva e outliers:** mediana + IQR por tratamento e detecção por
    IQR × 1,5. Outliers são **listados e discutidos, nunca removidos**.
 7. **Censura (RQ1):** trials que atingem o time-box entram com 2100 s. Nenhum
-   trial foi censurado até agora.
+   dos 18 trials foi censurado.
 
 ### Poder do teste: o que 6 pares permitem concluir
 
@@ -72,83 +72,125 @@ Relatório Final.
 
 ---
 
-## 3. Estado atual dos dados
+## 3. Dados analisados
 
-> Atualizado em 2026-09-22. Refazer esta seção rodando `npm run analise` depois
-> que os trials faltantes forem mesclados na `main`.
+> Atualizado em 2026-09-23, com a coleta completa. Refazer esta seção rodando
+> `npm run analise:todas` se algum trial for recoletado.
 
-| Integrante | Trials executados | Situação |
+| Integrante | Trials | Situação |
 |---|---|---|
-| P1 — Enzo | 0 de 6 | katas preparados (PR #52), execução pendente |
-| P2 — Cauê | **6 de 6** | concluídos e versionados (PR #53) |
-| P3 — Leonardo | 0 de 6 | katas preparados (PR #54), execução pendente |
+| P1 — Enzo | 6 de 6 | concluídos (PR #58/#60) |
+| P2 — Cauê | 6 de 6 | concluídos (PR #53) |
+| P3 — Leonardo | 6 de 6 | concluídos (PR #60) |
 
-**Pares formados hoje: 0 de 6.** Na matriz de tratamento, cada integrante
-resolve cada kata em **um único** tratamento; o par de um kata só se fecha
-quando pelo menos um colega resolve aquele mesmo kata no tratamento oposto.
-Com apenas os 6 trials do Cauê, cada kata tem um lado só:
+**18 trials (9 `com-ia`, 9 `sem-ia`), nenhum censurado, todos com 12/12 testes
+passando.** Os 6 katas têm observações nos dois tratamentos, então **os 6 pares
+se fecham** e o Wilcoxon roda para H1 e H3a.
 
-| kata | com-ia | sem-ia |
+### Descritiva por tratamento
+
+| Métrica | com-ia (n=9) | sem-ia (n=9) |
 |---|---|---|
-| kata-01 | — | Cauê |
-| kata-02 | — | Cauê |
-| kata-03 | Cauê | — |
-| kata-04 | Cauê | — |
-| kata-05 | Cauê | — |
-| kata-06 | — | Cauê |
+| time-to-green | mediana **89 s** (IQR 18–176,5; mín. 16, máx. 355) | mediana **866 s** (IQR 596–1265,5; mín. 497, máx. 1408) |
+| taxa de sucesso | 1,00 (sem variação) | 1,00 (sem variação) |
 
-Por isso **o Wilcoxon ainda não pode ser executado**, e o script reporta
-`RESULTADO INDISPONIVEL: nenhum par formado` para as 4 hipóteses. Não se trata
-de limitação do instrumento: ele foi validado contra resultados conhecidos (ver
-seção 5).
+### Pares por kata — H1 (tempo, em segundos)
 
-### Descritiva parcial (apenas P2 — não é resultado do experimento)
+| kata | com-ia | sem-ia | D |
+|---|---|---|---|
+| kata-01 | 100,0 | 882,0 | −782,0 |
+| kata-02 | 16,0 | 989,5 | −973,5 |
+| kata-03 | 186,5 | 1385,0 | −1198,5 |
+| kata-04 | 70,0 | 682,5 | −612,5 |
+| kata-05 | 113,5 | 497,0 | −383,5 |
+| kata-06 | 171,0 | 1006,0 | −835,0 |
 
-Com um único integrante não há controle de variação individual, e os números
-abaixo **não respondem** RQ1 nem RQ2. Servem só de acompanhamento.
+**Os 6 pares apontam na mesma direção** (mais rápido com IA), o que produz o
+menor `V` possível (0) e, portanto, o menor `p` que 6 pares permitem.
 
-| Métrica | com-ia (n=3) | sem-ia (n=3) |
-|---|---|---|
-| time-to-green | mediana 89 s (IQR 70–355) | mediana 1146 s (IQR 882–1408) |
-| taxa de sucesso | 1,00 | 1,00 |
+### Qualidade dos dados
 
-Observações já visíveis, a discutir no Relatório Final:
-
-- **Efeito de teto na RQ2:** os 6 trials terminaram com 12/12 testes passando.
-  Se isso se mantiver com os 18 trials, todas as diferenças de `taxa_sucesso`
-  serão zero, o Wilcoxon de H2 ficará sem pares e **H2 não poderá ser testada** —
-  o desfecho fica sem variância. Nesse caso, a RQ2 deve ser respondida de forma
-  descritiva ("nenhum defeito residual em nenhum tratamento") e a limitação
-  registrada como ameaça de conclusão. Vale avisar o grupo antes da S03 fechar.
-- **Trials rápidos com IA:** dois trials `com-ia` do P2 (70 s e 89 s) ficaram
-  bem abaixo dos demais. Entram na análise normalmente, mas devem ser sinalizados
-  como possíveis outliers na discussão.
+- **Sem censura:** nenhum trial atingiu o time-box de 35 min, então a ressalva
+  de construto da RQ1 (tempo menor por desistência, e não por velocidade) **não
+  se aplica** a esta coleta.
+- **RQ2 sem variância (efeito de teto):** os 18 trials terminaram 12/12. Todas
+  as diferenças de `taxa_sucesso` são zero, os 6 pares são descartados pela
+  regra `D = 0` e **H2 não pode ser testada**. A RQ2 é respondida de forma
+  descritiva; a limitação entra como ameaça à validade de conclusão.
+- **Trials muito rápidos com IA:** três trials `com-ia` de P1 ficaram entre 16 s
+  e 18 s. Não são outliers pelo critério IQR × 1,5 dentro do tratamento (a
+  dispersão do grupo `com-ia` é grande), mas a ordem de grandeza sugere uso do
+  assistente para gerar a solução quase inteira. Não foram removidos — o critério
+  do desenho é reportar, não descartar —, e devem ser lidos junto do
+  `num_prompts_ia` (1 prompt em cada um).
+- **`num_prompts_ia` vazio nos trials `sem-ia` de P1 e P3:** o campo ficou em
+  branco em vez de `0`. Não afeta nenhuma hipótese (a métrica é exploratória e o
+  tratamento `sem-ia` tem 0 prompts por definição), mas convém uniformizar em
+  uma réplica.
 
 ---
 
-## 4. Resultados (a preencher quando houver 18 trials)
+## 4. Resultados
 
-Tabela gerada por `data/analise-wilcoxon.csv`:
+Números gerados por `npm run analise:todas` (`data/analise-wilcoxon.csv`):
 
-| Hip. | n pares | mediana das diferenças | V | Z | r | p bilateral (exato) | p Holm | Decisão |
-|---|---|---|---|---|---|---|---|---|
-| H1 (RQ1) | — | — | — | — | — | — | — | — |
-| H2 (RQ2) | — | — | — | — | — | — | — | — |
+| Hip. | n pares | mediana das diferenças | V | Z | r | p bilateral (exato) | p unilateral | p Holm | Decisão |
+|---|---|---|---|---|---|---|---|---|---|
+| **H1 (RQ1)** | 6 | **−808,5 s** (≈ −13,5 min) | 0 | −2,201 | **0,899** | **0,031** | 0,016 | **0,063** | **não rejeita H1₀** |
+| **H2 (RQ2)** | 0 de 6 (todas com `D = 0`) | 0 | — | — | — | — | — | — | **não testável** |
 
-**Leitura a fazer depois:**
+Para contexto (conduzidas na [análise da RQ3](AnaliseRQ3.md), entram aqui só
+porque compartilham a correção de Holm): H3a com `p = 0,219` (`p` Holm 0,219,
+r = 0,556) e H3b não testável (duplicação 0% nos dois tratamentos).
 
-- **RQ1:** o sinal da mediana das diferenças indica se a IA acelerou (negativo)
-  ou atrasou (positivo). Interpretar **junto da RQ2**: um tempo menor com IA
-  pode refletir desistências dentro do time-box, não velocidade.
-- **RQ2:** a taxa de sucesso responde se a IA reduziu defeitos. Com efeito de
-  teto (tudo 12/12), a resposta é descritiva, não inferencial.
+**Sobre o denominador do Holm.** A família foi fixada no desenho em 4 hipóteses,
+mas duas delas (H2 e H3b) não produzem `p`, porque o desfecho não variou. O
+ajuste é aplicado sobre as **2 hipóteses efetivamente testadas** (H1 e H3a):
+`p` Holm de H1 = 2 × 0,031 = 0,063. Usar o denominador cheio (4) daria 0,125 —
+mais conservador, **e a conclusão não muda em nenhum dos dois casos**.
+
+### RQ1 — O uso de assistente de IA reduz o tempo de resolução?
+
+**Resposta: há um efeito grande e perfeitamente consistente, mas ele não é
+estatisticamente significativo depois do controle de múltiplas comparações.**
+
+- Nos 6 katas, o tratamento `com-ia` foi mais rápido, **sem exceção**. A mediana
+  das diferenças é de −808,5 s, cerca de **13,5 minutos** por kata; nas medianas
+  agregadas, 89 s contra 866 s (≈ 10× mais rápido).
+- O tamanho de efeito é muito grande (`r = 0,899`).
+- O `p` exato bilateral é **0,031**, abaixo de α = 0,05. Mas esse é exatamente o
+  **menor valor que 6 pares conseguem produzir**: ainda que o efeito fosse ainda
+  maior, o `p` não cairia. Depois do Holm, sobe para **0,063** e não cruza o
+  limiar, e a regra fixada no desenho manda concluir pelo `p` ajustado.
+- **Não se rejeita H1₀.** A leitura honesta é de *falta de poder*, não de
+  ausência de efeito: o desenho com 6 pares não consegue sustentar
+  estatisticamente nem um efeito que apareceu em 100% dos katas.
+- A ressalva de construto prevista no desenho (tempo menor porque o participante
+  desistiu dentro do time-box) **está afastada**: não houve censura e todos os
+  trials terminaram com 12/12 testes.
+
+### RQ2 — O uso de assistente de IA reduz a quantidade de defeitos?
+
+**Resposta: não houve diferença observável; a métrica não discriminou os
+tratamentos, e a hipótese não pôde ser testada.**
+
+- Todos os 18 trials terminaram com **100% dos testes de aceitação passando**,
+  nos dois tratamentos.
+- Com todas as diferenças iguais a zero, o Wilcoxon fica sem pares e **H2 não é
+  testável** — não há como rejeitar nem deixar de rejeitar com base em dados sem
+  variância.
+- A causa mais provável é **efeito de teto**: katas de dificuldade moderada, com
+  12 testes visíveis e tempo suficiente (nenhum trial chegou aos 35 min). O
+  desfecho sai saturado.
+- Para uma réplica: tarefas mais difíceis ou time-box menor, para que a taxa de
+  sucesso volte a variar.
 
 ---
 
 ## 5. Validação do instrumento
 
 O `analise.js` não usa biblioteca estatística, então a implementação é conferida
-por testes automatizados (`node --test test/analise.test.js`, 28 testes):
+por testes automatizados (`node --test test/analise.test.js`, 34 testes):
 
 - **Caso de referência externo:** o exemplo clássico de `wilcox.test(paired =
   TRUE)` do R (dados de depressão, n = 9) reproduz exatamente `V = 40` e
