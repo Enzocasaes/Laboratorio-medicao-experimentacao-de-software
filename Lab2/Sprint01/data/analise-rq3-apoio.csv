@@ -1,0 +1,5 @@
+metrica,papel,n_pares,mediana_com_ia,mediana_sem_ia,iqr_com_ia,iqr_sem_ia,mediana_diferencas,r,p_bilateral_referencia,testavel
+loc,controle obrigatorio,6,38,36,34.5..47,34.5..60.5,1.75,0.042796049251091296,1,1
+indice_manutenibilidade,aprofundamento,6,39.87,40.21,37.465..41.935,35.325..42.825,-1.0075000000000003,0.042796049251091296,1,1
+num_funcoes,complementar,6,3,4,2..4,2.5..6.5,-1.5,0.6007975055920245,0.1875,1
+complexidade_ciclomatica_max,complementar,6,10,9,7..14.5,7..13,1.5,0.472055182965162,0.3125,1

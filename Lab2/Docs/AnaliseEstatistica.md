@@ -2,9 +2,9 @@
 
 Teste de hipóteses das duas primeiras questões de pesquisa, conforme a seção
 **(A) Hipóteses** do [Desenho do Experimento](DesenhoDoExperimento.md#a-hipóteses).
-A RQ3 (métricas estáticas) é conduzida em documento próprio; o script desta
-análise também calcula H3a/H3b, porque a correção de Holm precisa da família
-completa das 4 hipóteses.
+A RQ3 (métricas estáticas) é conduzida em [`AnaliseRQ3.md`](AnaliseRQ3.md); o
+script desta análise também calcula H3a/H3b, porque a correção de Holm precisa
+da família completa das 4 hipóteses.
 
 - **Instrumento:** [`Sprint01/src/analise.js`](../Sprint01/src/analise.js)
   (Node puro, sem dependências), com testes em

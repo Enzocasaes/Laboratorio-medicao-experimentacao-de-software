@@ -11,6 +11,7 @@ experimento:
 | [`src/cronometro.js`](src/cronometro.js) | `npm run trial:iniciar` | **time-to-green** por trial, com time-box de 35 min → [`data/trials.csv`](data/) (RQ1, RQ2) |
 | [`src/metricas.js`](src/metricas.js) | `npm run metricas` | **complexidade ciclomática, duplicação, LOC e MI** do código final → [`data/metricas.csv`](data/) (RQ3) |
 | [`src/analise.js`](src/analise.js) | `npm run analise` | **Wilcoxon pareado** das hipóteses (Passo 4) → [`data/analise-wilcoxon.csv`](data/) (RQ1, RQ2; RQ3 com `--todas`) |
+| [`src/analise.js --rq3`](src/analise.js) | `npm run analise:rq3` | **RQ3**: H3a/H3b + LOC (controle), MI e complementares → [`data/analise-rq3-apoio.csv`](data/) |
 | [`dashboard-python/dashboard.py`](dashboard-python/dashboard.py) | `python dashboard.py` | **Dashboard de visualização** (Passo 6), em Pandas + Matplotlib/Seaborn → PNGs em `dashboard-python/graficos/`, comparando tempo, taxa de sucesso e métricas estáticas entre tratamentos |
 | [`src/validar-katas.js`](src/validar-katas.js) | `npm run katas:validar` | dificuldade comparável + baixa indexação dos katas |
 | [`src/verificar-ambiente.js`](src/verificar-ambiente.js) | `npm run ambiente:verificar` | confere o ambiente antes de cada sessão de coleta |
@@ -18,6 +19,8 @@ experimento:
 - Enunciado: [../01 - LABORATORIO 02 - Assistentes de IA vs codificacao manual.md](../01%20-%20LABORATORIO%2002%20-%20Assistentes%20de%20IA%20vs%20codificacao%20manual.md)
 - Desenho do experimento (Passo 1): [../Docs/DesenhoDoExperimento.md](../Docs/DesenhoDoExperimento.md)
 - Ambiente e definição das métricas (Passo 2): [../Docs/Ambiente.md](../Docs/Ambiente.md)
+- Análise RQ1/RQ2 (Passo 4): [../Docs/AnaliseEstatistica.md](../Docs/AnaliseEstatistica.md)
+- Análise RQ3 (Passo 4): [../Docs/AnaliseRQ3.md](../Docs/AnaliseRQ3.md)
 
 ## Pré-requisito
 
