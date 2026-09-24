@@ -7,6 +7,8 @@ import { fileURLToPath } from "node:url";
 import { execFileSync } from "node:child_process";
 
 import {
+  METRICAS_APOIO,
+  gerarCSVApoio,
   wilcoxonPareado,
   postosComEmpate,
   ajustarHolm,
@@ -344,4 +346,93 @@ test("CLI: sem trials.csv avisa e sai com 1", (t) => {
     assert.equal(erro.status, 1);
     assert.match(erro.stdout, /nenhum trial encontrado/);
   }
+});
+
+// ------------------------------------------------- RQ3: metricas de apoio
+
+test("METRICAS_APOIO: LOC entra como controle obrigatorio e MI como aprofundamento", () => {
+  const porCampo = Object.fromEntries(METRICAS_APOIO.map((m) => [m.campo, m.papel]));
+  assert.equal(porCampo.loc, "controle obrigatorio");
+  assert.equal(porCampo.indice_manutenibilidade, "aprofundamento");
+});
+
+test("analisar: o apoio e' pareado por kata mas fica FORA da familia de Holm", () => {
+  const trials = ["kata-01", "kata-02", "kata-03"].flatMap((kata, i) => [
+    trial("p1", kata, "com-ia", { loc: String(40 + i), indice_manutenibilidade: "50" }),
+    trial("p2", kata, "sem-ia", { loc: String(30 + i), indice_manutenibilidade: "60" }),
+  ]);
+  const analise = analisar(trials);
+
+  // a familia de Holm continua com exatamente as 4 hipoteses do desenho
+  assert.equal(analise.resultados.length, 4);
+  assert.ok(analise.resultados.every((r) => r.pHolm !== undefined));
+  // e nenhuma metrica de apoio recebe p ajustado
+  assert.ok(analise.apoio.every((m) => m.pHolm === undefined));
+
+  const loc = analise.apoio.find((m) => m.campo === "loc");
+  assert.equal(loc.pares.length, 3);
+  assert.equal(loc.teste.medianaDiferencas, 10); // 40-30, 41-31, 42-32
+});
+
+test("relatorioTexto: o apoio aparece com a RQ3 e some no recorte RQ1/RQ2", () => {
+  const trials = ["kata-01", "kata-02"].flatMap((kata) => [
+    trial("p1", kata, "com-ia", { loc: "40" }),
+    trial("p2", kata, "sem-ia", { loc: "30" }),
+  ]);
+  const analise = analisar(trials);
+
+  const soRQ12 = relatorioTexto(analise, { somenteRQ: ["RQ1", "RQ2"] });
+  assert.doesNotMatch(soRQ12, /metricas de apoio/);
+
+  const comRQ3 = relatorioTexto(analise, { somenteRQ: ["RQ3a", "RQ3b"] });
+  assert.match(comRQ3, /metricas de apoio \(FORA da familia de Holm\)/);
+  assert.match(comRQ3, /LOC \(linhas de codigo\)\s+\[controle obrigatorio\]/);
+  assert.match(comRQ3, /NAO decide hipotese/);
+
+  assert.match(relatorioTexto(analise, {}), /metricas de apoio/);
+});
+
+test("gerarCSVApoio: uma linha por metrica, com papel e marcador de testavel", () => {
+  const trials = ["kata-01", "kata-02"].flatMap((kata) => [
+    trial("p1", kata, "com-ia", { loc: "40", duplicacao_percentual: "0" }),
+    trial("p2", kata, "sem-ia", { loc: "30", duplicacao_percentual: "0" }),
+  ]);
+  const csv = gerarCSVApoio(analisar(trials));
+  const linhas = csv.trim().split("\n");
+
+  assert.match(linhas[0], /^metrica,papel,n_pares,/);
+  assert.equal(linhas.length, 1 + METRICAS_APOIO.length);
+  const loc = linhas.find((l) => l.startsWith("loc,"));
+  assert.match(loc, /^loc,controle obrigatorio,2,40,30,/);
+  assert.match(loc, /1$/, "LOC tem variacao, entao e' testavel");
+});
+
+test("parseArgs: --rq3 recorta H3a e H3b preservando a caixa dos rotulos", () => {
+  assert.deepEqual(parseArgs(["--rq3"]).rq, ["RQ3a", "RQ3b"]);
+});
+
+test("CLI: --rq3 imprime as metricas de apoio e grava analise-rq3-apoio.csv", (t) => {
+  const dir = comDados(t, [
+    linhaTrial("p1", "kata-01", "com-ia", 100),
+    linhaTrial("p2", "kata-01", "sem-ia", 900),
+  ]);
+  writeFileSync(join(dir, "metricas.csv"),
+    "trial_id,loc,complexidade_ciclomatica_media,complexidade_ciclomatica_max,num_funcoes,duplicacao_percentual,indice_manutenibilidade\n" +
+    "p1_kata-01_com-ia,44,6,9,2,0,38\n" +
+    "p2_kata-01_sem-ia,36,3,7,5,0,42\n");
+
+  // sai com 2 porque H3b (duplicacao) fica sem pares: todas as diferencas sao zero
+  let saida;
+  try {
+    saida = execFileSync(process.execPath, [CLI, "--rq3", "--dados", dir], { encoding: "utf8" });
+  } catch (erro) {
+    assert.equal(erro.status, 2);
+    saida = erro.stdout;
+  }
+  assert.match(saida, /metricas de apoio/);
+  assert.match(saida, /LOC \(linhas de codigo\)/);
+
+  const csv = readFileSync(join(dir, "analise-rq3-apoio.csv"), "utf8");
+  assert.match(csv, /^metrica,papel,/);
+  assert.match(csv, /\nloc,controle obrigatorio,1,44,36,/);
 });

@@ -31,6 +31,20 @@ export const HIPOTESES = [
   { id: "H3b", rq: "RQ3b", campo: "duplicacao_percentual", rotulo: "duplicacao (% de linhas)", direcaoEsperada: null, dono: "RQ3" },
 ];
 
+// Metricas que acompanham a RQ3 mas NAO entram na familia de Holm: o desenho
+// fixou 4 hipoteses, e ampliar a familia depois de ver os dados seria
+// "fishing" (ameaca G4). LOC e' controle OBRIGATORIO sempre que se reporta
+// complexidade ou duplicacao - codigo de IA pode ser mais verboso, e sem
+// normalizar por LOC a leitura engana. As demais sao leitura de apoio: o
+// Wilcoxon delas e' calculado so' para dimensionar o efeito, nunca para
+// decidir hipotese.
+export const METRICAS_APOIO = [
+  { campo: "loc", rotulo: "LOC (linhas de codigo)", papel: "controle obrigatorio" },
+  { campo: "indice_manutenibilidade", rotulo: "indice de manutenibilidade (MI)", papel: "aprofundamento" },
+  { campo: "num_funcoes", rotulo: "numero de funcoes", papel: "complementar" },
+  { campo: "complexidade_ciclomatica_max", rotulo: "complexidade ciclomatica maxima", papel: "complementar" },
+];
+
 // ---------------------------------------------------------------- dados
 
 // Le trials.csv e, se existir, completa cada trial com as metricas estaticas
@@ -291,9 +305,23 @@ export function analisar(trials, { hipoteses = HIPOTESES } = {}) {
   const ajustados = ajustarHolm(resultados.map((r) => (r.teste.suficiente ? r.teste.pBilateral : NaN)));
   resultados.forEach((r, i) => { r.pHolm = ajustados[i]; r.rejeitaH0ComHolm = ajustados[i] !== null && ajustados[i] < ALFA; });
 
+  // metricas de apoio da RQ3: mesmo pareamento, FORA da correcao de Holm
+  const apoio = METRICAS_APOIO.map((m) => {
+    const { pares, incompletos } = montarParesPorKata(trials, m.campo);
+    return {
+      ...m,
+      pares,
+      katasIncompletos: incompletos,
+      teste: wilcoxonPareado(pares.map((p) => p.diferenca)),
+      descritiva: descritivaPorTratamento(trials, m.campo),
+      paresPorIntegrante: montarParesPorIntegrante(trials, m.campo),
+    };
+  });
+
   const censurados = trials.filter((t) => numero(t.censurado) === 1).length;
   return {
     resultados,
+    apoio,
     trials: trials.length,
     censurados,
     participantes: [...new Set(trials.map((t) => t.participante))].sort(),
@@ -358,7 +386,57 @@ export function relatorioTexto(analise, { somenteRQ = null } = {}) {
     linhas.push("");
   }
 
+  // As metricas de apoio so' fazem sentido junto da RQ3.
+  const mostrarApoio = analise.apoio
+    && (somenteRQ === null || alvo.some((r) => r.rq.startsWith("RQ3")));
+  if (mostrarApoio) {
+    linhas.push("## RQ3 - metricas de apoio (FORA da familia de Holm)");
+    linhas.push("   LOC acompanha H3a/H3b como controle obrigatorio; as demais sao leitura");
+    linhas.push("   de apoio. O p abaixo dimensiona o efeito, NAO decide hipotese.\n");
+
+    for (const m of analise.apoio) {
+      linhas.push(`  ${m.rotulo}  [${m.papel}]`);
+      const d = m.descritiva;
+      for (const t of ["com-ia", "sem-ia"]) {
+        const sd = d[t];
+        linhas.push(sd.n === 0
+          ? `    ${t.padEnd(6)} sem dados`
+          : `    ${t.padEnd(6)} n=${sd.n}  mediana=${fmt(sd.mediana)}  IQR=${fmt(sd.q1)}..${fmt(sd.q3)}  min=${fmt(sd.minimo)}  max=${fmt(sd.maximo)}${sd.outliers.length ? `  outliers: ${sd.outliers.map((v) => fmt(v)).join(", ")}` : ""}`);
+      }
+      if (m.pares.length) {
+        linhas.push(`    D por kata: ${m.pares.map((p) => `${p.kata}=${p.diferenca > 0 ? "+" : ""}${fmt(p.diferenca)}`).join("  ")}`);
+      }
+      const t = m.teste;
+      linhas.push(t.suficiente
+        ? `    n=${t.n}  mediana(D)=${fmt(t.medianaDiferencas)}  r=${fmt(t.r, 3)}  p bilateral=${fmtP(t.pBilateral)}  (referencia, sem Holm)`
+        : `    sem teste: ${t.motivo}`);
+      if (m.paresPorIntegrante.length) {
+        linhas.push(`    D por integrante: ${m.paresPorIntegrante.map((p) => `${p.participante}=${p.diferenca > 0 ? "+" : ""}${fmt(p.diferenca)}`).join("  ")}`);
+      }
+      linhas.push("");
+    }
+  }
+
   return linhas.join("\n");
+}
+
+export function gerarCSVApoio(analise) {
+  const cabecalho = [
+    "metrica", "papel", "n_pares", "mediana_com_ia", "mediana_sem_ia",
+    "iqr_com_ia", "iqr_sem_ia", "mediana_diferencas", "r", "p_bilateral_referencia", "testavel",
+  ];
+  const linhas = (analise.apoio ?? []).map((m) => {
+    const t = m.teste;
+    const d = m.descritiva;
+    const iqr = (g) => (g.n === 0 ? "" : `${g.q1}..${g.q3}`);
+    return [
+      m.campo, m.papel, t.nPares, d["com-ia"].mediana ?? "", d["sem-ia"].mediana ?? "",
+      iqr(d["com-ia"]), iqr(d["sem-ia"]),
+      t.suficiente ? t.medianaDiferencas : "", t.suficiente ? t.r : "",
+      t.suficiente ? t.pBilateral : "", t.suficiente ? 1 : 0,
+    ];
+  });
+  return gerarCSV(cabecalho, linhas);
 }
 
 export function gerarCSVResultados(analise) {
@@ -399,6 +477,7 @@ export function parseArgs(argv) {
   for (let i = 0; i < argv.length; i += 1) {
     const arg = argv[i];
     if (arg === "--todas") opcoes.rq = null;
+    else if (arg === "--rq3") opcoes.rq = ["RQ3a", "RQ3b"];
     else if (arg === "--rq") opcoes.rq = String(argv[++i]).toUpperCase().split(",");
     else if (arg === "--dados") opcoes.dirDados = argv[++i];
     else if (arg === "--sem-csv") opcoes.escrever = false;
@@ -416,6 +495,7 @@ function main(argv) {
 
   node src/analise.js                 # RQ1 e RQ2 (padrao)
   node src/analise.js --todas         # as 4 hipoteses (inclui RQ3)
+  node src/analise.js --rq3           # so' a RQ3 (H3a, H3b + metricas de apoio)
   node src/analise.js --rq RQ1        # so' uma
   node src/analise.js --dados <dir>   # outro diretorio de dados
   node src/analise.js --sem-csv       # so' imprime, nao grava CSV`);
@@ -436,9 +516,12 @@ function main(argv) {
     const arqResultados = join(opcoes.dirDados, "analise-wilcoxon.csv");
     const arqPares = join(opcoes.dirDados, "analise-pares.csv");
     writeFileSync(arqResultados, gerarCSVResultados(analise));
+    const arqApoio = join(opcoes.dirDados, "analise-rq3-apoio.csv");
     writeFileSync(arqPares, gerarCSVPares(analise));
+    writeFileSync(arqApoio, gerarCSVApoio(analise));
     console.log(`CSV: ${arqResultados}`);
     console.log(`CSV: ${arqPares}`);
+    console.log(`CSV: ${arqApoio}`);
   }
 
   const semDados = analise.resultados.filter((r) => opcoes.rq === null || opcoes.rq.includes(r.rq)).some((r) => !r.teste.suficiente);
