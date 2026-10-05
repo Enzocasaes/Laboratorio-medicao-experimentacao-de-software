@@ -123,6 +123,40 @@ test("get: erro de rede e' repetido com backoff e depois lanca", async () => {
   await assert.rejects(falha.c.get("/x"), /Falha de rede em \/x apos 1 novas tentativas: ECONNRESET/);
 });
 
+test("get: requisicao sem resposta e' abortada pelo timeout e repetida", async () => {
+  let chamadas = 0;
+  // 1a chamada: nunca responde, so' termina quando o sinal de timeout aborta.
+  const fetch = (url, { signal }) => {
+    chamadas += 1;
+    if (chamadas === 1) {
+      // O timer do AbortSignal.timeout nao segura o processo vivo (na rede de
+      // verdade, o socket aberto segura); este setTimeout faz esse papel.
+      const vivo = setTimeout(() => {}, 5000);
+      return new Promise((_, rejeitar) =>
+        signal.addEventListener("abort", () => {
+          clearTimeout(vivo);
+          rejeitar(signal.reason);
+        })
+      );
+    }
+    return Promise.resolve(respostaJSON(200, { ok: true }));
+  };
+  const tempo = relogio();
+  const avisos = [];
+  const c = criarClienteGitHub({
+    token: TOKEN,
+    fetch,
+    esperar: tempo.esperar,
+    agora: tempo.agora,
+    timeoutMs: 20,
+    log: { debug() {}, aviso: (m) => avisos.push(m) },
+  });
+  const r = await c.get("/x");
+  assert.equal(r.status, 200);
+  assert.equal(chamadas, 2);
+  assert.match(avisos[0], /sem resposta em 0.02s/);
+});
+
 test("get: 401 lanca imediatamente com dica sobre o token (sem expor o token)", async () => {
   const { c, roteiro } = cliente([respostaJSON(401, { message: "Bad credentials" })]);
   await assert.rejects(c.get("/x"), (erro) => erro.status === 401 && /GITHUB_TOKEN/.test(erro.message) && !erro.message.includes(TOKEN));

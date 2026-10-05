@@ -6,8 +6,9 @@
 //   2. consultar o cache antes de ir a rede e gravar cada resposta definitiva;
 //   3. respeitar o rate limit (X-RateLimit-Remaining / X-RateLimit-Reset e
 //      Retry-After), esperando a renovacao da cota quando ela acaba;
-//   4. repetir falhas temporarias (5xx e erro de rede) com backoff exponencial
-//      1 s, 2 s, 4 s, 8 s, 16 s, ate o limite de tentativas.
+//   4. repetir falhas temporarias (5xx, erro de rede e requisicao sem resposta
+//      dentro do timeout) com backoff exponencial 1 s, 2 s, 4 s, 8 s, 16 s,
+//      ate o limite de tentativas.
 //
 // Respostas 2xx e 4xx (404, 403 "lista grande demais", 422...) sao devolvidas
 // ao chamador com o status, para que ele registre o motivo; nao sao
@@ -24,6 +25,9 @@ import { logSilencioso } from "../log.js";
 export const URL_BASE = "https://api.github.com";
 const MAX_ESPERAS_POR_LIMITE = 10;
 const ESPERA_LIMITE_SECUNDARIO_MS = 60_000; // docs do GitHub: aguarde ao menos 1 minuto
+// Sem limite, uma conexao presa deixa o fetch esperando indefinidamente (na
+// primeira coleta real uma requisicao ficou 17 min parada).
+export const TIMEOUT_PADRAO_MS = 30_000;
 
 export class ErroGitHub extends Error {
   constructor(mensagem, { status = null, url = null } = {}) {
@@ -64,6 +68,7 @@ export function criarClienteGitHub({
   log = logSilencioso,
   maxTentativas = 5,
   esperaBaseMs = 1000,
+  timeoutMs = TIMEOUT_PADRAO_MS,
   urlBase = URL_BASE,
 } = {}) {
   if (!token) throw new Error("criarClienteGitHub: token obrigatorio (use lerToken())");
@@ -152,12 +157,14 @@ export function criarClienteGitHub({
             "User-Agent": "lab03-metricas-dora",
             "X-GitHub-Api-Version": "2022-11-28",
           },
+          signal: AbortSignal.timeout(timeoutMs),
         });
       } catch (erro) {
+        const motivo = erro.name === "TimeoutError" ? `sem resposta em ${timeoutMs / 1000}s` : erro.message;
         if (tentativa >= maxTentativas) {
-          throw new ErroGitHub(`Falha de rede em ${chave} apos ${maxTentativas} novas tentativas: ${erro.message}`, { url: chave });
+          throw new ErroGitHub(`Falha de rede em ${chave} apos ${maxTentativas} novas tentativas: ${motivo}`, { url: chave });
         }
-        await recuar(`falha de rede (${erro.message})`, chave, tentativa);
+        await recuar(`falha de rede (${motivo})`, chave, tentativa);
         tentativa += 1;
         continue;
       }
