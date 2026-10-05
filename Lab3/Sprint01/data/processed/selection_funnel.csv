@@ -1,0 +1,6 @@
+order,stage,description,entered,remaining,excluded,pending,complete,exclusion_reasons
+1,candidates,Candidatos da busca stars:>1000 (os 1500 com mais estrelas),1500,1500,0,0,true,
+2,has_github_actions,Usa GitHub Actions (actions/workflows total_count > 0),1500,1321,179,0,true,no_github_actions:179
+3,min_releases,>= 5 releases publicadas na janela,1321,0,0,1321,false,
+4,min_workflow_runs,>= 50 workflow runs validos no default branch na janela,0,0,0,0,false,
+5,final_sample,"Amostra final (ate 100 repositorios, por ordem de estrelas)",0,0,0,0,false,
