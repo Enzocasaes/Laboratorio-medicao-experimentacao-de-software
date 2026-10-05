@@ -1,0 +1,17 @@
+{
+  "name": "lab03-metricas-dora",
+  "version": "0.1.0",
+  "description": "Laboratorio 03 - Mineracao de metricas DORA (pipeline de coleta via API REST do GitHub)",
+  "type": "module",
+  "main": "src/pipeline.js",
+  "scripts": {
+    "pipeline": "node src/pipeline.js --config config.json",
+    "coletar:repositorios": "node src/pipeline.js --config config.json --etapa repositorios",
+    "test": "node --test test/*.test.js",
+    "test:cobertura": "node --test --experimental-test-coverage --test-coverage-include=src/**/*.js --test-coverage-exclude=src/env.js --test-coverage-lines=80 test/*.test.js"
+  },
+  "engines": {
+    "node": ">=22.8.0"
+  },
+  "license": "MIT"
+}

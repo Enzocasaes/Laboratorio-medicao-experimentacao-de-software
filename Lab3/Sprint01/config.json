@@ -1,0 +1,17 @@
+{
+  "janela": {
+    "inicio": "AAAA-MM-DD",
+    "fim": "AAAA-MM-DD"
+  },
+  "selecao": {
+    "estrelasAcimaDe": 1000,
+    "quantidadeDeCandidatos": 1500,
+    "tamanhoAlvoDaAmostra": 100,
+    "minimoDeReleases": 5,
+    "minimoDeWorkflowRuns": 50
+  },
+  "diretorios": {
+    "cache": "data/cache",
+    "saida": "data"
+  }
+}

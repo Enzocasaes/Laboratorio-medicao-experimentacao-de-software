@@ -1,0 +1,10 @@
+# Token de acesso do GitHub - NUNCA deve ser versionado
+.env
+
+# Dependencias (o projeto nao usa nenhuma, mas fica a protecao)
+node_modules/
+
+# Cache das respostas brutas da API (um JSON por requisicao; pode ser grande).
+# Os resultados da coleta (data/raw/ e data/processed/) SAO versionados, para
+# que os demais integrantes e o grupo replicador partam da mesma amostra.
+data/cache/
