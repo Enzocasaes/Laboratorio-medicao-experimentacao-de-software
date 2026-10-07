@@ -1,0 +1,17 @@
+{
+  "janela": {
+    "inicio": "2025-10-22",
+    "fim": "2026-10-22"
+  },
+  "selecao": {
+    "estrelasAcimaDe": 1000,
+    "quantidadeDeCandidatos": 1500,
+    "tamanhoAlvoDaAmostra": 100,
+    "minimoDeReleases": 5,
+    "minimoDeWorkflowRuns": 50
+  },
+  "diretorios": {
+    "cache": "data/cache",
+    "saida": "data"
+  }
+}
