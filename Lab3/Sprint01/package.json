@@ -7,6 +7,8 @@
   "scripts": {
     "pipeline": "node src/pipeline.js --config config.json",
     "coletar:repositorios": "node src/pipeline.js --config config.json --etapa repositorios",
+    "coletar:releases": "node src/pipeline.js --config config.json --etapa releases",
+    "coletar:leadtime": "node src/pipeline.js --config config.json --etapa leadtime",
     "test": "node --test test/*.test.js",
     "test:cobertura": "node --test --experimental-test-coverage --test-coverage-include=src/**/*.js --test-coverage-exclude=src/env.js --test-coverage-lines=80 test/*.test.js"
   },

@@ -25,10 +25,26 @@ export const DIRETORIOS_PADRAO = Object.freeze({
   saida: "data",
 });
 
-function inteiroPositivo(valor, campo, { permiteZero = false } = {}) {
+// Tetos da coleta de releases e de commits (etapas da Pessoa B). Existem para
+// que um repositorio com historico gigantesco nao consuma a cota inteira da
+// API: ao serem atingidos, a coleta e' marcada como truncada em vez de parar
+// fingindo que a lista acabou.
+export const COLETA_PADRAO = Object.freeze({
+  releasesPorPagina: 100, // maximo que a API aceita
+  maxPaginasDeReleases: 20, // 2.000 releases por repositorio
+  commitsPorPagina: 100,
+  maxCommitsPorRelease: 1000, // por comparacao entre duas releases
+});
+
+const MAX_POR_PAGINA = 100; // limite da API para per_page
+
+function inteiroPositivo(valor, campo, { permiteZero = false, maximo = null } = {}) {
   const minimo = permiteZero ? 0 : 1;
   if (!Number.isInteger(valor) || valor < minimo) {
     throw new Error(`Configuracao invalida: ${campo} deve ser um inteiro >= ${minimo} (recebido: ${JSON.stringify(valor)})`);
+  }
+  if (maximo !== null && valor > maximo) {
+    throw new Error(`Configuracao invalida: ${campo} nao pode passar de ${maximo} (recebido: ${valor})`);
   }
   return valor;
 }
@@ -62,13 +78,21 @@ export function validarConfig(bruta, { baseDir = process.cwd() } = {}) {
     );
   }
 
+  const c = { ...COLETA_PADRAO, ...(bruta.coleta ?? {}) };
+  const coleta = {
+    releasesPorPagina: inteiroPositivo(c.releasesPorPagina, "coleta.releasesPorPagina", { maximo: MAX_POR_PAGINA }),
+    maxPaginasDeReleases: inteiroPositivo(c.maxPaginasDeReleases, "coleta.maxPaginasDeReleases"),
+    commitsPorPagina: inteiroPositivo(c.commitsPorPagina, "coleta.commitsPorPagina", { maximo: MAX_POR_PAGINA }),
+    maxCommitsPorRelease: inteiroPositivo(c.maxCommitsPorRelease, "coleta.maxCommitsPorRelease"),
+  };
+
   const d = { ...DIRETORIOS_PADRAO, ...(bruta.diretorios ?? {}) };
   const diretorios = {
     cache: resolve(baseDir, d.cache),
     saida: resolve(baseDir, d.saida),
   };
 
-  return { janela, selecao, diretorios };
+  return { janela, selecao, coleta, diretorios };
 }
 
 export function carregarConfig(caminho) {

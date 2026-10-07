@@ -3,7 +3,9 @@
 //   - /search/repositories com "stars:>N" e "stars:A..B", ordenacao por
 //     estrelas, limite de resultados por consulta e paginacao via Link;
 //   - /repos/{o}/{r}/actions/workflows (total_count);
-//   - /repos/{o}/{r}/contributors?per_page=1&anon=true (Link com rel="last").
+//   - /repos/{o}/{r}/contributors?per_page=1&anon=true (Link com rel="last");
+//   - /repos/{o}/{r}/releases (ordem created_at desc, paginacao via Link);
+//   - /repos/{o}/{r}/compare/{base}...{head} (total_commits e paginacao).
 
 import { mkdtempSync } from "node:fs";
 import { tmpdir } from "node:os";
@@ -48,6 +50,46 @@ function hashId(texto) {
   return h;
 }
 
+// Release da API. Por padrao e' um deploy (draft e prerelease false) e
+// created_at = published_at, que e' o caso comum.
+export function release(tagName, publishedAt, extra = {}) {
+  return {
+    id: extra.id ?? hashId(`${tagName}@${publishedAt}`),
+    tag_name: tagName,
+    name: tagName,
+    draft: false,
+    prerelease: false,
+    published_at: publishedAt,
+    created_at: publishedAt,
+    target_commitish: "main",
+    html_url: `https://github.com/exemplo/releases/tag/${tagName}`,
+    ...extra,
+  };
+}
+
+// Item de `commits` na resposta do compare. O que importa para o lead time e'
+// commit.author.date (secao 3 do enunciado).
+export function commit(sha, data, { mensagem = "mudanca", ...extra } = {}) {
+  return { sha, commit: { author: { date: data }, message: mensagem }, ...extra };
+}
+
+// Paginacao por cabecalho Link, igual a da API.
+function paginarLista(url, itens, porPaginaPadrao) {
+  const porPagina = Number(url.searchParams.get("per_page") ?? porPaginaPadrao);
+  const pagina = Number(url.searchParams.get("page") ?? 1);
+  const fatia = itens.slice((pagina - 1) * porPagina, pagina * porPagina);
+  const ultima = Math.max(1, Math.ceil(itens.length / porPagina));
+  const cabecalhos = {};
+  if (pagina < ultima) {
+    const proxima = new URL(url);
+    proxima.searchParams.set("page", String(pagina + 1));
+    const fim = new URL(url);
+    fim.searchParams.set("page", String(ultima));
+    cabecalhos.link = `<${proxima}>; rel="next", <${fim}>; rel="last"`;
+  }
+  return { fatia, cabecalhos };
+}
+
 function filtrarPorEstrelas(repos, q) {
   const maior = q.match(/^stars:>(\d+)$/);
   if (maior) return repos.filter((r) => r.stargazers_count > Number(maior[1]));
@@ -63,8 +105,19 @@ function filtrarPorEstrelas(repos, q) {
 //   limiteDaBusca    maximo de resultados por consulta (na API real: 1000)
 //   actions          { full_name: total_count | Response }  (padrao: 3 workflows)
 //   contribuidores   { full_name: numero | Response }        (padrao: 10)
+//   releases         { full_name: [release()] | Response }   (padrao: lista vazia)
+//   comparacoes      { full_name: { "base...head": [commit()] | { commits, total_commits } | Response } }
+//                    (chave ausente -> 404, como uma tag apagada)
 //   antes(url)       gancho chamado em toda requisicao; se devolver Response, ela e' usada
-export function criarApiFalsa({ repos = [], limiteDaBusca = 1000, actions = {}, contribuidores = {}, antes } = {}) {
+export function criarApiFalsa({
+  repos = [],
+  limiteDaBusca = 1000,
+  actions = {},
+  contribuidores = {},
+  releases = {},
+  comparacoes = {},
+  antes,
+} = {}) {
   const chamadas = [];
 
   async function fetchFalso(urlTexto, opcoes = {}) {
@@ -124,6 +177,35 @@ export function criarApiFalsa({ repos = [], limiteDaBusca = 1000, actions = {}, 
         cabecalhos.link = `<${base}&page=2>; rel="next", <${base}&page=${valor}>; rel="last"`;
       }
       return respostaJSON(200, [{ login: "alguem", contributions: 100 }], cabecalhos);
+    }
+
+    // GET /repos/{o}/{r}/releases - a API devolve em created_at desc.
+    const listaDeReleases = url.pathname.match(/^\/repos\/([^/]+)\/([^/]+)\/releases$/);
+    if (listaDeReleases) {
+      const nome = `${decodeURIComponent(listaDeReleases[1])}/${decodeURIComponent(listaDeReleases[2])}`;
+      const valor = releases[nome];
+      if (valor instanceof Response) return valor;
+      const lista = [...(valor ?? [])].sort(
+        (a, b) =>
+          Date.parse(b.created_at ?? b.published_at) - Date.parse(a.created_at ?? a.published_at) || b.id - a.id
+      );
+      const { fatia, cabecalhos } = paginarLista(url, lista, 30);
+      return respostaJSON(200, fatia, cabecalhos);
+    }
+
+    // GET /repos/{o}/{r}/compare/{base}...{head} - commits em ordem
+    // cronologica crescente, como a API real.
+    const comparar = url.pathname.match(/^\/repos\/([^/]+)\/([^/]+)\/compare\/(.+)$/);
+    if (comparar) {
+      const nome = `${decodeURIComponent(comparar[1])}/${decodeURIComponent(comparar[2])}`;
+      const chave = comparar[3].split("...").map(decodeURIComponent).join("...");
+      const valor = comparacoes[nome]?.[chave];
+      if (valor === undefined) return respostaJSON(404, { message: "Not Found" });
+      if (valor instanceof Response) return valor;
+      const commits = Array.isArray(valor) ? valor : (valor.commits ?? []);
+      const total = Array.isArray(valor) ? commits.length : (valor.total_commits ?? commits.length);
+      const { fatia, cabecalhos } = paginarLista(url, commits, 250);
+      return respostaJSON(200, { status: "ahead", ahead_by: total, total_commits: total, commits: fatia }, cabecalhos);
     }
 
     return respostaJSON(404, { message: "Not Found" });
