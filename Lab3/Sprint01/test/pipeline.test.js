@@ -32,19 +32,30 @@ async function comToken(valor, fn) {
 }
 
 test("lerArgumentos: padroes e flags", () => {
-  assert.deepEqual(lerArgumentos([]), { config: "config.json", etapa: null, semCache: false });
-  assert.deepEqual(lerArgumentos(["--config", "x.json", "--etapa", "repositorios", "--sem-cache"]), {
+  assert.deepEqual(lerArgumentos([]), { config: "config.json", etapa: null, semCache: false, limite: null });
+  assert.deepEqual(lerArgumentos(["--config", "x.json", "--etapa", "repositorios", "--sem-cache", "--limite", "20"]), {
     config: "x.json",
     etapa: "repositorios",
     semCache: true,
+    limite: 20,
   });
   assert.throws(() => lerArgumentos(["--config"]), /--config exige um valor/);
   assert.throws(() => lerArgumentos(["--etapa", "--sem-cache"]), /--etapa exige um valor/);
   assert.throws(() => lerArgumentos(["--qualquer"]), /argumento desconhecido/);
 });
 
+test("lerArgumentos: --limite exige um inteiro >= 1", () => {
+  assert.throws(() => lerArgumentos(["--limite"]), /--limite exige um valor/);
+  assert.throws(() => lerArgumentos(["--limite", "0"]), /--limite exige um inteiro >= 1/);
+  assert.throws(() => lerArgumentos(["--limite", "2.5"]), /--limite exige um inteiro >= 1/);
+  assert.throws(() => lerArgumentos(["--limite", "cem"]), /--limite exige um inteiro >= 1/);
+});
+
 test("main: etapa inexistente lista as disponiveis", async () => {
-  await assert.rejects(main(["--etapa", "nada"], { log: logSilencioso }), /etapa desconhecida: nada \(disponiveis: repositorios\)/);
+  await assert.rejects(
+    main(["--etapa", "nada"], { log: logSilencioso }),
+    /etapa desconhecida: nada \(disponiveis: repositorios, releases, leadtime\)/
+  );
 });
 
 test("main: sem GITHUB_TOKEN falha antes de qualquer requisicao", async () => {

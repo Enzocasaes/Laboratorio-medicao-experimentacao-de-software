@@ -4,10 +4,16 @@ Laboratório de Experimentação de Software — Laboratório 03.
 
 Pipeline reprodutível que minera métricas DORA de repositórios open-source
 populares que usam GitHub Actions, via API REST do GitHub (sem bibliotecas
-prontas de acesso à API). Este README cobre, por enquanto, a etapa
-**`repositorios`** — seleção de repositórios, funil e coleta de metadados
-(Pessoa A, Issue #66). As etapas de releases/lead time (B) e de workflow
-runs/CFR/tempo de recuperação (C) entram no mesmo comando, depois desta.
+prontas de acesso à API). Este README cobre, por enquanto, as etapas:
+
+| Etapa | O que faz | Responsável |
+|---|---|---|
+| `repositorios` | seleção de repositórios, funil e metadados | Pessoa A, Issue #66 |
+| `releases` | releases publicadas na janela e contagem para o critério mínimo | Pessoa B, Issue #67 |
+| `leadtime` | commits entre releases e **lead time for changes (RQ 02)** | Pessoa B, Issue #67 |
+
+A etapa de workflow runs / CFR / tempo de recuperação (Pessoa C) entra no mesmo
+comando, depois destas.
 
 ---
 
@@ -47,17 +53,26 @@ para que o grupo replicador use exatamente os mesmos parâmetros):
     "minimoDeReleases": 5,
     "minimoDeWorkflowRuns": 50
   },
+  "coleta": {
+    "releasesPorPagina": 100,
+    "maxPaginasDeReleases": 20,
+    "commitsPorPagina": 100,
+    "maxCommitsPorRelease": 1000
+  },
   "diretorios": { "cache": "data/cache", "saida": "data" }
 }
 ```
 
 | Campo | Significado |
 |---|---|
-| `janela.inicio`, `janela.fim` | **Obrigatórios.** Datas fixadas pelo professor (seção 3 do enunciado), em UTC. O dia `fim` está dentro da janela. **Ainda não foram preenchidas** — o pipeline se recusa a rodar com `AAAA-MM-DD`. |
+| `janela.inicio`, `janela.fim` | **Obrigatórios.** Datas fixadas pelo professor (seção 3 do enunciado), em UTC. O dia `fim` está dentro da janela. Não têm valor padrão: o pipeline se recusa a rodar sem elas. |
 | `selecao.estrelasAcimaDe` | Busca `stars:>N` (enunciado: 1000). |
 | `selecao.quantidadeDeCandidatos` | Quantos candidatos (os de mais estrelas) entram no topo do funil. Precisa ser bem maior que a amostra-alvo, porque muitos caem nos filtros. |
 | `selecao.tamanhoAlvoDaAmostra` | Tamanho da amostra final (S01: 100; S02: ≥ 300). |
 | `selecao.minimoDeReleases`, `minimoDeWorkflowRuns` | Critério mínimo de inclusão do enunciado (5 e 50). |
+| `coleta.releasesPorPagina`, `commitsPorPagina` | `per_page` das listagens (máximo 100, o limite da API). |
+| `coleta.maxPaginasDeReleases` | Teto de páginas de `/releases` por repositório. Ao ser atingido sem alcançar o início da janela, a coleta é marcada como `truncated` em vez de fingir que a lista acabou. |
+| `coleta.maxCommitsPorRelease` | Teto de commits por comparação entre duas releases. Ver *Releases e lead time*. |
 | `diretorios.*` | Relativos à pasta do `config.json`. |
 
 ## Execução
@@ -65,17 +80,26 @@ para que o grupo replicador use exatamente os mesmos parâmetros):
 ```bash
 cd Lab3/Sprint01
 
-# pipeline completo (um único comando)
+# pipeline completo (um único comando), na ordem das etapas
 npm run pipeline                       # = node src/pipeline.js --config config.json
 
-# só a etapa de seleção (Pessoa A)
-npm run coletar:repositorios           # = node src/pipeline.js --config config.json --etapa repositorios
+# uma etapa só
+npm run coletar:repositorios           # seleção, funil e metadados (A)
+npm run coletar:releases               # releases da janela (B)
+npm run coletar:leadtime               # commits entre releases e lead time (B)
 
 # opções
 node src/pipeline.js --config outro.json   # outro arquivo de configuração
+node src/pipeline.js --limite 20           # só os 20 repositórios com mais estrelas
 node src/pipeline.js --sem-cache           # ignora o cache em disco (não recomendado)
 LOG_LEVEL=debug npm run pipeline           # mostra também cada acerto de cache e a cota restante
 ```
+
+**`--limite N`** processa apenas os `N` primeiros repositórios por número de
+estrelas. Serve para experimentar e demonstrar a coleta em minutos, em vez de
+horas. Os repositórios não processados continuam contados como `pending` no
+funil — e não como se não tivessem releases —, então a amostra final **não** é
+fechada enquanto houver limite. A coleta oficial roda **sem** a flag.
 
 **Interrupção e retomada.** Cada resposta da API é salva em `data/cache/`
 (um JSON por requisição). Se a execução parar — rate limit, queda de rede,
@@ -90,9 +114,17 @@ tempo indicado. Respostas `5xx` e falhas de rede são repetidas com backoff
 exponencial (1 s, 2 s, 4 s, 8 s, 16 s); se persistirem, a execução para com
 erro — sem gravar resultado parcial — e pode ser retomada.
 
-Custo aproximado (estimativa, não medição): uma requisição de
-`actions/workflows` por candidato, mais uma de `contributors` por candidato com
-Actions, mais ~10 páginas de busca por fatia.
+Custo aproximado (estimativa, não medição):
+
+| Etapa | Requisições |
+|---|---|
+| `repositorios` | ~10 páginas de busca por fatia, mais uma de `actions/workflows` por candidato e uma de `contributors` por candidato com Actions |
+| `releases` | 1 a 3 por repositório (1 página de 100 releases costuma alcançar o início da janela) |
+| `leadtime` | 1 por release avaliada, mais páginas extras nas comparações com mais de 100 commits |
+
+Com a cota autenticada de 5.000 requisições/hora, a coleta completa das três
+etapas leva algumas horas e atravessa mais de uma renovação de cota. Isso é
+esperado: o cliente espera sozinho e o cache garante que nada é refeito.
 
 ## Como a seleção funciona
 
@@ -132,14 +164,83 @@ execução — para que a idade não dependa do dia em que a coleta rodou.
 `created_relative_to_window` indica se o repositório foi criado antes, dentro
 (exposição menor que 12 meses) ou depois da janela.
 
+## Releases e lead time (RQ 02)
+
+### Definições operacionais
+
+Um **deploy** é uma release publicada: `draft = false`, `prerelease = false` e
+`published_at` preenchido (seção 3 do enunciado). Pré-releases e rascunhos
+**não** entram na definição principal, mas continuam no CSV, classificados,
+porque a variante C2 da RQ 07 ("release + pré-release") precisa deles sem uma
+nova coleta.
+
+A **sequência de deploys** de um repositório são suas deploy releases ordenadas
+por `published_at` crescente (empate pelo `id`, para a ordem não depender de
+como a API respondeu). A **release anterior** de R é o elemento imediatamente
+anterior dessa sequência, e **pode estar fora da janela** — por isso a coleta
+de `/releases` pagina até encontrar a primeira deploy release publicada antes
+do início da janela. Se R é a primeira release da história do repositório, R é
+ignorada no lead time, como manda o enunciado.
+
+Os **commits de R** vêm de `GET /compare/{tag da anterior}...{tag de R}`, e a
+data de um commit é `commit.author.date` (quando a mudança foi escrita).
+
+| Variante | Fórmula | Valor do repositório |
+|---|---|---|
+| **(a) por release** | `published_at(R) − data do commit mais antigo de R` | mediana das suas releases da janela |
+| **(b) por commit** | `published_at(R) − data do commit`, para cada commit | mediana de **todos** os commits de **todas** as releases |
+
+A unidade canônica é **horas** (decimais, 3 casas); os CSVs também trazem a
+coluna em dias, por legibilidade. Medianas e IQR usam percentil com
+interpolação linear — o mesmo método padrão do `numpy.percentile` —, para que a
+análise em Python da Sprint 03 reproduza exatamente estes números.
+
+*Conferindo com o exemplo do enunciado:* `v1.1` publicada em 15/03 incluindo
+commits de 02/03, 10/03 e 14/03 dá **13 dias** na variante (a), e contribui com
+13, 5 e 1 dias para a (b). Esse caso está em
+[test/leadtime.test.js](test/leadtime.test.js).
+
+### Casos de borda
+
+Nenhum é descartado em silêncio: todos aparecem contados em `lead_time.csv` e
+com o motivo em `release_commits.csv`.
+
+| Situação | Tratamento |
+|---|---|
+| R é a primeira release da história | ignorada (`no_predecessor`), contada em `releases_skipped_no_predecessor` |
+| Release sem commits novos (`total_commits = 0`) | fora das duas variantes (`no_new_commits`) |
+| Commit sem `author.date` | o commit é ignorado; os demais da release continuam valendo |
+| **Lead time negativo** | o valor é **mantido** e contado em `negative_lead_time_commits`. Acontece quando rebase ou squash merge reescrevem `author.date` para depois da publicação da release. Descartar esses casos esconderia exatamente a distorção que o enunciado pede para registrar como ameaça à validade de construto |
+| Comparação acima de `maxCommitsPorRelease` | release marcada como `truncated`: sai da variante (b), onde faltariam commits, mas **permanece** na (a), porque o `compare` devolve os commits em ordem cronológica e o mais antigo está na primeira página |
+| Tag apagada depois da release (404) ou comparação inválida (422) | motivo registrado na linha da release; a coleta continua |
+| `/releases` indisponível (404, 403) | o repositório fica **`pending`** no funil, e não excluído: erro de coleta não é o mesmo que "tem menos de 5 releases" |
+
+### Por que duas etapas separadas
+
+`releases` custa ~1 requisição por repositório e **precisa** rodar nos 1.321
+candidatos: sem a contagem de todos, o corte dos 100 com mais estrelas seria
+enviesado (um repositório de rank 500 com releases suficientes nunca seria
+avaliado). Já `leadtime` custa 1 requisição por **release**, e por isso só roda
+nos repositórios que passaram no mínimo de 5 releases — gastar `compare` em
+quem já saiu do funil seria desperdício de cota.
+
+A etapa `leadtime` relê as releases pelo mesmo `coletarReleases`, que vem
+inteiro do cache em disco (zero requisições de rede). Assim há uma única fonte
+de verdade, sem risco de o CSV divergir da coleta.
+
 ## Arquivos gerados
 
-| Arquivo | Conteúdo |
-|---|---|
-| `data/raw/repositories.json` | Tudo: data de geração, janela, parâmetros da seleção, fatias da busca e um registro por candidato. |
-| `data/processed/candidates.csv` | Todos os candidatos, **inclusive os descartados** (com etapa e motivo). Trilha de auditoria. |
-| `data/processed/repositories.csv` | Só os que seguem no pipeline — **entrada das etapas de B e C**. |
-| `data/processed/selection_funnel.csv` | Funil de seleção para a Metodologia do artigo. |
+| Arquivo | Etapa | Conteúdo |
+|---|---|---|
+| `data/raw/repositories.json` | `repositorios` | Tudo: data de geração, janela, parâmetros da seleção, fatias da busca e um registro por candidato. |
+| `data/processed/candidates.csv` | `repositorios` | Todos os candidatos, **inclusive os descartados** (com etapa e motivo). Trilha de auditoria. |
+| `data/processed/repositories.csv` | `repositorios` | Só os que seguem no pipeline — **entrada das etapas de B e C**. |
+| `data/processed/selection_funnel.csv` | `repositorios` | Funil de seleção para a Metodologia do artigo. |
+| `data/processed/releases.csv` | `releases` | Uma linha por release coletada, classificada (deploy, pré-release, rascunho, dentro/fora da janela). |
+| `data/raw/releases.json` | `releases` | Resumo da coleta por repositório: contagens, páginas lidas, truncamento e erros. |
+| `data/processed/release_commits.csv` | `leadtime` | Uma linha por release avaliada: a comparação usada, o commit mais antigo e o lead time da variante (a). |
+| `data/processed/lead_time.csv` | `leadtime` | **Uma linha por repositório: as duas variantes do lead time.** Entrada da análise da RQ 02. |
+| `data/raw/lead_time.json` | `leadtime` | Detalhe por release, mais as definições operacionais usadas, para auditoria e replicação. |
 
 `data/raw/` e `data/processed/` são versionados (os demais integrantes e o
 grupo replicador partem da mesma seleção); `data/cache/` não.
@@ -163,7 +264,7 @@ grupo replicador partem da mesma seleção); `data/cache/` não.
 | `created_relative_to_window` | texto | `before_window`, `within_window` ou `after_window`. |
 | `has_github_actions` | booleano | `actions/workflows` `total_count > 0`; vazio se a consulta falhou. |
 | `workflow_count` | inteiro | `total_count` de `actions/workflows`. |
-| `releases_in_window` | inteiro | **Preenchido pela etapa de B.** Releases publicadas (`draft = false`) na janela. |
+| `releases_in_window` | inteiro | **Preenchido pela etapa `releases` (B).** Deploy releases na janela: `draft = false` **e** `prerelease = false`. Pré-releases têm coluna própria em `lead_time.csv`. Vazio = a coleta falhou para esse repositório (≠ zero releases). |
 | `valid_workflow_runs` | inteiro | **Preenchido pela etapa de C.** Runs `event = push` no default branch, na janela, com `conclusion` de sucesso ou falha. |
 | `status` | texto | `pending` (aguarda etapas seguintes), `eligible` (cumpre o critério, aguarda o corte), `included` (amostra final), `excluded`. |
 | `excluded_at_stage` | texto | Etapa do funil em que foi descartado. |
@@ -185,18 +286,77 @@ grupo replicador partem da mesma seleção); `data/cache/` não.
 
 Vale sempre `entered = remaining + excluded + pending`.
 
+### Colunas de `releases.csv`
+
+| Coluna | Tipo | Origem / definição |
+|---|---|---|
+| `full_name` | texto | Repositório dono da release. |
+| `release_id` | inteiro | `id` da release na API. |
+| `tag_name` | texto | `tag_name` — é o ref usado no `compare`. Vazio = release sem tag (não pode ser comparada). |
+| `name` | texto | Título da release (`name`). |
+| `draft`, `prerelease` | booleano | Campos homônimos da API. |
+| `published_at` | ISO 8601 (UTC) | Instante da publicação. **É a "data do deploy"** nas duas variantes do lead time. Vazio em rascunho. |
+| `created_at` | ISO 8601 (UTC) | Criação da release (é por este campo que a API ordena a listagem). |
+| `target_commitish` | texto | Branch ou commit de origem da tag. |
+| `html_url` | texto | Página da release no GitHub. Serve de atalho para a planilha da validação manual (seção 6 do enunciado). |
+| `in_window` | booleano | `published_at` dentro da janela de observação. |
+| `is_deploy` | booleano | `draft = false` **e** `prerelease = false` **e** `published_at` preenchido. |
+| `deploy_index` | inteiro | Posição na sequência de deploys do repositório (1 = o mais antigo coletado). Vazio para quem não é deploy. |
+
+### Colunas de `release_commits.csv`
+
+| Coluna | Tipo | Origem / definição |
+|---|---|---|
+| `full_name`, `release_id`, `tag_name`, `published_at` | — | Identificam a release avaliada. |
+| `base_tag` | texto | Tag da **release anterior**, o `base` do `compare`. |
+| `commits_total` | inteiro | `total_commits` da resposta do `compare` (tamanho real da comparação). |
+| `commits_fetched` | inteiro | Quantos commits foram efetivamente lidos (menor que `commits_total` se truncou). |
+| `oldest_commit_date` | ISO 8601 (UTC) | `commit.author.date` do commit mais antigo da comparação. |
+| `lead_time_hours` | decimal (horas) | **Variante (a):** `published_at − oldest_commit_date`. Pode ser negativo. Vazio quando a release não foi avaliada. |
+| `lead_time_days` | decimal (dias) | `lead_time_hours / 24`. |
+| `truncated` | booleano | A comparação tem mais commits do que o teto permitiu ler. |
+| `negative_commits` | inteiro | Commits desta release com data posterior à publicação (rebase/squash). |
+| `status` | texto | `evaluated`, `no_predecessor`, `no_new_commits`, `missing_tag_name` ou `error`. |
+| `error` | texto | Motivo quando `status` não é `evaluated`: `compare_http_<status>`, `compare_unexpected_response`, `missing_tag_name`. |
+
+### Colunas de `lead_time.csv`
+
+| Coluna | Tipo | Origem / definição |
+|---|---|---|
+| `full_name` | texto | Repositório. |
+| `releases_total` | inteiro | Releases coletadas (inclui as de fora da janela e os rascunhos). |
+| `releases_in_window` | inteiro | Deploy releases na janela. **É o numerador da RQ 01** (deployment frequency). |
+| `prereleases_in_window` | inteiro | Pré-releases publicadas na janela. Para a variante C2 da RQ 07. |
+| `published_releases_in_window` | inteiro | `releases_in_window + prereleases_in_window`. |
+| `releases_evaluated` | inteiro | Releases que entraram no cálculo do lead time. |
+| `releases_skipped_no_predecessor` | inteiro | Ignoradas por serem a primeira release da história. |
+| `releases_without_commits` | inteiro | Comparação sem nenhum commit com data. |
+| `releases_with_error` | inteiro | Comparação que falhou (ver `errors`). |
+| `truncated_releases` | inteiro | Releases cuja comparação excedeu o teto de commits. |
+| `commits_used` | inteiro | Commits que entraram na variante (b). |
+| `negative_lead_time_commits` | inteiro | Total de commits com lead time negativo. **Ameaça à validade de construto.** |
+| `lead_time_release_median_hours` | decimal (horas) | **Variante (a):** mediana do lead time das releases avaliadas. Vazio quando nenhuma release pôde ser avaliada. |
+| `lead_time_release_median_days` | decimal (dias) | A mesma mediana, em dias. É a coluna que se compara com a tabela DORA (`< 1 dia` = Elite). |
+| `lead_time_release_iqr_hours` | decimal (horas) | IQR (Q3 − Q1) da variante (a) dentro do repositório. |
+| `lead_time_commit_median_hours` / `_days` / `_iqr_hours` | decimal | O mesmo, para a **variante (b)**, sobre todos os commits das releases não truncadas. |
+| `errors` | texto | Contagem por motivo, formato `motivo:quantidade;motivo:quantidade`. |
+
 **Motivos de exclusão:** `no_github_actions`, `actions_http_<status>`,
 `actions_unexpected_response`, `fewer_than_5_releases_in_window`,
 `fewer_than_50_valid_workflow_runs_in_window`, `beyond_target_sample_size`.
+**Motivos de falha na coleta de releases/commits:** `releases_http_<status>`,
+`releases_unexpected_response`, `compare_http_<status>`,
+`compare_unexpected_response`, `missing_tag_name`.
 **Problemas de metadado:** `contributors_list_too_large`,
 `contributors_http_<status>`, `contributors_unexpected_response`,
 `contributors_missing_last_page`, `contributors_invalid_link_header`,
 `missing_default_branch`, `invalid_created_at`.
 
-## Integração com B e C
+## Integração entre as etapas
 
 A etapa de seleção não depende das implementações de B e C; a ligação é feita
-por dados e por três funções de [src/selecao/index.js](src/selecao/index.js):
+por dados e por três funções de [src/selecao/index.js](src/selecao/index.js).
+A etapa `releases` já usa esse contrato — é o modelo para a etapa de C:
 
 ```js
 import { repositoriosParaColeta, atualizarCriterios } from "./selecao/index.js";
@@ -220,10 +380,17 @@ isso as etapas de B e C devem vir **depois** dela em `ETAPAS` — com o cache,
 reexecutar tudo não repete chamadas à API.
 
 Para registrar uma etapa no comando único, acrescente-a em `ETAPAS` de
-[src/pipeline.js](src/pipeline.js) — cada etapa recebe `{ config, cliente, log }`.
-O cliente HTTP ([src/github/cliente.js](src/github/cliente.js)) e o cache
+[src/pipeline.js](src/pipeline.js) — cada etapa recebe
+`{ config, cliente, log, limite }`. O cliente HTTP
+([src/github/cliente.js](src/github/cliente.js)) e o cache
 ([src/github/cache.js](src/github/cache.js)) são genéricos para qualquer `GET`
-da API, com paginação via `resposta.links.next`.
+da API, com paginação via `resposta.links.next`;
+[src/github/caminhos.js](src/github/caminhos.js) monta os caminhos por
+repositório com o escape correto.
+
+**Reuso disponível para a etapa de C:** a mediana, o IQR e o percentil de
+[src/releases/leadtime.js](src/releases/leadtime.js) são puros e servem
+igualmente para o tempo de recuperação (RQ 04).
 
 ## Estrutura
 
@@ -239,13 +406,20 @@ Lab3/Sprint01/
 │   ├── github/
 │   │   ├── cliente.js        # REST: token, cache, rate limit, backoff
 │   │   ├── cache.js          # um JSON por requisição, gravação atômica
+│   │   ├── caminhos.js       # caminhos por repositório e basehead do compare
 │   │   └── link.js           # cabeçalho Link (paginação)
-│   └── selecao/
-│       ├── index.js          # etapa "repositorios" + interface para B/C
-│       ├── busca.js          # busca fatiada por estrelas
-│       ├── verificacoes.js   # Actions e contribuidores
-│       ├── modelo.js         # registro do repositório, status, motivos
-│       └── funil.js          # critério mínimo, amostra final, funil
+│   ├── selecao/
+│   │   ├── index.js          # etapa "repositorios" + interface para B/C
+│   │   ├── busca.js          # busca fatiada por estrelas
+│   │   ├── verificacoes.js   # Actions e contribuidores
+│   │   ├── modelo.js         # registro do repositório, status, motivos
+│   │   └── funil.js          # critério mínimo, amostra final, funil
+│   └── releases/
+│       ├── index.js          # etapas "releases" e "leadtime"
+│       ├── coleta.js         # /releases paginado, com a regra de parada
+│       ├── commits.js        # /compare paginado (commits entre releases)
+│       ├── leadtime.js       # cálculo puro: mediana, IQR, lead time (a) e (b)
+│       └── modelo.js         # registro da release, deploy, contagens
 └── test/                     # node:test, API falsa em memória
 ```
 
@@ -265,10 +439,18 @@ borda da janela, contagem de contribuidores (com/sem `Link`, zero, `204`,
 truncamento), Actions ausente, funil, 404/500/rate limit, cache
 existente/inexistente/corrompido e execução interrompida e retomada.
 
+As funções de cálculo do lead time têm testes próprios, com *fixtures* feitas à
+mão e resultado conferido no papel — incluindo o exemplo numérico do enunciado:
+
+| Arquivo | Cobre |
+|---|---|
+| [test/leadtime.test.js](test/leadtime.test.js) | mediana (par/ímpar/vazia), percentil e IQR, sequência de deploys (draft e pré-release fora), release anterior fora da janela, primeira release da história, release sem commits, lead time negativo, release truncada, e o exemplo do enunciado |
+| [test/releases-coleta.test.js](test/releases-coleta.test.js) | paginação e regra de parada, janela inclusiva nas duas pontas, teto de páginas, item sem `id`, 404/403, corpo inesperado |
+| [test/releases-commits.test.js](test/releases-commits.test.js) | paginação do `compare`, tag com barra escapada, truncamento por teto e por `total_commits`, commit sem `author.date`, tag apagada (404), comparação inválida (422) |
+| [test/releases-etapa.test.js](test/releases-etapa.test.js) | as duas etapas de ponta a ponta: contagem devolvida ao funil, CSVs gerados, `--limite`, repositório sem releases vs. erro de coleta, e segunda execução sem ir à rede |
+
 ## Limitações conhecidas
 
-- **Datas da janela pendentes:** `config.json` ainda tem `AAAA-MM-DD`; a coleta
-  real só roda depois de preenchidas com as datas do professor.
 - **A busca é um retrato do momento:** estrelas mudam com o tempo. A
   reprodutibilidade vem do cache e do JSON versionados (`collected_at` registra
   quando cada dado foi obtido); apagar o cache e rodar de novo gera outra
@@ -282,3 +464,25 @@ existente/inexistente/corrompido e execução interrompida e retomada.
   revalidar, apague o arquivo correspondente em `data/cache/`.
 - Os testes no GitHub Actions do grupo (`.github/workflows/`) ainda não foram
   configurados.
+
+Específicas das releases e do lead time:
+
+- **`published_at` vs. `created_at`:** a API ordena `/releases` por
+  `created_at`, mas a janela e o lead time usam `published_at`. Numa release
+  republicada os dois divergem, e a regra de parada da paginação (que olha
+  `published_at`) pode ler uma página a mais ou a menos. A coleta registra
+  `has_predecessor`, então o caso é detectável no `raw/releases.json`.
+- **`author.date` é reescrito por rebase e squash merge**, o que pode inflar ou
+  até inverter o lead time de um commit. A coluna
+  `negative_lead_time_commits` mede o quanto isso aparece na amostra; a
+  distorção na mesma direção (datas antigas preservadas num squash) **não** é
+  detectável. É a principal ameaça à validade de construto da RQ 02.
+- **Release ≠ deploy.** Numa biblioteca, publicar uma release não coloca nada
+  em produção: quem faz isso são os usuários dela. A validação manual da
+  Sprint 02 (seção 6 do enunciado) é o que mede o tamanho desse problema.
+- **Tags sem release** ficam fora: a variante C3 da RQ 07 (unidade de deploy =
+  tag) exige coletar `/tags` e a data do commit de cada tag, o que está
+  planejado para a Sprint 02.
+- A comparação é feita entre as **tags** das releases, não no default branch.
+  Uma release publicada a partir de um branch de manutenção traz os commits
+  daquele branch.

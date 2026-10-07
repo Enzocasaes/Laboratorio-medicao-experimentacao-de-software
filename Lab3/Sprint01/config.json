@@ -10,6 +10,12 @@
     "minimoDeReleases": 5,
     "minimoDeWorkflowRuns": 50
   },
+  "coleta": {
+    "releasesPorPagina": 100,
+    "maxPaginasDeReleases": 20,
+    "commitsPorPagina": 100,
+    "maxCommitsPorRelease": 1000
+  },
   "diretorios": {
     "cache": "data/cache",
     "saida": "data"

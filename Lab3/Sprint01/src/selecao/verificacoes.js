@@ -7,12 +7,8 @@
 // como ErroGitHub (lancadas pelo cliente) e interrompem a execucao, que pode
 // ser retomada pelo cache.
 
+import { caminhoDoRepositorio } from "../github/caminhos.js";
 import { numeroDaPagina } from "../github/link.js";
-
-function caminhoDoRepositorio(fullName) {
-  const [dono, nome] = fullName.split("/");
-  return `/repos/${encodeURIComponent(dono)}/${encodeURIComponent(nome)}`;
-}
 
 // GET /repos/{owner}/{repo}/actions/workflows: total_count = 0 -> nao usa Actions.
 export async function verificarGitHubActions(cliente, fullName) {
