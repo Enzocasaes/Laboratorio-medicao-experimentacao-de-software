@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { writeFileSync } from "node:fs";
-import { join } from "node:path";
+import { join, resolve } from "node:path";
 import { SELECAO_PADRAO, carregarConfig, validarConfig } from "../src/config.js";
 import { pastaTemporaria } from "./apoio/api-falsa.js";
 
@@ -27,8 +27,10 @@ test("validarConfig: aplica os padroes da selecao (criterio oficial 5 releases /
 
 test("validarConfig: diretorios relativos sao resolvidos a partir da pasta do config", () => {
   const config = validarConfig({ janela: JANELA, diretorios: { cache: "c", saida: "../saida" } }, { baseDir: "/projeto/lab" });
-  assert.equal(config.diretorios.cache, "/projeto/lab/c");
-  assert.equal(config.diretorios.saida, "/projeto/saida");
+  // resolve() nos dois lados: no Windows o caminho absoluto ganha a unidade
+  // ("C:\projeto\lab\c") e a comparacao literal falharia so' la'.
+  assert.equal(config.diretorios.cache, resolve("/projeto/lab", "c"));
+  assert.equal(config.diretorios.saida, resolve("/projeto/lab", "../saida"));
 });
 
 test("validarConfig: numeros invalidos sao rejeitados com o nome do campo", () => {

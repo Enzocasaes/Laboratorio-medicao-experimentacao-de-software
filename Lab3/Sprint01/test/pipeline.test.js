@@ -54,7 +54,7 @@ test("lerArgumentos: --limite exige um inteiro >= 1", () => {
 test("main: etapa inexistente lista as disponiveis", async () => {
   await assert.rejects(
     main(["--etapa", "nada"], { log: logSilencioso }),
-    /etapa desconhecida: nada \(disponiveis: repositorios, releases, leadtime\)/
+    /etapa desconhecida: nada \(disponiveis: repositorios, releases, leadtime, runs\)/
   );
 });
 

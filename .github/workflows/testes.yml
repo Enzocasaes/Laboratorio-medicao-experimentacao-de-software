@@ -1,0 +1,41 @@
+# CI do grupo (requisito da secao 7 do enunciado do Lab03): os testes do
+# pipeline rodam a cada push e a cada pull request, com o limite de cobertura
+# do proprio projeto (80% das linhas, configurado em package.json).
+#
+# De quebra, este workflow passa a gerar no repositorio do grupo os mesmos
+# dados de CI que o laboratorio minera (workflow runs do default branch
+# disparados por push).
+#
+# O pipeline NAO e' executado aqui: a coleta precisa de GITHUB_TOKEN com cota
+# propria e leva horas. A CI cobre so' os testes, que nao tocam a rede.
+name: testes
+
+on:
+  push:
+    branches: ["**"]
+  pull_request:
+
+jobs:
+  lab03:
+    name: Lab03 - pipeline DORA
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: Lab3/Sprint01
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          # A versao exigida pelo projeto (engines.node) e fixada em .nvmrc do
+          # Lab02; aqui ela vem do proprio package.json do Lab03.
+          node-version: "22.x"
+
+      # O projeto nao tem dependencias (so' a biblioteca padrao do Node), entao
+      # nao ha "npm install" nem lockfile para cachear.
+      - name: Versao do Node
+        run: node --version
+
+      - name: Testes com cobertura (minimo de 80% das linhas)
+        run: npm run test:cobertura

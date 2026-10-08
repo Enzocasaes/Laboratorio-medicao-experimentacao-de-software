@@ -14,7 +14,9 @@
     "releasesPorPagina": 100,
     "maxPaginasDeReleases": 20,
     "commitsPorPagina": 100,
-    "maxCommitsPorRelease": 1000
+    "maxCommitsPorRelease": 1000,
+    "runsPorPagina": 100,
+    "maxPaginasDeRunsPorMes": 10
   },
   "diretorios": {
     "cache": "data/cache",

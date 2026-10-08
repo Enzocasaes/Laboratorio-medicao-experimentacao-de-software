@@ -11,9 +11,9 @@ prontas de acesso à API). Este README cobre, por enquanto, as etapas:
 | `repositorios` | seleção de repositórios, funil e metadados | Pessoa A, Issue #66 |
 | `releases` | releases publicadas na janela e contagem para o critério mínimo | Pessoa B, Issue #67 |
 | `leadtime` | commits entre releases e **lead time for changes (RQ 02)** | Pessoa B, Issue #67 |
+| `runs` | workflow runs do default branch, **change failure rate (RQ 03 a)** e **tempo de recuperação (RQ 04)** | Pessoa C, Issue #68 |
 
-A etapa de workflow runs / CFR / tempo de recuperação (Pessoa C) entra no mesmo
-comando, depois destas.
+As quatro rodam no mesmo comando (`npm run pipeline`), nessa ordem.
 
 ---
 
@@ -57,7 +57,9 @@ para que o grupo replicador use exatamente os mesmos parâmetros):
     "releasesPorPagina": 100,
     "maxPaginasDeReleases": 20,
     "commitsPorPagina": 100,
-    "maxCommitsPorRelease": 1000
+    "maxCommitsPorRelease": 1000,
+    "runsPorPagina": 100,
+    "maxPaginasDeRunsPorMes": 10
   },
   "diretorios": { "cache": "data/cache", "saida": "data" }
 }
@@ -73,6 +75,8 @@ para que o grupo replicador use exatamente os mesmos parâmetros):
 | `coleta.releasesPorPagina`, `commitsPorPagina` | `per_page` das listagens (máximo 100, o limite da API). |
 | `coleta.maxPaginasDeReleases` | Teto de páginas de `/releases` por repositório. Ao ser atingido sem alcançar o início da janela, a coleta é marcada como `truncated` em vez de fingir que a lista acabou. |
 | `coleta.maxCommitsPorRelease` | Teto de commits por comparação entre duas releases. Ver *Releases e lead time*. |
+| `coleta.runsPorPagina` | `per_page` da listagem de workflow runs (máximo 100). |
+| `coleta.maxPaginasDeRunsPorMes` | Teto de páginas por fatia mensal de runs. O padrão (10 × 100 = 1.000) é exatamente o limite que a API entrega numa consulta filtrada. |
 | `diretorios.*` | Relativos à pasta do `config.json`. |
 
 ## Execução
@@ -87,6 +91,7 @@ npm run pipeline                       # = node src/pipeline.js --config config.
 npm run coletar:repositorios           # seleção, funil e metadados (A)
 npm run coletar:releases               # releases da janela (B)
 npm run coletar:leadtime               # commits entre releases e lead time (B)
+npm run coletar:runs                   # workflow runs, CFR (a) e recuperacao (C)
 
 # opções
 node src/pipeline.js --config outro.json   # outro arquivo de configuração
@@ -121,6 +126,7 @@ Custo aproximado (estimativa, não medição):
 | `repositorios` | ~10 páginas de busca por fatia, mais uma de `actions/workflows` por candidato e uma de `contributors` por candidato com Actions |
 | `releases` | 1 a 3 por repositório (1 página de 100 releases costuma alcançar o início da janela) |
 | `leadtime` | 1 por release avaliada, mais páginas extras nas comparações com mais de 100 commits |
+| `runs` | 1 por **mês** da janela e por repositório (≈ 13 com a janela atual), mais páginas extras nos meses com mais de 100 runs |
 
 Com a cota autenticada de 5.000 requisições/hora, a coleta completa das três
 etapas leva algumas horas e atravessa mais de uma renovação de cota. Isso é
@@ -228,6 +234,74 @@ A etapa `leadtime` relê as releases pelo mesmo `coletarReleases`, que vem
 inteiro do cache em disco (zero requisições de rede). Assim há uma única fonte
 de verdade, sem risco de o CSV divergir da coleta.
 
+## Workflow runs, CFR (RQ 03 a) e tempo de recuperação (RQ 04)
+
+### Definições operacionais
+
+Entram no cálculo apenas os runs do **default branch** disparados por **push**
+(`event = push`), com `run_started_at` dentro da janela. A classificação segue
+a tabela da seção 3 do enunciado:
+
+| `conclusion` | Classificação |
+|---|---|
+| `success` | sucesso |
+| `failure`, `timed_out`, `startup_failure` | falha |
+| `cancelled`, `skipped`, `neutral`, `action_required`, `stale`, vazio (em andamento) | **ignorado** — fora de todos os cálculos |
+
+Conclusões que o enunciado não previu (a API pode ganhar valores novos) também
+são ignoradas, mas contadas em `unknown_conclusions`, para que uma mudança da
+API apareça no relato em vez de sumir.
+
+**CFR, variante (a) — proxy de CI:** `falhas ÷ (falhas + sucessos)`. Sem nenhum
+run válido a taxa fica **vazia**, e não zero: "não medido" é diferente de
+"nenhuma falha". Essa variante mede **falha de pipeline**, não falha em
+produção — a diferença é discutida nas ameaças de construto do artigo. A
+variante (b), de release corretiva, é da Sprint 02.
+
+**Tempo de recuperação (RQ 04):** dentro de **cada workflow**, em ordem
+cronológica por `run_started_at`, um **episódio de falha** começa na primeira
+falha depois de um sucesso e termina na próxima execução bem-sucedida do mesmo
+workflow. O tempo do episódio é `updated_at do sucesso − run_started_at da
+primeira falha`, em horas. O valor do repositório é a **mediana** dos episódios
+de todos os seus workflows. Execuções ignoradas no meio não abrem, não fecham e
+não quebram episódio.
+
+*Conferindo com o exemplo do enunciado:* 09:00 `success`, 10:00 `failure`,
+10:30 `failure`, 11:15 `success` terminando 11:20 → um episódio de **1h20**
+(1,333 h). Esse caso está em [test/runs-metricas.test.js](test/runs-metricas.test.js).
+
+### Por que a janela é fatiada em meses
+
+Com filtros, `GET /actions/runs` devolve no máximo **1.000 resultados por
+consulta**, e a API não avisa quando corta — ela simplesmente para de paginar.
+Um repositório ativo passa de 1.000 runs em 12 meses com folga. Por isso a
+coleta pede **um mês de cada vez** (`created=AAAA-MM-DD..AAAA-MM-DD`), e cada
+fatia é conferida contra o `total_count` da resposta, que traz o número real.
+Fatia acima do teto é marcada como `truncated` em `raw/workflow_runs.json`,
+nunca convertida silenciosamente num número menor. Como cada fatia é uma URL
+própria, o cache guarda mês a mês: uma execução interrompida em junho retoma
+sem rebaixar os meses já coletados.
+
+### Casos de borda
+
+| Situação | Tratamento |
+|---|---|
+| **Episódio sem recuperação até o fim da janela** | **censura à direita**: fica com `censored = 1`, **fora da mediana**, e a proporção vai para `recovery_censored_ratio`. Nunca é descartado — descartar faria o repositório parecer mais rápido do que é |
+| **Falhas no início da janela, sem nenhum sucesso antes** | **censura à esquerda**: pela definição do enunciado o episódio começa na primeira falha *após um sucesso*, então essas falhas não formam episódio. Ficam no CSV com `prior_success = 0` e são contadas em `episodes_without_prior_success`, para que a Sprint 03 possa refazer a conta incluindo-as |
+| Execuções `cancelled`, `skipped`, em andamento… | ignoradas: não entram no CFR, não contam para o mínimo de 50 e não interferem nos episódios |
+| Run de outro branch ou outro evento que escape do filtro da URL | descartado na classificação e contado em `other_branch_runs` / `other_event_runs` |
+| `updated_at` anterior ao início da falha (dado inconsistente) | episódio contado em `negative_recovery_episodes` e deixado fora da mediana |
+| Fatia mensal com mais runs que o teto da consulta | `truncated = 1` na fatia e `truncated_slices > 0` no repositório |
+| `/actions/runs` indisponível (404, 403) numa fatia | a coleta do repositório para e ele fica **`pending`** no funil, e não excluído: contar só as fatias que vieram o eliminaria por "menos de 50 runs" sem ter medido |
+
+### Por que a etapa roda depois de `releases`
+
+Cada repositório custa ~13 requisições (uma por mês da janela). Quando `runs`
+roda depois de `releases`, quem ficou abaixo de 5 releases já saiu do funil e
+não gasta cota. A etapa devolve `valid_workflow_runs` pela mesma interface de
+B (`atualizarCriterios`), que aplica o mínimo de 50 runs e, quando não resta
+nenhum pendente, fecha a amostra final.
+
 ## Arquivos gerados
 
 | Arquivo | Etapa | Conteúdo |
@@ -241,6 +315,10 @@ de verdade, sem risco de o CSV divergir da coleta.
 | `data/processed/release_commits.csv` | `leadtime` | Uma linha por release avaliada: a comparação usada, o commit mais antigo e o lead time da variante (a). |
 | `data/processed/lead_time.csv` | `leadtime` | **Uma linha por repositório: as duas variantes do lead time.** Entrada da análise da RQ 02. |
 | `data/raw/lead_time.json` | `leadtime` | Detalhe por release, mais as definições operacionais usadas, para auditoria e replicação. |
+| `data/processed/workflow_runs.csv` | `runs` | Uma linha por workflow run coletado, já classificado (sucesso, falha, ignorado). Dado bruto da RQ 03 (a) e da RQ 04. |
+| `data/processed/recovery_episodes.csv` | `runs` | Uma linha por episódio de falha: início, recuperação, duração e censura. |
+| `data/processed/dora_runs.csv` | `runs` | **Uma linha por repositório: contagens, CFR (a) e tempo de recuperação.** Entrada da análise das RQ 03 e RQ 04. |
+| `data/raw/workflow_runs.json` | `runs` | Fatias mensais pedidas (com `total_count` e truncamento), contagens e erros por repositório, mais as definições operacionais usadas. |
 
 `data/raw/` e `data/processed/` são versionados (os demais integrantes e o
 grupo replicador partem da mesma seleção); `data/cache/` não.
@@ -341,12 +419,66 @@ Vale sempre `entered = remaining + excluded + pending`.
 | `lead_time_commit_median_hours` / `_days` / `_iqr_hours` | decimal | O mesmo, para a **variante (b)**, sobre todos os commits das releases não truncadas. |
 | `errors` | texto | Contagem por motivo, formato `motivo:quantidade;motivo:quantidade`. |
 
+
+### Colunas de `workflow_runs.csv`
+
+| Coluna | Tipo | Origem / definição |
+|---|---|---|
+| `full_name` | texto | Repositório dono do run. |
+| `run_id`, `workflow_id`, `run_number`, `run_attempt` | inteiro | Campos homônimos da API. O `workflow_id` é o que agrupa os episódios da RQ 04. |
+| `workflow_name` | texto | `name` do run (nome do workflow). |
+| `head_branch`, `event`, `status` | texto | Campos homônimos. Só `event = push` no default branch entra nos cálculos. |
+| `conclusion` | texto | `conclusion` da API; vazio em execução ainda em andamento. |
+| `classification` | texto | `success`, `failure` ou `ignored`, pela tabela acima. |
+| `run_started_at` | ISO 8601 (UTC) | Início do run. **É o início do episódio de falha.** Cai para `created_at` quando a API não envia. |
+| `updated_at` | ISO 8601 (UTC) | Fim do run. **É o fim do episódio** quando o run é o sucesso que recupera. |
+| `created_at` | ISO 8601 (UTC) | Criação do run (é por este campo que a API filtra em `created=`). |
+| `in_window` | booleano | `run_started_at` dentro da janela. |
+| `html_url` | texto | Página do run no GitHub. |
+
+### Colunas de `recovery_episodes.csv`
+
+| Coluna | Tipo | Origem / definição |
+|---|---|---|
+| `full_name`, `workflow_id`, `workflow_name` | — | Identificam o workflow. Episódios **não** atravessam workflows. |
+| `episode_index` | inteiro | Posição do episódio dentro do workflow (1 = o mais antigo). |
+| `first_failure_run_id`, `first_failure_at` | — | Run e instante da primeira falha do episódio. |
+| `recovery_run_id`, `recovered_at` | — | Run e instante do sucesso que encerrou o episódio. Vazios se censurado. |
+| `failed_runs_in_episode` | inteiro | Quantas execuções falharam dentro do episódio. |
+| `recovery_hours` | decimal (horas) | `recovered_at − first_failure_at`. Vazio se censurado. |
+| `censored` | 0/1 | 1 = a falha não foi recuperada dentro da janela. |
+| `prior_success` | 0/1 | 0 = não houve sucesso antes dessa falha na janela (censura à esquerda); esses episódios ficam fora da mediana. |
+
+### Colunas de `dora_runs.csv`
+
+| Coluna | Tipo | Origem / definição |
+|---|---|---|
+| `full_name`, `rank`, `default_branch` | — | Identificação do repositório. |
+| `runs_total`, `runs_in_window` | inteiro | Runs coletados e os que caem dentro da janela. |
+| `valid_workflow_runs` | inteiro | **Critério mínimo (>= 50):** `push` no default branch, na janela, com sucesso ou falha. |
+| `successful_runs`, `failed_runs` | inteiro | Numerador e complemento do CFR (a). |
+| `ignored_runs`, `other_event_runs`, `other_branch_runs` | inteiro | Runs descartados por conclusão ignorada, por evento e por branch. |
+| `unknown_conclusions` | inteiro | Conclusões fora da tabela do enunciado (vigia mudanças da API). |
+| `workflows_with_valid_runs` | inteiro | Quantos workflows distintos têm runs válidos. |
+| `change_failure_rate_ci` | decimal 0–1 | **RQ 03 (a):** `failed_runs / (failed_runs + successful_runs)`. Vazio se não há run válido. |
+| `recovery_episodes` | inteiro | Episódios com sucesso anterior (os que valem pela definição do enunciado). |
+| `recovery_episodes_recovered`, `recovery_episodes_censored` | inteiro | Quantos terminaram e quantos seguem em aberto no fim da janela. |
+| `recovery_censored_ratio` | decimal 0–1 | Proporção de censurados — reportada junto da mediana, como pede o enunciado. |
+| `episodes_without_prior_success` | inteiro | Falhas iniciais sem sucesso anterior (censura à esquerda), fora da mediana. |
+| `recovery_median_hours` / `_days` | decimal | **RQ 04:** mediana dos episódios recuperados. A coluna em dias é a que se compara com a tabela DORA (`< 1 hora` = Elite). |
+| `recovery_iqr_hours` | decimal (horas) | IQR (Q3 − Q1) dos episódios do repositório. |
+| `negative_recovery_episodes` | inteiro | Episódios com duração negativa (dado inconsistente da API), fora da mediana. |
+| `truncated_slices` | inteiro | Fatias mensais que passaram do teto de 1.000 resultados. |
+| `error` | texto | `runs_http_<status>` ou `runs_unexpected_response` quando a coleta falhou (o repositório segue pendente no funil). |
+
 **Motivos de exclusão:** `no_github_actions`, `actions_http_<status>`,
 `actions_unexpected_response`, `fewer_than_5_releases_in_window`,
 `fewer_than_50_valid_workflow_runs_in_window`, `beyond_target_sample_size`.
 **Motivos de falha na coleta de releases/commits:** `releases_http_<status>`,
 `releases_unexpected_response`, `compare_http_<status>`,
 `compare_unexpected_response`, `missing_tag_name`.
+**Motivos de falha na coleta de workflow runs:** `runs_http_<status>`,
+`runs_unexpected_response`.
 **Problemas de metadado:** `contributors_list_too_large`,
 `contributors_http_<status>`, `contributors_unexpected_response`,
 `contributors_missing_last_page`, `contributors_invalid_link_header`,
@@ -418,8 +550,13 @@ Lab3/Sprint01/
 │       ├── index.js          # etapas "releases" e "leadtime"
 │       ├── coleta.js         # /releases paginado, com a regra de parada
 │       ├── commits.js        # /compare paginado (commits entre releases)
-│       ├── leadtime.js       # cálculo puro: mediana, IQR, lead time (a) e (b)
-│       └── modelo.js         # registro da release, deploy, contagens
+│   │   ├── leadtime.js       # cálculo puro: mediana, IQR, lead time (a) e (b)
+│   │   └── modelo.js         # registro da release, deploy, contagens
+│   └── runs/
+│       ├── index.js          # etapa "runs"
+│       ├── coleta.js         # /actions/runs fatiado por mês, com o teto da API
+│       ├── metricas.js       # cálculo puro: CFR (a), episódios e recuperação
+│       └── modelo.js         # classificação de conclusion e contagens
 └── test/                     # node:test, API falsa em memória
 ```
 
@@ -448,6 +585,10 @@ mão e resultado conferido no papel — incluindo o exemplo numérico do enuncia
 | [test/releases-coleta.test.js](test/releases-coleta.test.js) | paginação e regra de parada, janela inclusiva nas duas pontas, teto de páginas, item sem `id`, 404/403, corpo inesperado |
 | [test/releases-commits.test.js](test/releases-commits.test.js) | paginação do `compare`, tag com barra escapada, truncamento por teto e por `total_commits`, commit sem `author.date`, tag apagada (404), comparação inválida (422) |
 | [test/releases-etapa.test.js](test/releases-etapa.test.js) | as duas etapas de ponta a ponta: contagem devolvida ao funil, CSVs gerados, `--limite`, repositório sem releases vs. erro de coleta, e segunda execução sem ir à rede |
+| [test/runs-modelo.test.js](test/runs-modelo.test.js) | a tabela de `conclusion` inteira (sucesso, falha, ignorados, vazio, valor novo da API), normalização do run, filtro de branch/evento e as contagens do critério mínimo |
+| [test/runs-coleta.test.js](test/runs-coleta.test.js) | fatiamento mensal (12 meses, recorte nas pontas, fevereiro bissexto, janela de um dia), filtros da URL, paginação, teto de 1.000 por consulta, teto de páginas, run repetido na fronteira de mês, item sem `id`, 404, corpo inesperado e retomada pelo cache |
+| [test/runs-metricas.test.js](test/runs-metricas.test.js) | **o exemplo do enunciado (1h20)**, CFR com e sem runs válidos, duas quebras seguidas, episódio censurado, falha sem sucesso anterior, execuções ignoradas no meio, workflows independentes, mediana/IQR/proporção de censurados e duração negativa |
+| [test/runs-etapa.test.js](test/runs-etapa.test.js) | a etapa `runs` de ponta a ponta: contagem devolvida ao funil e exclusão por menos de 50 runs, os três CSVs e o JSON de auditoria, `--limite`, erro de coleta deixando o repositório pendente, ordem das etapas e segunda execução sem ir à rede |
 
 ## Limitações conhecidas
 
@@ -462,8 +603,10 @@ mão e resultado conferido no papel — incluindo o exemplo numérico do enuncia
   repositórios cujo histórico o GitHub considera grande demais.
 - Respostas 4xx são guardadas no cache como definitivas (ex.: um 404). Para
   revalidar, apague o arquivo correspondente em `data/cache/`.
-- Os testes no GitHub Actions do grupo (`.github/workflows/`) ainda não foram
-  configurados.
+- O pipeline **não** roda na CI: a coleta precisa de `GITHUB_TOKEN` com cota
+  própria e leva horas. A CI
+  ([.github/workflows/testes.yml](../../.github/workflows/testes.yml)) roda só
+  os testes, que não tocam a rede, com o mínimo de 80% de cobertura de linhas.
 
 Específicas das releases e do lead time:
 
