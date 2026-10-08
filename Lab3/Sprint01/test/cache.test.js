@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { existsSync, readdirSync, writeFileSync } from "node:fs";
-import { relative } from "node:path";
+import { relative, sep } from "node:path";
 import {
   caminhoNoCache,
   chaveDaRequisicao,
@@ -49,11 +49,18 @@ test("chaveDaRequisicao: independe da ordem dos parametros e do host", () => {
 });
 
 test("caminhoNoCache: caminho legivel por repositorio/endpoint, sem caracteres perigosos", () => {
-  const caminho = caminhoNoCache("/c", "/search/repositories?q=stars%3A1001..5000&page=2");
-  const rel = relative("/c", caminho);
-  assert.match(rel, /^search\/repositories\/[A-Za-z0-9._=&-]+__[0-9a-f]{10}\.json$/);
-  const outro = caminhoNoCache("/c", "/repos/facebook/react/actions/workflows?per_page=1");
-  assert.match(relative("/c", outro), /^repos\/facebook\/react\/actions\/workflows\/per_page=1__/);
+  // O separador depende do sistema (\ no Windows, / no Linux/macOS): o teste
+  // normaliza antes de comparar, senao passa so' em metade das maquinas.
+  const paraBarras = (caminho) => relative("/c", caminho).split(sep).join("/");
+
+  assert.match(
+    paraBarras(caminhoNoCache("/c", "/search/repositories?q=stars%3A1001..5000&page=2")),
+    /^search\/repositories\/[A-Za-z0-9._=&-]+__[0-9a-f]{10}\.json$/
+  );
+  assert.match(
+    paraBarras(caminhoNoCache("/c", "/repos/facebook/react/actions/workflows?per_page=1")),
+    /^repos\/facebook\/react\/actions\/workflows\/per_page=1__/
+  );
 });
 
 test("caminhoNoCache: chaves diferentes que limpam igual nao colidem (hash)", () => {

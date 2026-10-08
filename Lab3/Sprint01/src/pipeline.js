@@ -6,9 +6,10 @@
 //   node src/pipeline.js --sem-cache ...                           # ignora o cache em disco
 //
 // Cada etapa recebe o mesmo contexto { config, cliente, log, limite } e
-// le/grava seus dados em config.diretorios.saida. A etapa de C (workflow
-// runs/CFR/recuperacao) entra na lista ETAPAS depois destas, consumindo
-// repositoriosParaColeta() de src/selecao/index.js.
+// le/grava seus dados em config.diretorios.saida, na ordem da lista ETAPAS:
+// a selecao (A) alimenta releases/leadtime (B) e workflow runs (C), e as duas
+// ultimas devolvem suas contagens ao funil pela mesma interface
+// (atualizarCriterios de src/selecao/index.js).
 
 import { pathToFileURL } from "node:url";
 import { carregarConfig } from "./config.js";
@@ -17,12 +18,14 @@ import { criarCacheEmDisco, criarCacheEmMemoria } from "./github/cache.js";
 import { criarClienteGitHub, lerToken } from "./github/cliente.js";
 import { criarLog } from "./log.js";
 import { executarLeadTime, executarReleases } from "./releases/index.js";
+import { executarRuns } from "./runs/index.js";
 import { executarSelecao } from "./selecao/index.js";
 
 export const ETAPAS = [
   { nome: "repositorios", descricao: "selecao, funil e metadados dos repositorios (Pessoa A)", executar: executarSelecao },
   { nome: "releases", descricao: "releases da janela e contagem para o criterio minimo (Pessoa B)", executar: executarReleases },
   { nome: "leadtime", descricao: "commits entre releases e lead time for changes, RQ 02 (Pessoa B)", executar: executarLeadTime },
+  { nome: "runs", descricao: "workflow runs, change failure rate e tempo de recuperacao, RQ 03 (a) e RQ 04 (Pessoa C)", executar: executarRuns },
 ];
 
 export function lerArgumentos(argv) {

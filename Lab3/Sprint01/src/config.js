@@ -34,6 +34,8 @@ export const COLETA_PADRAO = Object.freeze({
   maxPaginasDeReleases: 20, // 2.000 releases por repositorio
   commitsPorPagina: 100,
   maxCommitsPorRelease: 1000, // por comparacao entre duas releases
+  runsPorPagina: 100,
+  maxPaginasDeRunsPorMes: 10, // 10 x 100 = 1.000, o teto da API por consulta filtrada
 });
 
 const MAX_POR_PAGINA = 100; // limite da API para per_page
@@ -84,6 +86,8 @@ export function validarConfig(bruta, { baseDir = process.cwd() } = {}) {
     maxPaginasDeReleases: inteiroPositivo(c.maxPaginasDeReleases, "coleta.maxPaginasDeReleases"),
     commitsPorPagina: inteiroPositivo(c.commitsPorPagina, "coleta.commitsPorPagina", { maximo: MAX_POR_PAGINA }),
     maxCommitsPorRelease: inteiroPositivo(c.maxCommitsPorRelease, "coleta.maxCommitsPorRelease"),
+    runsPorPagina: inteiroPositivo(c.runsPorPagina, "coleta.runsPorPagina", { maximo: MAX_POR_PAGINA }),
+    maxPaginasDeRunsPorMes: inteiroPositivo(c.maxPaginasDeRunsPorMes, "coleta.maxPaginasDeRunsPorMes"),
   };
 
   const d = { ...DIRETORIOS_PADRAO, ...(bruta.diretorios ?? {}) };

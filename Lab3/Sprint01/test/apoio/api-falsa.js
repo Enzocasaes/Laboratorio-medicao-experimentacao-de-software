@@ -5,7 +5,10 @@
 //   - /repos/{o}/{r}/actions/workflows (total_count);
 //   - /repos/{o}/{r}/contributors?per_page=1&anon=true (Link com rel="last");
 //   - /repos/{o}/{r}/releases (ordem created_at desc, paginacao via Link);
-//   - /repos/{o}/{r}/compare/{base}...{head} (total_commits e paginacao).
+//   - /repos/{o}/{r}/compare/{base}...{head} (total_commits e paginacao);
+//   - /repos/{o}/{r}/actions/runs com os filtros branch/event/created, o
+//     formato { total_count, workflow_runs } e o teto de 1.000 resultados por
+//     consulta (o mesmo da API real).
 
 import { mkdtempSync } from "node:fs";
 import { tmpdir } from "node:os";
@@ -73,6 +76,29 @@ export function commit(sha, data, { mensagem = "mudanca", ...extra } = {}) {
   return { sha, commit: { author: { date: data }, message: mensagem }, ...extra };
 }
 
+// Workflow run da API. Por padrao e' um run do default branch disparado por
+// push e concluido com sucesso. `updated_at` e' o fim do run (usado no tempo
+// de recuperacao) e `run_started_at`, o inicio.
+export function workflowRun(iniciadoEm, conclusion = "success", extra = {}) {
+  const fim = extra.updated_at ?? iniciadoEm;
+  return {
+    id: extra.id ?? hashId(`${iniciadoEm}@${conclusion}`),
+    name: extra.name ?? "CI",
+    workflow_id: extra.workflow_id ?? 1,
+    run_number: extra.run_number ?? 1,
+    run_attempt: 1,
+    head_branch: "main",
+    event: "push",
+    status: conclusion === null ? "in_progress" : "completed",
+    conclusion,
+    run_started_at: iniciadoEm,
+    created_at: iniciadoEm,
+    html_url: `https://github.com/exemplo/actions/runs/${extra.id ?? 1}`,
+    ...extra,
+    updated_at: fim,
+  };
+}
+
 // Paginacao por cabecalho Link, igual a da API.
 function paginarLista(url, itens, porPaginaPadrao) {
   const porPagina = Number(url.searchParams.get("per_page") ?? porPaginaPadrao);
@@ -108,6 +134,8 @@ function filtrarPorEstrelas(repos, q) {
 //   releases         { full_name: [release()] | Response }   (padrao: lista vazia)
 //   comparacoes      { full_name: { "base...head": [commit()] | { commits, total_commits } | Response } }
 //                    (chave ausente -> 404, como uma tag apagada)
+//   runs             { full_name: [workflowRun()] | Response }  (padrao: lista vazia)
+//   limiteDeRuns     maximo de resultados por consulta de runs (na API real: 1000)
 //   antes(url)       gancho chamado em toda requisicao; se devolver Response, ela e' usada
 export function criarApiFalsa({
   repos = [],
@@ -116,6 +144,8 @@ export function criarApiFalsa({
   contribuidores = {},
   releases = {},
   comparacoes = {},
+  runs = {},
+  limiteDeRuns = 1000,
   antes,
 } = {}) {
   const chamadas = [];
@@ -191,6 +221,42 @@ export function criarApiFalsa({
       );
       const { fatia, cabecalhos } = paginarLista(url, lista, 30);
       return respostaJSON(200, fatia, cabecalhos);
+    }
+
+    // GET /repos/{o}/{r}/actions/runs?branch=&event=&created=AAAA-MM-DD..AAAA-MM-DD
+    // A API filtra por branch, evento e intervalo de criacao, devolve
+    // { total_count, workflow_runs } em ordem decrescente de criacao e entrega
+    // no maximo `limiteDeRuns` resultados por consulta - total_count traz o
+    // numero REAL, mesmo quando a lista e' cortada.
+    const listaDeRuns = url.pathname.match(/^\/repos\/([^/]+)\/([^/]+)\/actions\/runs$/);
+    if (listaDeRuns) {
+      const nome = `${decodeURIComponent(listaDeRuns[1])}/${decodeURIComponent(listaDeRuns[2])}`;
+      const valor = runs[nome];
+      if (valor instanceof Response) return valor;
+      let lista = [...(valor ?? [])];
+
+      const branch = url.searchParams.get("branch");
+      if (branch) lista = lista.filter((r) => r.head_branch === branch);
+      const evento = url.searchParams.get("event");
+      if (evento) lista = lista.filter((r) => r.event === evento);
+      const criado = url.searchParams.get("created");
+      if (criado) {
+        const [de, ate] = criado.split("..");
+        const deMs = Date.parse(`${de}T00:00:00Z`);
+        const ateMs = Date.parse(`${ate}T00:00:00Z`) + 24 * 60 * 60 * 1000;
+        lista = lista.filter((r) => {
+          const ms = Date.parse(r.run_started_at ?? r.created_at);
+          return ms >= deMs && ms < ateMs;
+        });
+      }
+
+      const total = lista.length;
+      const ordenados = lista.sort(
+        (a, b) => Date.parse(b.created_at) - Date.parse(a.created_at) || b.id - a.id
+      );
+      const alcancaveis = ordenados.slice(0, limiteDeRuns);
+      const { fatia, cabecalhos } = paginarLista(url, alcancaveis, 30);
+      return respostaJSON(200, { total_count: total, workflow_runs: fatia }, cabecalhos);
     }
 
     // GET /repos/{o}/{r}/compare/{base}...{head} - commits em ordem
