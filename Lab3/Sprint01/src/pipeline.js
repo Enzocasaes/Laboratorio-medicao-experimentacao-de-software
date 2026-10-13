@@ -18,6 +18,7 @@ import { criarCacheEmDisco, criarCacheEmMemoria } from "./github/cache.js";
 import { criarClienteGitHub, lerToken } from "./github/cliente.js";
 import { criarLog } from "./log.js";
 import { executarLeadTime, executarReleases } from "./releases/index.js";
+import { executarDataset } from "./dataset/index.js";
 import { executarRuns } from "./runs/index.js";
 import { executarSelecao } from "./selecao/index.js";
 
@@ -26,6 +27,8 @@ export const ETAPAS = [
   { nome: "releases", descricao: "releases da janela e contagem para o criterio minimo (Pessoa B)", executar: executarReleases },
   { nome: "leadtime", descricao: "commits entre releases e lead time for changes, RQ 02 (Pessoa B)", executar: executarLeadTime },
   { nome: "runs", descricao: "workflow runs, change failure rate e tempo de recuperacao, RQ 03 (a) e RQ 04 (Pessoa C)", executar: executarRuns },
+  // `rede: false` -> etapa offline: nao precisa de token nem de cliente HTTP.
+  { nome: "dataset", descricao: "consolida as saidas num dataset unico e gera o dicionario de dados (Pessoa C)", executar: executarDataset, rede: false },
 ];
 
 export function lerArgumentos(argv) {
@@ -64,21 +67,31 @@ export async function main(argv = process.argv.slice(2), { log = criarLog(), fet
   }
 
   const config = carregarConfig(args.config);
-  const token = lerToken();
-  const cache = args.semCache ? criarCacheEmMemoria() : criarCacheEmDisco(config.diretorios.cache, { log });
-  const cliente = criarClienteGitHub({ token, cache, log, ...(fetch ? { fetch } : {}) });
-  log.info(`cache: ${cache.descricao}`);
+
+  // Etapas offline (ex.: "dataset") so' leem os CSVs ja coletados: rodar o
+  // token e o cliente HTTP nelas faria o comando falhar em quem nao tem token,
+  // sem necessidade.
+  const precisaDeRede = etapas.some((etapa) => etapa.rede !== false);
+  let cliente = null;
+  if (precisaDeRede) {
+    const token = lerToken();
+    const cache = args.semCache ? criarCacheEmMemoria() : criarCacheEmDisco(config.diretorios.cache, { log });
+    cliente = criarClienteGitHub({ token, cache, log, ...(fetch ? { fetch } : {}) });
+    log.info(`cache: ${cache.descricao}`);
+  }
 
   for (const etapa of etapas) {
     log.info(`== etapa "${etapa.nome}": ${etapa.descricao}`);
     await etapa.executar({ config, cliente, log, limite: args.limite });
   }
 
-  const { requisicoes, doCache, esperasPorLimite, novasTentativas } = cliente.estatisticas;
-  log.info(
-    `fim: ${requisicoes} requisicoes a API, ${doCache} respostas do cache, ` +
-      `${esperasPorLimite} esperas por rate limit, ${novasTentativas} novas tentativas`
-  );
+  if (cliente) {
+    const { requisicoes, doCache, esperasPorLimite, novasTentativas } = cliente.estatisticas;
+    log.info(
+      `fim: ${requisicoes} requisicoes a API, ${doCache} respostas do cache, ` +
+        `${esperasPorLimite} esperas por rate limit, ${novasTentativas} novas tentativas`
+    );
+  }
 }
 
 if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {

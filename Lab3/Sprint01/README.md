@@ -12,8 +12,10 @@ prontas de acesso à API). Este README cobre, por enquanto, as etapas:
 | `releases` | releases publicadas na janela e contagem para o critério mínimo | Pessoa B, Issue #67 |
 | `leadtime` | commits entre releases e **lead time for changes (RQ 02)** | Pessoa B, Issue #67 |
 | `runs` | workflow runs do default branch, **change failure rate (RQ 03 a)** e **tempo de recuperação (RQ 04)** | Pessoa C, Issue #68 |
+| `dataset` | consolida tudo num CSV único e **gera o dicionário de dados** (etapa offline) | Pessoa C, S02 |
 
-As quatro rodam no mesmo comando (`npm run pipeline`), nessa ordem.
+As cinco rodam no mesmo comando (`npm run pipeline`), nessa ordem. A última
+não vai à rede: só lê o que as outras coletaram.
 
 ---
 
@@ -61,6 +63,11 @@ para que o grupo replicador use exatamente os mesmos parâmetros):
     "runsPorPagina": 100,
     "maxPaginasDeRunsPorMes": 10
   },
+  "validacao": {
+    "semente": 42,
+    "repositoriosNaAmostraOuro": 60,
+    "releasesPorRepositorio": 5
+  },
   "diretorios": { "cache": "data/cache", "saida": "data" }
 }
 ```
@@ -77,6 +84,9 @@ para que o grupo replicador use exatamente os mesmos parâmetros):
 | `coleta.maxCommitsPorRelease` | Teto de commits por comparação entre duas releases. Ver *Releases e lead time*. |
 | `coleta.runsPorPagina` | `per_page` da listagem de workflow runs (máximo 100). |
 | `coleta.maxPaginasDeRunsPorMes` | Teto de páginas por fatia mensal de runs. O padrão (10 × 100 = 1.000) é exatamente o limite que a API entrega numa consulta filtrada. |
+| `validacao.semente` | Semente do sorteio da amostra-ouro. **Fixa e versionada**, para o sorteio ser reproduzível (equivale ao `random_state=42` do enunciado). |
+| `validacao.repositoriosNaAmostraOuro` | Repositórios sorteados para rotulagem manual (enunciado: 60). |
+| `validacao.releasesPorRepositorio` | Releases sorteadas por repositório para rotular (enunciado: 5). |
 | `diretorios.*` | Relativos à pasta do `config.json`. |
 
 ## Execução
@@ -92,6 +102,8 @@ npm run coletar:repositorios           # seleção, funil e metadados (A)
 npm run coletar:releases               # releases da janela (B)
 npm run coletar:leadtime               # commits entre releases e lead time (B)
 npm run coletar:runs                   # workflow runs, CFR (a) e recuperacao (C)
+npm run dataset                        # dataset consolidado + dicionario (nao usa a rede)
+npm run amostra:ouro                   # sorteia a amostra-ouro da validacao manual (S02)
 
 # opções
 node src/pipeline.js --config outro.json   # outro arquivo de configuração
@@ -302,6 +314,87 @@ não gasta cota. A etapa devolve `valid_workflow_runs` pela mesma interface de
 B (`atualizarCriterios`), que aplica o mínimo de 50 runs e, quando não resta
 nenhum pendente, fecha a amostra final.
 
+## Sprint 02 — coleta completa, dataset e validação manual
+
+Na S01 a amostra-alvo era de 100 repositórios; a S02 exige **no mínimo 300 após
+os filtros**, e o `config.json` já está com `tamanhoAlvoDaAmostra: 300`.
+
+### Ordem de execução da coleta completa
+
+```bash
+cd Lab3/Sprint01
+npm run pipeline        # repositorios -> releases -> leadtime -> runs -> dataset
+```
+
+É **um comando só**, e ele pode ser interrompido à vontade: o cache guarda cada
+resposta, então rodar de novo continua de onde parou. Esperar algumas horas é o
+normal — a cota da API é de 5.000 requisições/hora e a coleta atravessa várias
+renovações. Ordem de grandeza, com 1.321 candidatos:
+
+| Etapa | Requisições | Observação |
+|---|---|---|
+| `repositorios` | já executada na S01 | vem toda do cache |
+| `releases` | ~1 por candidato | roda em todos, senão o corte dos 300 sai enviesado |
+| `leadtime` | 1 por release avaliada | só nos que passaram no mínimo de 5 releases |
+| `runs` | ~13 por repositório (uma por mês) | só nos que ainda estão no funil |
+| `dataset` | 0 | offline |
+
+**Se sobrarem menos de 300 elegíveis**, aumente `selecao.quantidadeDeCandidatos`
+(1500 → 2000, por exemplo) e rode de novo: os candidatos já coletados vêm do
+cache, e só os novos custam requisições.
+
+### Amostra-ouro da validação manual
+
+```bash
+npm run amostra:ouro                               # enzo, caue, leo
+npm run amostra:ouro -- --avaliadores ana,bia      # outros nomes
+npm run amostra:ouro -- --sobrescrever             # recria planilhas já existentes
+```
+
+Sorteia `validacao.repositoriosNaAmostraOuro` repositórios **da amostra final** e
+`validacao.releasesPorRepositorio` releases de cada um, e gera:
+
+- `processed/amostra_ouro.csv` — a planilha base, com **link direto** para cada
+  release (sem isso são ~300 buscas manuais por pessoa);
+- `processed/rotulos_<nome>.csv` — uma cópia em branco por integrante, com as
+  colunas `tipo_do_projeto`, `releases_sao_entrega_real`, `release_corretiva` e
+  `observacao`.
+
+Três regras que fazem o número valer alguma coisa:
+
+1. **Só sorteie depois que a coleta fechar.** O comando se recusa a rodar
+   enquanto não houver amostra final (`status = included`): sortear de uma lista
+   que ainda vai mudar invalidaria a rotulagem já feita.
+2. **O sorteio é reproduzível**, porque usa semente fixa (`validacao.semente`) em
+   vez de `Math.random()`. Mesma semente + mesmo dataset = mesmo sorteio, em
+   qualquer máquina.
+3. **Cada um rotula sozinho**, sem ver a saída da heurística de release corretiva
+   e sem combinar com os outros. O kappa de Fleiss mede concordância entre
+   avaliadores independentes; se houver consulta entre eles, ele não mede nada.
+   O comando **não sobrescreve** planilhas já preenchidas (use `--sobrescrever`
+   se quiser mesmo recriar).
+
+### Dataset e dicionário de dados
+
+```bash
+npm run dataset    # não usa a rede, pode rodar a qualquer momento
+```
+
+Junta `repositories.csv` + `lead_time.csv` + `dora_runs.csv` numa linha por
+repositório da amostra final, calcula a coluna derivada da **RQ 01**
+(`deployment_frequency_per_week = releases_in_window / semanas da janela`) e
+grava o dicionário de dados.
+
+O dicionário é **gerado** a partir de [src/dataset/colunas.js](src/dataset/colunas.js),
+que é a fonte única: a mesma lista descreve e constrói o CSV. Documentar à mão
+seria garantir que um dia a documentação e o arquivo iriam divergir — e um teste
+verifica que o dicionário descreve exatamente as colunas do dataset, sem sobra
+nem falta.
+
+Colunas que uma etapa ainda não produziu saem **vazias**, e o comando avisa
+quantos repositórios estão nessa situação. Vazio significa *não medido*, nunca
+zero.
+
 ## Arquivos gerados
 
 | Arquivo | Etapa | Conteúdo |
@@ -319,6 +412,11 @@ nenhum pendente, fecha a amostra final.
 | `data/processed/recovery_episodes.csv` | `runs` | Uma linha por episódio de falha: início, recuperação, duração e censura. |
 | `data/processed/dora_runs.csv` | `runs` | **Uma linha por repositório: contagens, CFR (a) e tempo de recuperação.** Entrada da análise das RQ 03 e RQ 04. |
 | `data/raw/workflow_runs.json` | `runs` | Fatias mensais pedidas (com `total_count` e truncamento), contagens e erros por repositório, mais as definições operacionais usadas. |
+| `data/processed/dataset.csv` | `dataset` | **Uma linha por repositório da amostra final, com todas as métricas das RQ 01 a 04.** É o dataset entregue na S02. |
+| `data/processed/dataset_dicionario.csv` | `dataset` | O dicionário de dados em CSV (para anexar ao artigo ou abrir em planilha). |
+| `docs/dicionario-de-dados.md` | `dataset` | O mesmo dicionário em Markdown, gerado junto. |
+| `data/processed/amostra_ouro.csv` | `amostra:ouro` | Releases sorteadas para a validação manual, com link direto para cada uma. |
+| `data/processed/rotulos_<nome>.csv` | `amostra:ouro` | Planilha em branco de cada avaliador. |
 
 `data/raw/` e `data/processed/` são versionados (os demais integrantes e o
 grupo replicador partem da mesma seleção); `data/cache/` não.
@@ -552,11 +650,16 @@ Lab3/Sprint01/
 │       ├── commits.js        # /compare paginado (commits entre releases)
 │   │   ├── leadtime.js       # cálculo puro: mediana, IQR, lead time (a) e (b)
 │   │   └── modelo.js         # registro da release, deploy, contagens
-│   └── runs/
-│       ├── index.js          # etapa "runs"
-│       ├── coleta.js         # /actions/runs fatiado por mês, com o teto da API
-│       ├── metricas.js       # cálculo puro: CFR (a), episódios e recuperação
-│       └── modelo.js         # classificação de conclusion e contagens
+│   ├── runs/
+│   │   ├── index.js          # etapa "runs"
+│   │   ├── coleta.js         # /actions/runs fatiado por mês, com o teto da API
+│   │   ├── metricas.js       # cálculo puro: CFR (a), episódios e recuperação
+│   │   └── modelo.js         # classificação de conclusion e contagens
+│   ├── dataset/
+│   │   ├── index.js          # etapa "dataset": junção + dicionário de dados
+│   │   └── colunas.js        # fonte única das colunas (gera CSV e dicionário)
+│   └── validacao/
+│       └── amostra-ouro.js   # sorteio semeado da amostra-ouro (S02)
 └── test/                     # node:test, API falsa em memória
 ```
 
@@ -589,6 +692,8 @@ mão e resultado conferido no papel — incluindo o exemplo numérico do enuncia
 | [test/runs-coleta.test.js](test/runs-coleta.test.js) | fatiamento mensal (12 meses, recorte nas pontas, fevereiro bissexto, janela de um dia), filtros da URL, paginação, teto de 1.000 por consulta, teto de páginas, run repetido na fronteira de mês, item sem `id`, 404, corpo inesperado e retomada pelo cache |
 | [test/runs-metricas.test.js](test/runs-metricas.test.js) | **o exemplo do enunciado (1h20)**, CFR com e sem runs válidos, duas quebras seguidas, episódio censurado, falha sem sucesso anterior, execuções ignoradas no meio, workflows independentes, mediana/IQR/proporção de censurados e duração negativa |
 | [test/runs-etapa.test.js](test/runs-etapa.test.js) | a etapa `runs` de ponta a ponta: contagem devolvida ao funil e exclusão por menos de 50 runs, os três CSVs e o JSON de auditoria, `--limite`, erro de coleta deixando o repositório pendente, ordem das etapas e segunda execução sem ir à rede |
+| [test/dataset.test.js](test/dataset.test.js) | junção das três etapas, frequência de deploy (RQ 01), etapa incompleta deixando colunas vazias, amostra final vs. elegíveis, e a verificação de que o dicionário descreve exatamente as colunas do CSV |
+| [test/amostra-ouro.test.js](test/amostra-ouro.test.js) | sorteio reproduzível com a mesma semente (e diferente com outra), embaralhamento que não perde itens, link montado quando a API não traz, recusa de sortear antes de a amostra fechar, e proteção contra apagar rótulos já preenchidos |
 
 ## Limitações conhecidas
 

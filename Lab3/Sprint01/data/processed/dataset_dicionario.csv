@@ -1,0 +1,42 @@
+coluna,tipo,unidade,rq,fonte,formula_ou_origem,descricao
+full_name,texto,-,-,processed/repositories.csv (etapa repositorios),full_name da API,"Repositorio, no formato owner/name."
+rank,inteiro,-,-,processed/repositories.csv (etapa repositorios),posicao na busca,Posicao do repositorio na busca por estrelas (1 = mais estrelas).
+stars,inteiro,estrelas,RQ 06,processed/repositories.csv (etapa repositorios),stargazers_count,Estrelas no momento da busca. Fator de popularidade (quartis) da RQ 06.
+language,texto,-,RQ 06,processed/repositories.csv (etapa repositorios),language,Linguagem principal detectada pelo GitHub; vazio quando nao ha.
+contributors,inteiro,pessoas,RQ 06,processed/repositories.csv (etapa repositorios),contributors?per_page=1&anon=true (ultima pagina do Link),"Contribuidores, incluindo anonimos. Vazio quando o GitHub nao calcula."
+age_years,decimal,anos,RQ 06,processed/repositories.csv (etapa repositorios),"(fim da janela - created_at) / 365,25 dias","Idade medida no fim da janela, para nao mudar conforme o dia da coleta."
+created_relative_to_window,texto,-,-,processed/repositories.csv (etapa repositorios),derivada de created_at,"before_window, within_window ou after_window."
+default_branch,texto,-,-,processed/repositories.csv (etapa repositorios),default_branch,Unico branch considerado em todas as metricas.
+archived,booleano,-,-,processed/repositories.csv (etapa repositorios),archived,Repositorio arquivado (somente leitura) no momento da busca.
+workflow_count,inteiro,workflows,-,processed/repositories.csv (etapa repositorios),actions/workflows total_count,Workflows configurados no repositorio.
+status,texto,-,-,processed/repositories.csv (etapa repositorios),funil de selecao,included = amostra final; eligible = cumpre o criterio mas ficou fora do corte.
+releases_in_window,inteiro,releases,RQ 01,processed/lead_time.csv (etapa leadtime),releases com draft=false e prerelease=false e published_at na janela,Deploys do periodo. Numerador da RQ 01.
+window_weeks,decimal,semanas,RQ 01,calculada em src/dataset/index.js,dias da janela / 7,Tamanho da janela em semanas. Denominador da RQ 01 (igual para todos os repositorios).
+deployment_frequency_per_week,decimal,releases/semana,RQ 01,calculada em src/dataset/index.js,releases_in_window / window_weeks,**RQ 01.** Frequencia de deploys. Elite >= 7/semana na tabela de referencia.
+prereleases_in_window,inteiro,releases,RQ 07,processed/lead_time.csv (etapa leadtime),processed/releases.csv,Pre-releases na janela. Entram na variante C2 da analise de sensibilidade.
+lead_time_release_median_days,decimal,dias,RQ 02,processed/lead_time.csv (etapa leadtime),mediana de (published_at(R) - data do commit mais antigo de R),"**RQ 02, variante (a).** Vazio quando nenhuma release pode ser avaliada."
+lead_time_release_median_hours,decimal,horas,RQ 02,processed/lead_time.csv (etapa leadtime),"a mesma mediana, em horas",Unidade canonica da variante (a).
+lead_time_release_iqr_hours,decimal,horas,RQ 02,processed/lead_time.csv (etapa leadtime),Q3 - Q1 das releases do repositorio,Dispersao interna da variante (a).
+lead_time_commit_median_days,decimal,dias,RQ 02,processed/lead_time.csv (etapa leadtime),mediana de (published_at(R) - data de cada commit de R),"**RQ 02, variante (b).** Um commit antigo esquecido pesa menos aqui que na (a)."
+lead_time_commit_median_hours,decimal,horas,RQ 02,processed/lead_time.csv (etapa leadtime),"a mesma mediana, em horas",Unidade canonica da variante (b).
+lead_time_commit_iqr_hours,decimal,horas,RQ 02,processed/lead_time.csv (etapa leadtime),Q3 - Q1 dos commits do repositorio,Dispersao interna da variante (b).
+releases_evaluated,inteiro,releases,RQ 02,processed/lead_time.csv (etapa leadtime),coluna releases_evaluated de lead_time.csv,Releases que entraram no calculo do lead time.
+commits_used,inteiro,commits,RQ 02,processed/lead_time.csv (etapa leadtime),coluna commits_used de lead_time.csv,Commits que entraram na variante (b).
+valid_workflow_runs,inteiro,execucoes,RQ 03,processed/dora_runs.csv (etapa runs),"runs com event=push no default branch, na janela, com conclusion de sucesso ou falha",Base do criterio minimo (>= 50) e denominador do CFR (a).
+successful_runs,inteiro,execucoes,RQ 03,processed/dora_runs.csv (etapa runs),conclusion = success,Execucoes bem-sucedidas na janela.
+failed_runs,inteiro,execucoes,RQ 03,processed/dora_runs.csv (etapa runs),"conclusion em failure, timed_out ou startup_failure",Execucoes com falha na janela.
+change_failure_rate_ci,decimal 0-1,proporcao,RQ 03,processed/dora_runs.csv (etapa runs),failed_runs / (failed_runs + successful_runs),"**RQ 03, variante (a)** - proxy de CI. Vazio quando nao ha run valido (diferente de zero)."
+ignored_runs,inteiro,execucoes,RQ 03,processed/dora_runs.csv (etapa runs),"conclusion em cancelled, skipped, neutral, action_required, stale ou vazia","Execucoes fora de todos os calculos, pela tabela da secao 3 do enunciado."
+recovery_median_hours,decimal,horas,RQ 04,processed/dora_runs.csv (etapa runs),"mediana de (updated_at do sucesso - run_started_at da primeira falha), por workflow",**RQ 04.** Episodios censurados ficam de fora desta mediana.
+recovery_median_days,decimal,dias,RQ 04,processed/dora_runs.csv (etapa runs),recovery_median_hours / 24,A mesma mediana em dias (a tabela de referencia usa < 1 hora para Elite).
+recovery_iqr_hours,decimal,horas,RQ 04,processed/dora_runs.csv (etapa runs),Q3 - Q1 dos episodios do repositorio,Dispersao interna da RQ 04.
+recovery_episodes,inteiro,episodios,RQ 04,processed/dora_runs.csv (etapa runs),coluna recovery_episodes de dora_runs.csv,Episodios de falha com sucesso anterior (a definicao do enunciado).
+recovery_episodes_censored,inteiro,episodios,RQ 04,processed/dora_runs.csv (etapa runs),coluna recovery_episodes_censored de dora_runs.csv,Episodios sem recuperacao ate o fim da janela (censura a direita).
+recovery_censored_ratio,decimal 0-1,proporcao,RQ 04,processed/dora_runs.csv (etapa runs),recovery_episodes_censored / recovery_episodes,"Proporcao de censurados, reportada junto da mediana como pede o enunciado."
+episodes_without_prior_success,inteiro,episodios,RQ 04,processed/dora_runs.csv (etapa runs),coluna episodes_without_prior_success de dora_runs.csv,Falhas sem nenhum sucesso antes na janela (censura a esquerda); nao formam episodio.
+negative_lead_time_commits,inteiro,commits,RQ 02,processed/lead_time.csv (etapa leadtime),coluna negative_lead_time_commits de lead_time.csv,Commits com data posterior a release (rebase/squash). Ameaca de construto da RQ 02.
+truncated_releases,inteiro,releases,RQ 02,processed/lead_time.csv (etapa leadtime),coluna truncated_releases de lead_time.csv,Comparacoes acima do teto de commits: saem da variante (b).
+truncated_slices,inteiro,meses,RQ 03/04,processed/dora_runs.csv (etapa runs),coluna truncated_slices de dora_runs.csv,Fatias mensais que passaram do teto de 1.000 resultados por consulta da API.
+negative_recovery_episodes,inteiro,episodios,RQ 04,processed/dora_runs.csv (etapa runs),coluna negative_recovery_episodes de dora_runs.csv,Episodios com duracao negativa (updated_at anterior ao inicio da falha); fora da mediana.
+leadtime_errors,texto,-,RQ 02,processed/lead_time.csv (etapa leadtime),coluna errors de lead_time.csv,"Motivos de falha na coleta de commits, no formato motivo:quantidade."
+runs_error,texto,-,RQ 03/04,processed/dora_runs.csv (etapa runs),coluna error de dora_runs.csv,Motivo quando a coleta de workflow runs falhou para o repositorio.
