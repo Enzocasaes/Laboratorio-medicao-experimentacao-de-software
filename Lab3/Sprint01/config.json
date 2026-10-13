@@ -6,7 +6,7 @@
   "selecao": {
     "estrelasAcimaDe": 1000,
     "quantidadeDeCandidatos": 1500,
-    "tamanhoAlvoDaAmostra": 100,
+    "tamanhoAlvoDaAmostra": 300,
     "minimoDeReleases": 5,
     "minimoDeWorkflowRuns": 50
   },
@@ -17,6 +17,11 @@
     "maxCommitsPorRelease": 1000,
     "runsPorPagina": 100,
     "maxPaginasDeRunsPorMes": 10
+  },
+  "validacao": {
+    "semente": 42,
+    "repositoriosNaAmostraOuro": 60,
+    "releasesPorRepositorio": 5
   },
   "diretorios": {
     "cache": "data/cache",

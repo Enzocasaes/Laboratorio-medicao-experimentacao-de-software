@@ -20,6 +20,15 @@ export const SELECAO_PADRAO = Object.freeze({
   minimoDeWorkflowRuns: 50,
 });
 
+// Validacao manual (secao 6 do enunciado): amostra-ouro de 60 repositorios,
+// 5 releases cada, sorteadas com SEMENTE FIXA para o sorteio ser reproduzivel
+// pelo grupo replicador.
+export const VALIDACAO_PADRAO = Object.freeze({
+  semente: 42,
+  repositoriosNaAmostraOuro: 60,
+  releasesPorRepositorio: 5,
+});
+
 export const DIRETORIOS_PADRAO = Object.freeze({
   cache: "data/cache",
   saida: "data",
@@ -90,13 +99,20 @@ export function validarConfig(bruta, { baseDir = process.cwd() } = {}) {
     maxPaginasDeRunsPorMes: inteiroPositivo(c.maxPaginasDeRunsPorMes, "coleta.maxPaginasDeRunsPorMes"),
   };
 
+  const v = { ...VALIDACAO_PADRAO, ...(bruta.validacao ?? {}) };
+  const validacao = {
+    semente: inteiroPositivo(v.semente, "validacao.semente", { permiteZero: true }),
+    repositoriosNaAmostraOuro: inteiroPositivo(v.repositoriosNaAmostraOuro, "validacao.repositoriosNaAmostraOuro"),
+    releasesPorRepositorio: inteiroPositivo(v.releasesPorRepositorio, "validacao.releasesPorRepositorio"),
+  };
+
   const d = { ...DIRETORIOS_PADRAO, ...(bruta.diretorios ?? {}) };
   const diretorios = {
     cache: resolve(baseDir, d.cache),
     saida: resolve(baseDir, d.saida),
   };
 
-  return { janela, selecao, coleta, diretorios };
+  return { janela, selecao, coleta, validacao, diretorios };
 }
 
 export function carregarConfig(caminho) {
