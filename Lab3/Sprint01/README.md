@@ -80,7 +80,7 @@ para que o grupo replicador use exatamente os mesmos parâmetros):
 
 | Campo | Significado |
 |---|---|
-| `janela.inicio`, `janela.fim` | **Obrigatórios.** Datas fixadas pelo professor (seção 3 do enunciado), em UTC. O dia `fim` está dentro da janela. Não têm valor padrão: o pipeline se recusa a rodar sem elas. |
+| `janela.inicio`, `janela.fim` | **Obrigatórios.** Em UTC; o dia `fim` está dentro da janela. Não têm valor padrão: o pipeline se recusa a rodar sem elas. A janela usada é **2025-10-01 a 2026-09-30** (12 meses fechados, 365 dias). Ela termina **antes** da coleta, para que todo o período já tenha acontecido quando a API é consultada, e coincide com meses inteiros, que são as fatias da coleta de workflow runs. |
 | `selecao.estrelasAcimaDe` | Busca `stars:>N` (enunciado: 1000). |
 | `selecao.quantidadeDeCandidatos` | Quantos candidatos (os de mais estrelas) entram no topo do funil. Precisa ser bem maior que a amostra-alvo, porque muitos caem nos filtros. |
 | `selecao.tamanhoAlvoDaAmostra` | Tamanho da amostra final (S01: 100; S02: ≥ 300). |
@@ -145,7 +145,7 @@ Custo aproximado (estimativa, não medição):
 | `repositorios` | ~10 páginas de busca por fatia, mais uma de `actions/workflows` por candidato e uma de `contributors` por candidato com Actions |
 | `releases` | 1 a 3 por repositório (1 página de 100 releases costuma alcançar o início da janela) |
 | `leadtime` | 1 por release avaliada, mais páginas extras nas comparações com mais de 100 commits |
-| `runs` | 1 por **mês** da janela e por repositório (≈ 13 com a janela atual), mais páginas extras nos meses com mais de 100 runs |
+| `runs` | 1 por **mês** da janela e por repositório (12 com a janela atual, de meses fechados), mais páginas extras nos meses com mais de 100 runs |
 
 Com a cota autenticada de 5.000 requisições/hora, a coleta completa das três
 etapas leva algumas horas e atravessa mais de uma renovação de cota. Isso é
@@ -315,7 +315,7 @@ sem rebaixar os meses já coletados.
 
 ### Por que a etapa roda depois de `releases`
 
-Cada repositório custa ~13 requisições (uma por mês da janela). Quando `runs`
+Cada repositório custa ~12 requisições (uma por mês da janela). Quando `runs`
 roda depois de `releases`, quem ficou abaixo de 5 releases já saiu do funil e
 não gasta cota. A etapa devolve `valid_workflow_runs` pela mesma interface de
 B (`atualizarCriterios`), que aplica o mínimo de 50 runs e, quando não resta
@@ -343,7 +343,7 @@ renovações. Ordem de grandeza, com 1.321 candidatos:
 | `repositorios` | já executada na S01 | vem toda do cache |
 | `releases` | ~1 por candidato | roda em todos, senão o corte dos 300 sai enviesado |
 | `leadtime` | 1 por release avaliada | só nos que passaram no mínimo de 5 releases |
-| `runs` | ~13 por repositório (uma por mês) | só nos que ainda estão no funil |
+| `runs` | ~12 por repositório (uma por mês) | só nos que ainda estão no funil |
 | `dataset` | 0 | offline |
 
 **Se sobrarem menos de 300 elegíveis**, aumente `selecao.quantidadeDeCandidatos`
