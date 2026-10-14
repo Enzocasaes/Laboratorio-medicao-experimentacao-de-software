@@ -126,18 +126,27 @@ export function repositoriosParaColeta(dirSaida) {
 }
 
 // contagens: { "owner/name": { releases_in_window?, valid_workflow_runs? } }
+// naoAvaliados: nomes que a etapa deliberadamente NAO mediu porque a amostra
+//   ja estava completa com repositorios de rank melhor (parada antecipada).
+//   Eles saem do funil com motivo proprio, em vez de ficarem pendentes para
+//   sempre - o que impediria a amostra final de fechar.
 // Aplica o criterio minimo, define a amostra final (se nao houver pendentes)
 // e regrava JSON, CSVs e funil.
-export function atualizarCriterios(dirSaida, contagens, { agora = () => new Date() } = {}) {
+export function atualizarCriterios(dirSaida, contagens, { agora = () => new Date(), naoAvaliados = [] } = {}) {
   const dados = carregarSelecao(dirSaida);
   const { janela, ...selecaoColetada } = dados;
   const desconhecidos = Object.keys(contagens).filter((nome) => !dados.registros.some((r) => r.full_name === nome));
   if (desconhecidos.length > 0) {
     throw new Error(`contagens para repositorios fora da selecao: ${desconhecidos.join(", ")}`);
   }
-  const avaliados = dados.registros.map((r) =>
-    contagens[r.full_name] ? aplicarCriterios(r, contagens[r.full_name], dados.selecao) : r
-  );
+  const foraDaAvaliacao = new Set(naoAvaliados);
+  const avaliados = dados.registros.map((r) => {
+    if (contagens[r.full_name]) return aplicarCriterios(r, contagens[r.full_name], dados.selecao);
+    if (foraDaAvaliacao.has(r.full_name) && r.status !== STATUS.EXCLUIDO) {
+      return excluir(r, ETAPAS.RUNS, MOTIVOS.NAO_AVALIADO);
+    }
+    return r;
+  });
   const { registros, definida } = definirAmostraFinal(avaliados, dados.selecao.tamanhoAlvoDaAmostra);
   const atualizada = { ...selecaoColetada, criteria_updated_at: agora().toISOString(), final_sample_defined: definida, registros };
   escreverSaidas(dirSaida, atualizada);

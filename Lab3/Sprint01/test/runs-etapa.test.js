@@ -217,3 +217,65 @@ test("etapa runs: sem a contagem de releases o registro segue pendente (ordem da
   assert.equal(registro.valid_workflow_runs, 10); // a contagem de C foi gravada
   assert.equal(registro.status, "pending"); // mas falta a de B para decidir
 });
+
+test("etapa runs: para assim que a amostra-alvo fica completa e nao mede o resto", async (t) => {
+  const pasta = pastaTemporaria();
+  // Os dois passariam no criterio, mas a amostra-alvo e' 1: so' o de melhor
+  // rank deve ser medido.
+  const api = criarApiFalsa({
+    repos: [repo("a/um", 9000), repo("a/dois", 8000)],
+    runs: {
+      "a/um": runsSemanais({ quantidade: 60 }),
+      "a/dois": runsSemanais({ quantidade: 60, idBase: 2000 }),
+    },
+  });
+  const { config, cliente } = await prepararSelecao(pasta, api);
+  config.selecao.tamanhoAlvoDaAmostra = 1;
+  comReleasesContadas(config, {
+    "a/um": { releases_in_window: 8 },
+    "a/dois": { releases_in_window: 8 },
+  });
+
+  const { resumos, selecao } = await executarRuns({ config, cliente, log: logSilencioso });
+
+  assert.equal(resumos.length, 1); // so' o primeiro foi medido
+  assert.equal(resumos[0].full_name, "a/um");
+
+  const porNome = Object.fromEntries(selecao.registros.map((r) => [r.full_name, r]));
+  assert.equal(porNome["a/um"].status, "included");
+  for (const nome of ["a/dois"]) {
+    assert.equal(porNome[nome].status, "excluded");
+    assert.equal(porNome[nome].exclusion_reason, "not_evaluated_target_sample_reached");
+    assert.equal(porNome[nome].valid_workflow_runs, null); // nao medido != zero
+  }
+  // Sem pendentes, a amostra final fecha.
+  assert.equal(selecao.final_sample_defined, true);
+});
+
+test("etapa runs: com pararAoCompletarAmostra=false, mede todos", async (t) => {
+  const pasta = pastaTemporaria();
+  const api = criarApiFalsa({
+    repos: [repo("a/um", 9000), repo("a/dois", 8000)],
+    runs: { "a/um": runsSemanais({ quantidade: 60 }), "a/dois": runsSemanais({ quantidade: 60, idBase: 2000 }) },
+  });
+  const { config, cliente } = await prepararSelecao(pasta, api);
+  config.selecao.tamanhoAlvoDaAmostra = 1;
+  config.selecao.pararAoCompletarAmostra = false;
+  comReleasesContadas(config, { "a/um": { releases_in_window: 8 }, "a/dois": { releases_in_window: 8 } });
+
+  const { resumos } = await executarRuns({ config, cliente, log: logSilencioso });
+  assert.equal(resumos.length, 2);
+});
+
+test("etapa runs: com --limite, a parada antecipada nao exclui quem ficou de fora", async (t) => {
+  const pasta = pastaTemporaria();
+  const api = apiDoCenario();
+  const { config, cliente } = await prepararSelecao(pasta, api);
+  config.selecao.tamanhoAlvoDaAmostra = 1;
+  comReleasesContadas(config, { "a/ativo": { releases_in_window: 8 }, "a/parado": { releases_in_window: 8 } });
+
+  const { selecao } = await executarRuns({ config, cliente, log: logSilencioso, limite: 1 });
+
+  const parado = selecao.registros.find((r) => r.full_name === "a/parado");
+  assert.equal(parado.status, "pending"); // continua pendente, nao excluido
+});

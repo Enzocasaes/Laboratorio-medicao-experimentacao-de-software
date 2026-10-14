@@ -18,6 +18,12 @@ export const SELECAO_PADRAO = Object.freeze({
   tamanhoAlvoDaAmostra: 100,
   minimoDeReleases: 5,
   minimoDeWorkflowRuns: 50,
+  // Parada antecipada: encerra a coleta de workflow runs assim que a
+  // amostra-alvo estiver completa. Como os repositorios sao processados em
+  // ordem de estrelas e a amostra final e' justamente "os N melhores que
+  // cumprem o criterio", medir os demais nao mudaria a amostra - so' gastaria
+  // cota. Deixe false para medir todos (util para analises exploratorias).
+  pararAoCompletarAmostra: true,
 });
 
 // Validacao manual (secao 6 do enunciado): amostra-ouro de 60 repositorios,
@@ -82,6 +88,7 @@ export function validarConfig(bruta, { baseDir = process.cwd() } = {}) {
     tamanhoAlvoDaAmostra: inteiroPositivo(s.tamanhoAlvoDaAmostra, "selecao.tamanhoAlvoDaAmostra"),
     minimoDeReleases: inteiroPositivo(s.minimoDeReleases, "selecao.minimoDeReleases", { permiteZero: true }),
     minimoDeWorkflowRuns: inteiroPositivo(s.minimoDeWorkflowRuns, "selecao.minimoDeWorkflowRuns", { permiteZero: true }),
+    pararAoCompletarAmostra: s.pararAoCompletarAmostra !== false,
   };
   if (selecao.tamanhoAlvoDaAmostra > selecao.quantidadeDeCandidatos) {
     throw new Error(

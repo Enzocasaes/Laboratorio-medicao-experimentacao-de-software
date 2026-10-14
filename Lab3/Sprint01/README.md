@@ -79,6 +79,7 @@ para que o grupo replicador use exatamente os mesmos parâmetros):
 | `selecao.quantidadeDeCandidatos` | Quantos candidatos (os de mais estrelas) entram no topo do funil. Precisa ser bem maior que a amostra-alvo, porque muitos caem nos filtros. |
 | `selecao.tamanhoAlvoDaAmostra` | Tamanho da amostra final (S01: 100; S02: ≥ 300). |
 | `selecao.minimoDeReleases`, `minimoDeWorkflowRuns` | Critério mínimo de inclusão do enunciado (5 e 50). |
+| `selecao.pararAoCompletarAmostra` | `true` (padrão): a etapa `runs` encerra assim que a amostra-alvo está completa. `false` mede todos os candidatos. |
 | `coleta.releasesPorPagina`, `commitsPorPagina` | `per_page` das listagens (máximo 100, o limite da API). |
 | `coleta.maxPaginasDeReleases` | Teto de páginas de `/releases` por repositório. Ao ser atingido sem alcançar o início da janela, a coleta é marcada como `truncated` em vez de fingir que a lista acabou. |
 | `coleta.maxCommitsPorRelease` | Teto de commits por comparação entre duas releases. Ver *Releases e lead time*. |
@@ -335,9 +336,17 @@ renovações. Ordem de grandeza, com 1.321 candidatos:
 |---|---|---|
 | `repositorios` | já executada na S01 | vem toda do cache |
 | `releases` | ~1 por candidato (1.325) | roda em **todos**, senão o corte dos 300 sai enviesado |
-| `runs` | ~13 por repositório (uma por mês) | só nos 707 que passaram no mínimo de 5 releases; **fecha a amostra final** |
+| `runs` | ~13 por repositório (uma por mês) | roda em ordem de estrelas e **para assim que 300 cumprem o critério** (ver abaixo); fecha a amostra final |
 | `leadtime` | 1 por **release** avaliada | só nos ~300 da amostra final |
 | `dataset` | 0 | offline |
+
+**Parada antecipada (`selecao.pararAoCompletarAmostra`).** Os repositórios são
+processados em ordem de estrelas, e a amostra final é "os 300 melhores que
+cumprem o critério". Então, assim que 300 cumprirem, medir os demais **não muda
+a amostra** — só gasta cota. A etapa encerra ali e os não medidos saem do funil
+com motivo próprio (`not_evaluated_target_sample_reached`), que é diferente de
+"reprovou no critério": `valid_workflow_runs` fica **vazio**, não zero. Para
+medir todos mesmo assim (análise exploratória), ponha a chave em `false`.
 
 **Por que `runs` vem antes de `leadtime`.** As duas dependem de `releases`, mas
 o custo é muito diferente: `runs` custa ~13 requisições por repositório e aplica
@@ -699,7 +708,7 @@ mão e resultado conferido no papel — incluindo o exemplo numérico do enuncia
 | [test/runs-modelo.test.js](test/runs-modelo.test.js) | a tabela de `conclusion` inteira (sucesso, falha, ignorados, vazio, valor novo da API), normalização do run, filtro de branch/evento e as contagens do critério mínimo |
 | [test/runs-coleta.test.js](test/runs-coleta.test.js) | fatiamento mensal (12 meses, recorte nas pontas, fevereiro bissexto, janela de um dia), filtros da URL, paginação, teto de 1.000 por consulta, teto de páginas, run repetido na fronteira de mês, item sem `id`, 404, corpo inesperado e retomada pelo cache |
 | [test/runs-metricas.test.js](test/runs-metricas.test.js) | **o exemplo do enunciado (1h20)**, CFR com e sem runs válidos, duas quebras seguidas, episódio censurado, falha sem sucesso anterior, execuções ignoradas no meio, workflows independentes, mediana/IQR/proporção de censurados e duração negativa |
-| [test/runs-etapa.test.js](test/runs-etapa.test.js) | a etapa `runs` de ponta a ponta: contagem devolvida ao funil e exclusão por menos de 50 runs, os três CSVs e o JSON de auditoria, `--limite`, erro de coleta deixando o repositório pendente, ordem das etapas e segunda execução sem ir à rede |
+| [test/runs-etapa.test.js](test/runs-etapa.test.js) | a etapa `runs` de ponta a ponta: contagem devolvida ao funil e exclusão por menos de 50 runs, os três CSVs e o JSON de auditoria, `--limite`, erro de coleta deixando o repositório pendente, ordem das etapas, segunda execução sem ir à rede e a **parada antecipada** (não medidos saem com motivo próprio, a amostra fecha, e `--limite` não dispara a parada) |
 | [test/dataset.test.js](test/dataset.test.js) | junção das três etapas, frequência de deploy (RQ 01), etapa incompleta deixando colunas vazias, amostra final vs. elegíveis, e a verificação de que o dicionário descreve exatamente as colunas do CSV |
 | [test/amostra-ouro.test.js](test/amostra-ouro.test.js) | sorteio reproduzível com a mesma semente (e diferente com outra), embaralhamento que não perde itens, link montado quando a API não traz, recusa de sortear antes de a amostra fechar, e proteção contra apagar rótulos já preenchidos |
 
