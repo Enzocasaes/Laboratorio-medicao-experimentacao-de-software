@@ -1,6 +1,8 @@
 // Gerador/leitor minimo de CSV, sem dependencias (mesmo do Lab02).
 // null/undefined viram campo vazio - e' assim que um dado ausente aparece no CSV.
 
+import { existsSync, readFileSync } from "node:fs";
+
 export function gerarCSV(cabecalho, linhas) {
   return [cabecalho, ...linhas]
     .map((linha) => linha.map(escaparCampoCSV).join(","))
@@ -62,4 +64,19 @@ export function lerCSV(texto) {
   if (registros.length === 0) return { cabecalho: [], linhas: [] };
   const [cabecalho, ...linhas] = registros;
   return { cabecalho, linhas };
+}
+
+// Converte o resultado de lerCSV em objetos { coluna: valor }. Campo que falta
+// numa linha curta vira "" (e' assim que o CSV representa o dado ausente).
+export function paraObjetos({ cabecalho, linhas }) {
+  return linhas.map((linha) => Object.fromEntries(cabecalho.map((coluna, i) => [coluna, linha[i] ?? ""])));
+}
+
+// Le um CSV do disco como lista de objetos. Arquivo inexistente devolve null,
+// para o chamador distinguir "etapa nao rodou" de "rodou e nao gerou linhas".
+export function lerTabelaCSV(caminho) {
+  if (!existsSync(caminho)) return null;
+  const texto = readFileSync(caminho, "utf8").replace(/^﻿/, ""); // BOM de planilha exportada
+  const tabela = lerCSV(texto);
+  return { cabecalho: tabela.cabecalho, registros: paraObjetos(tabela) };
 }

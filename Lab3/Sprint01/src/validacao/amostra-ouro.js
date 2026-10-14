@@ -14,15 +14,17 @@
 // cada release. Os tres rotulam SEM ver a saida da heuristica e SEM conversar
 // entre si - e' isso que faz o kappa de Fleiss medir alguma coisa.
 
+import { createHash } from "node:crypto";
 import { mkdirSync, existsSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { pathToFileURL } from "node:url";
 import { carregarConfig } from "../config.js";
-import { gerarCSV, lerCSV } from "../csv.js";
+import { gerarCSV, lerTabelaCSV } from "../csv.js";
 import { criarLog, logSilencioso } from "../log.js";
 
 export const COLUNAS_AMOSTRA_OURO = Object.freeze([
   "repo_index",
+  "repo_id", // id do repositorio na API: identifica a unidade mesmo se ele for renomeado
   "full_name",
   "repo_url",
   "stars",
@@ -73,9 +75,20 @@ export function sortear(itens, quantidade, proximo) {
 }
 
 function lerCSVComoObjetos(caminho) {
-  if (!existsSync(caminho)) return [];
-  const { cabecalho, linhas } = lerCSV(readFileSync(caminho, "utf8"));
-  return linhas.map((linha) => Object.fromEntries(cabecalho.map((coluna, i) => [coluna, linha[i]])));
+  return lerTabelaCSV(caminho)?.registros ?? [];
+}
+
+// A populacao do sorteio e' posta numa ordem canonica (rank, depois
+// full_name) ANTES de embaralhar: assim o resultado depende so' da semente e
+// do conteudo do dataset, e nao da ordem em que as linhas estao no CSV.
+export function ordemCanonica(repositorios) {
+  return [...repositorios].sort(
+    (a, b) => Number(a.rank) - Number(b.rank) || String(a.full_name).localeCompare(String(b.full_name))
+  );
+}
+
+function sha256(caminho) {
+  return createHash("sha256").update(readFileSync(caminho)).digest("hex");
 }
 
 // Releases que podem ser rotuladas: deploy releases publicadas na janela (as
@@ -91,15 +104,17 @@ export function releasesRotulaveis(releases, fullName) {
 // sorteadas dentro dele.
 export function montarAmostra({ repositorios, releases, quantidadeDeRepositorios, releasesPorRepositorio, semente }) {
   const proximo = criarSorteio(semente);
-  const sorteados = sortear(repositorios, quantidadeDeRepositorios, proximo).sort(
+  const sorteados = sortear(ordemCanonica(repositorios), quantidadeDeRepositorios, proximo).sort(
     (a, b) => Number(a.rank) - Number(b.rank)
   );
 
   const linhas = [];
   const semReleases = [];
+  const releasesDisponiveis = {};
 
   for (const [indice, repositorio] of sorteados.entries()) {
     const candidatas = releasesRotulaveis(releases, repositorio.full_name);
+    releasesDisponiveis[repositorio.full_name] = candidatas.length;
     if (candidatas.length === 0) {
       semReleases.push(repositorio.full_name);
       continue;
@@ -111,6 +126,7 @@ export function montarAmostra({ repositorios, releases, quantidadeDeRepositorios
     for (const [posicao, release] of escolhidas.entries()) {
       linhas.push({
         repo_index: indice + 1,
+        repo_id: repositorio.id ?? "",
         full_name: repositorio.full_name,
         repo_url: repositorio.html_url ?? `https://github.com/${repositorio.full_name}`,
         stars: repositorio.stars ?? "",
@@ -130,7 +146,38 @@ export function montarAmostra({ repositorios, releases, quantidadeDeRepositorios
     }
   }
 
-  return { repositorios: sorteados, linhas, semReleases };
+  return { repositorios: sorteados, linhas, semReleases, releasesDisponiveis };
+}
+
+// Le repositories.csv e releases.csv e devolve a populacao do sorteio, ou um
+// erro explicando qual etapa falta. Compartilhado pelo sorteio e pela
+// verificacao de reprodutibilidade (src/validacao/index.js).
+export function carregarPopulacao(dirSaida) {
+  const processados = join(dirSaida, "processed");
+  const caminhoRepos = join(processados, "repositories.csv");
+  const caminhoReleases = join(processados, "releases.csv");
+  const todos = lerCSVComoObjetos(caminhoRepos);
+  const releases = lerCSVComoObjetos(caminhoReleases);
+  // Mensagens com caminho relativo: elas vao parar em arquivos versionados.
+  if (todos.length === 0) throw new Error(`Nao ha processed/repositories.csv: rode a etapa "repositorios".`);
+  if (releases.length === 0) throw new Error(`Nao ha processed/releases.csv: rode a etapa "releases".`);
+
+  const finais = todos.filter((r) => r.status === "included");
+  if (finais.length === 0) {
+    throw new Error(
+      'A amostra final ainda nao foi fechada (nenhum repositorio com status "included"). ' +
+        "Rode a coleta ate o fim antes de sortear a amostra-ouro: sortear de uma lista que ainda vai mudar " +
+        "invalida a rotulagem."
+    );
+  }
+  return {
+    finais,
+    releases,
+    entradas: {
+      "processed/repositories.csv": sha256(caminhoRepos),
+      "processed/releases.csv": sha256(caminhoReleases),
+    },
+  };
 }
 
 function escrever(caminho, conteudo) {
@@ -141,6 +188,9 @@ function escrever(caminho, conteudo) {
 export function caminhosDeSaida(dirSaida, avaliadores = []) {
   return {
     amostra: join(dirSaida, "processed", "amostra_ouro.csv"),
+    // Registro do sorteio: semente, algoritmo, populacao, hash das entradas e
+    // os sorteados - o que um replicador precisa para refazer e conferir.
+    registro: join(dirSaida, "raw", "amostra_ouro.json"),
     rotulos: Object.fromEntries(
       avaliadores.map((nome) => [nome, join(dirSaida, "processed", `rotulos_${nome}.csv`)])
     ),
@@ -150,27 +200,13 @@ export function caminhosDeSaida(dirSaida, avaliadores = []) {
 export async function executarAmostraOuro({
   config,
   log = logSilencioso,
-  avaliadores = ["enzo", "caue", "leo"],
+  avaliadores = config.validacao.avaliadores ?? ["enzo", "caue", "leo"],
   sobrescrever = false,
 }) {
   const { diretorios, validacao } = config;
-  const processados = join(diretorios.saida, "processed");
+  const { finais, releases, entradas } = carregarPopulacao(diretorios.saida);
 
-  const todos = lerCSVComoObjetos(join(processados, "repositories.csv"));
-  const releases = lerCSVComoObjetos(join(processados, "releases.csv"));
-  if (todos.length === 0) throw new Error(`Nao ha ${join(processados, "repositories.csv")}: rode a etapa "repositorios".`);
-  if (releases.length === 0) throw new Error(`Nao ha ${join(processados, "releases.csv")}: rode a etapa "releases".`);
-
-  const finais = todos.filter((r) => r.status === "included");
-  if (finais.length === 0) {
-    throw new Error(
-      'A amostra final ainda nao foi fechada (nenhum repositorio com status "included"). ' +
-        "Rode a coleta ate o fim antes de sortear a amostra-ouro: sortear de uma lista que ainda vai mudar " +
-        "invalida a rotulagem."
-    );
-  }
-
-  const { repositorios, linhas, semReleases } = montarAmostra({
+  const { repositorios, linhas, semReleases, releasesDisponiveis } = montarAmostra({
     repositorios: finais,
     releases,
     quantidadeDeRepositorios: validacao.repositoriosNaAmostraOuro,
@@ -182,6 +218,39 @@ export async function executarAmostraOuro({
   escrever(
     caminhos.amostra,
     gerarCSV(COLUNAS_AMOSTRA_OURO, linhas.map((linha) => COLUNAS_AMOSTRA_OURO.map((coluna) => linha[coluna])))
+  );
+
+  escrever(
+    caminhos.registro,
+    JSON.stringify(
+      {
+        generated_at: new Date().toISOString(),
+        criterio:
+          'populacao = repositorios com status "included" em processed/repositories.csv (amostra final); ' +
+          "releases rotulaveis = deploy releases (is_deploy) publicadas na janela (in_window), de processed/releases.csv",
+        algoritmo:
+          "populacao em ordem canonica (rank, full_name); embaralhamento de Fisher-Yates com o gerador mulberry32 " +
+          "semeado; os N primeiros repositorios; depois, com o mesmo gerador, as releases de cada repositorio na ordem do rank",
+        semente: validacao.semente,
+        repositorios_pedidos: validacao.repositoriosNaAmostraOuro,
+        releases_por_repositorio: validacao.releasesPorRepositorio,
+        tamanho_da_populacao: finais.length,
+        entradas_sha256: entradas,
+        avaliadores,
+        repositorios_sorteados: repositorios.map((r, i) => ({
+          repo_index: i + 1,
+          repo_id: r.id ?? "",
+          full_name: r.full_name,
+          rank: Number(r.rank),
+          releases_rotulaveis: releasesDisponiveis[r.full_name] ?? 0,
+          releases_sorteadas: linhas.filter((l) => l.full_name === r.full_name).length,
+        })),
+        sem_releases_rotulaveis: semReleases,
+        total_de_releases: linhas.length,
+      },
+      null,
+      2
+    ) + "\n"
   );
 
   const colunas = [...COLUNAS_AMOSTRA_OURO, ...COLUNAS_DE_ROTULO];
@@ -208,6 +277,7 @@ export async function executarAmostraOuro({
     log.aviso(`${semReleases.length} repositorios sorteados sem release rotulavel na janela: ${semReleases.join(", ")}`);
   }
   log.info(`saidas: ${caminhos.amostra}, ${Object.values(caminhos.rotulos).join(", ")}`);
+  log.info("antes de rotular, cada avaliador le docs/guia-de-rotulagem.md");
 
   return { repositorios, linhas, semReleases, caminhos };
 }
@@ -215,7 +285,8 @@ export async function executarAmostraOuro({
 // ---- CLI -----------------------------------------------------------------
 
 export function parseArgs(argv) {
-  const args = { config: "config.json", avaliadores: ["enzo", "caue", "leo"], sobrescrever: false };
+  // avaliadores = null -> usa config.validacao.avaliadores
+  const args = { config: "config.json", avaliadores: null, sobrescrever: false };
   for (let i = 0; i < argv.length; i += 1) {
     const arg = argv[i];
     if (arg === "--config") {
@@ -244,7 +315,12 @@ export function parseArgs(argv) {
 export async function main(argv = process.argv.slice(2), { log = criarLog() } = {}) {
   const args = parseArgs(argv);
   const config = carregarConfig(args.config);
-  return executarAmostraOuro({ config, log, avaliadores: args.avaliadores, sobrescrever: args.sobrescrever });
+  return executarAmostraOuro({
+    config,
+    log,
+    avaliadores: args.avaliadores ?? config.validacao.avaliadores,
+    sobrescrever: args.sobrescrever,
+  });
 }
 
 if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {

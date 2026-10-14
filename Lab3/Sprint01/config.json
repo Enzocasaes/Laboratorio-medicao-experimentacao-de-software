@@ -21,7 +21,9 @@
   "validacao": {
     "semente": 42,
     "repositoriosNaAmostraOuro": 60,
-    "releasesPorRepositorio": 5
+    "releasesPorRepositorio": 5,
+    "avaliadores": ["enzo", "caue", "leo"],
+    "limiarF1": 0.7
   },
   "diretorios": {
     "cache": "data/cache",
