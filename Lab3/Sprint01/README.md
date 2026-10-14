@@ -334,10 +334,18 @@ renovações. Ordem de grandeza, com 1.321 candidatos:
 | Etapa | Requisições | Observação |
 |---|---|---|
 | `repositorios` | já executada na S01 | vem toda do cache |
-| `releases` | ~1 por candidato | roda em todos, senão o corte dos 300 sai enviesado |
-| `leadtime` | 1 por release avaliada | só nos que passaram no mínimo de 5 releases |
-| `runs` | ~13 por repositório (uma por mês) | só nos que ainda estão no funil |
+| `releases` | ~1 por candidato (1.325) | roda em **todos**, senão o corte dos 300 sai enviesado |
+| `runs` | ~13 por repositório (uma por mês) | só nos 707 que passaram no mínimo de 5 releases; **fecha a amostra final** |
+| `leadtime` | 1 por **release** avaliada | só nos ~300 da amostra final |
 | `dataset` | 0 | offline |
+
+**Por que `runs` vem antes de `leadtime`.** As duas dependem de `releases`, mas
+o custo é muito diferente: `runs` custa ~13 requisições por repositório e aplica
+o segundo critério do funil (≥ 50 runs válidos), fechando a amostra final;
+`leadtime` custa **1 requisição por release** (mediana de 23 por repositório).
+Medindo o lead time depois do corte, ele roda nos ~300 da amostra em vez dos 707
+que passaram só pelo critério de releases — a diferença é de dezenas de milhares
+de requisições, ou seja, horas de coleta.
 
 **Se sobrarem menos de 300 elegíveis**, aumente `selecao.quantidadeDeCandidatos`
 (1500 → 2000, por exemplo) e rode de novo: os candidatos já coletados vêm do

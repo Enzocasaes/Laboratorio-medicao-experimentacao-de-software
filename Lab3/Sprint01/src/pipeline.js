@@ -25,8 +25,16 @@ import { executarSelecao } from "./selecao/index.js";
 export const ETAPAS = [
   { nome: "repositorios", descricao: "selecao, funil e metadados dos repositorios (Pessoa A)", executar: executarSelecao },
   { nome: "releases", descricao: "releases da janela e contagem para o criterio minimo (Pessoa B)", executar: executarReleases },
-  { nome: "leadtime", descricao: "commits entre releases e lead time for changes, RQ 02 (Pessoa B)", executar: executarLeadTime },
+  // "runs" vem ANTES de "leadtime" de proposito. As duas rodam depois de
+  // "releases", mas o custo e' muito diferente: runs custa ~13 requisicoes por
+  // repositorio (uma por mes) e APLICA o segundo criterio do funil (>= 50 runs
+  // validos), fechando a amostra final; leadtime custa 1 requisicao por
+  // RELEASE (mediana de 23 por repositorio) e so' faz sentido em quem ficou na
+  // amostra. Nesta ordem, o lead time e' medido nos ~300 da amostra, e nao nos
+  // 707 que passaram so' pelo criterio de releases - diferenca de milhares de
+  // requisicoes, ou seja, horas de coleta.
   { nome: "runs", descricao: "workflow runs, change failure rate e tempo de recuperacao, RQ 03 (a) e RQ 04 (Pessoa C)", executar: executarRuns },
+  { nome: "leadtime", descricao: "commits entre releases e lead time for changes, RQ 02 (Pessoa B)", executar: executarLeadTime },
   // `rede: false` -> etapa offline: nao precisa de token nem de cliente HTTP.
   { nome: "dataset", descricao: "consolida as saidas num dataset unico e gera o dicionario de dados (Pessoa C)", executar: executarDataset, rede: false },
 ];
