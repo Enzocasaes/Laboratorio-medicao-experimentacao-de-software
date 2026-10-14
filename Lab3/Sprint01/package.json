@@ -12,6 +12,7 @@
     "coletar:runs": "node src/pipeline.js --config config.json --etapa runs",
     "dataset": "node src/pipeline.js --config config.json --etapa dataset",
     "amostra:ouro": "node src/validacao/amostra-ouro.js --config config.json",
+    "validacao": "node src/validacao/index.js --config config.json",
     "test": "node --test test/*.test.js",
     "test:cobertura": "node --test --experimental-test-coverage --test-coverage-include=src/**/*.js --test-coverage-exclude=src/env.js --test-coverage-lines=80 test/*.test.js"
   },

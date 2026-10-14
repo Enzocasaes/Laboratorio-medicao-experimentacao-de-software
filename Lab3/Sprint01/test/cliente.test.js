@@ -123,6 +123,21 @@ test("get: erro de rede e' repetido com backoff e depois lanca", async () => {
   await assert.rejects(falha.c.get("/x"), /Falha de rede em \/x apos 1 novas tentativas: ECONNRESET/);
 });
 
+test("get: conexao que cai no meio do corpo ('terminated') e' repetida com backoff e depois lanca", async () => {
+  const corpoInterrompido = () => ({
+    status: 200,
+    headers: new Headers(),
+    text: async () => { throw new TypeError("terminated"); },
+  });
+  const { c, tempo } = cliente([corpoInterrompido(), respostaJSON(200, { ok: 1 })]);
+  const r = await c.get("/x");
+  assert.deepEqual(r.corpo, { ok: 1 });
+  assert.deepEqual(tempo.esperas, [1000]);
+
+  const falha = cliente([corpoInterrompido(), corpoInterrompido()], { maxTentativas: 1 });
+  await assert.rejects(falha.c.get("/x"), /Falha de rede em \/x apos 1 novas tentativas: terminated/);
+});
+
 test("get: requisicao sem resposta e' abortada pelo timeout e repetida", async () => {
   let chamadas = 0;
   // 1a chamada: nunca responde, so' termina quando o sinal de timeout aborta.

@@ -27,6 +27,11 @@ export const VALIDACAO_PADRAO = Object.freeze({
   semente: 42,
   repositoriosNaAmostraOuro: 60,
   releasesPorRepositorio: 5,
+  // Um arquivo de rotulos por avaliador (processed/rotulos_<nome>.csv). O nome
+  // vira parte do caminho, por isso so' letras minusculas, digitos, "_" e "-".
+  avaliadores: Object.freeze(["enzo", "caue", "leo"]),
+  // Secao 6: "se o F1 ficar abaixo de 0,70, refine a heuristica e reavalie".
+  limiarF1: 0.7,
 });
 
 export const DIRETORIOS_PADRAO = Object.freeze({
@@ -56,6 +61,32 @@ function inteiroPositivo(valor, campo, { permiteZero = false, maximo = null } = 
   }
   if (maximo !== null && valor > maximo) {
     throw new Error(`Configuracao invalida: ${campo} nao pode passar de ${maximo} (recebido: ${valor})`);
+  }
+  return valor;
+}
+
+// Kappa de Fleiss exige ao menos dois avaliadores; nomes repetidos fariam dois
+// "avaliadores" lerem o mesmo arquivo e inflariam a concordancia.
+export function listaDeAvaliadores(valor, campo) {
+  if (!Array.isArray(valor) || valor.length < 2) {
+    throw new Error(`Configuracao invalida: ${campo} deve ser uma lista com ao menos 2 nomes (recebido: ${JSON.stringify(valor)})`);
+  }
+  for (const nome of valor) {
+    if (typeof nome !== "string" || !/^[a-z0-9_-]+$/.test(nome)) {
+      throw new Error(
+        `Configuracao invalida: ${campo} aceita so' letras minusculas, digitos, "_" e "-" (recebido: ${JSON.stringify(nome)})`
+      );
+    }
+  }
+  if (new Set(valor).size !== valor.length) {
+    throw new Error(`Configuracao invalida: ${campo} tem nomes repetidos (recebido: ${JSON.stringify(valor)})`);
+  }
+  return [...valor];
+}
+
+function proporcao(valor, campo) {
+  if (typeof valor !== "number" || !(valor > 0 && valor <= 1)) {
+    throw new Error(`Configuracao invalida: ${campo} deve ser um numero em (0, 1] (recebido: ${JSON.stringify(valor)})`);
   }
   return valor;
 }
@@ -104,6 +135,8 @@ export function validarConfig(bruta, { baseDir = process.cwd() } = {}) {
     semente: inteiroPositivo(v.semente, "validacao.semente", { permiteZero: true }),
     repositoriosNaAmostraOuro: inteiroPositivo(v.repositoriosNaAmostraOuro, "validacao.repositoriosNaAmostraOuro"),
     releasesPorRepositorio: inteiroPositivo(v.releasesPorRepositorio, "validacao.releasesPorRepositorio"),
+    avaliadores: listaDeAvaliadores(v.avaliadores, "validacao.avaliadores"),
+    limiarF1: proporcao(v.limiarF1, "validacao.limiarF1"),
   };
 
   const d = { ...DIRETORIOS_PADRAO, ...(bruta.diretorios ?? {}) };

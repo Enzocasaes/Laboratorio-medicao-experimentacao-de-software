@@ -33,8 +33,8 @@ function dataISO(ms) {
 // Divide a janela em fatias mensais, no formato aceito pelo filtro
 // `created=AAAA-MM-DD..AAAA-MM-DD` (inclusivo nas duas pontas). A primeira e a
 // ultima fatia sao recortadas pelas datas da janela, para nao coletar nada
-// fora dela: uma janela de 22/10 a 22/10 do ano seguinte comeca em
-// "2025-10-22..2025-10-31" e termina em "2026-10-01..2026-10-22".
+// fora dela: uma janela de 01/10/2025 a 30/09/2026 comeca em
+// "2025-10-01..2025-10-31" e termina em "2026-09-01..2026-09-30".
 export function fatiasMensais(janela) {
   const fatias = [];
   let inicioMs = janela.inicioMs;

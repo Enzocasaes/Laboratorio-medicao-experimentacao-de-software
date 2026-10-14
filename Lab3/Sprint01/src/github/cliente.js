@@ -195,7 +195,21 @@ export function criarClienteGitHub({
         continue;
       }
 
-      const texto = await resposta.text();
+      // A conexao pode cair no meio do corpo ("terminated") depois que os
+      // cabecalhos ja chegaram: e' falha de rede como as do fetch, com a
+      // mesma politica de novas tentativas.
+      let texto;
+      try {
+        texto = await resposta.text();
+      } catch (erro) {
+        const motivo = erro.name === "TimeoutError" ? `corpo nao chegou em ${timeoutMs / 1000}s` : erro.message;
+        if (tentativa >= maxTentativas) {
+          throw new ErroGitHub(`Falha de rede em ${chave} apos ${maxTentativas} novas tentativas: ${motivo}`, { url: chave });
+        }
+        await recuar(`falha de rede ao ler o corpo (${motivo})`, chave, tentativa);
+        tentativa += 1;
+        continue;
+      }
       let corpo = null;
       if (texto !== "") {
         try {

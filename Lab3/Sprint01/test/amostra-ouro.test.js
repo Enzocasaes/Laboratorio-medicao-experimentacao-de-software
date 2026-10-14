@@ -231,7 +231,7 @@ test("executarAmostraOuro: sem releases coletadas, explica qual etapa rodar", as
 // ---- CLI -----------------------------------------------------------------
 
 test("parseArgs: avaliadores padrao e lista por virgula", () => {
-  assert.deepEqual(parseArgs([]).avaliadores, ["enzo", "caue", "leo"]);
+  assert.equal(parseArgs([]).avaliadores, null); // null -> config.validacao.avaliadores
   assert.deepEqual(parseArgs(["--avaliadores", "Ana, Bia"]).avaliadores, ["ana", "bia"]);
   assert.equal(parseArgs(["--sobrescrever"]).sobrescrever, true);
   assert.equal(parseArgs(["--config", "outro.json"]).config, "outro.json");

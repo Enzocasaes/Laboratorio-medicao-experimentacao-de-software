@@ -1,7 +1,7 @@
 {
   "janela": {
-    "inicio": "2025-10-22",
-    "fim": "2026-10-22"
+    "inicio": "2025-10-01",
+    "fim": "2026-09-30"
   },
   "selecao": {
     "estrelasAcimaDe": 1000,
@@ -21,7 +21,9 @@
   "validacao": {
     "semente": 42,
     "repositoriosNaAmostraOuro": 60,
-    "releasesPorRepositorio": 5
+    "releasesPorRepositorio": 5,
+    "avaliadores": ["enzo", "caue", "leo"],
+    "limiarF1": 0.7
   },
   "diretorios": {
     "cache": "data/cache",

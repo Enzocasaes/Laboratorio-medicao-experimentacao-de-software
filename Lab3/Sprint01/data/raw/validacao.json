@@ -1,0 +1,20 @@
+{
+  "generated_at": "2026-10-14T12:28:40.511Z",
+  "situacao": "amostra_nao_sorteada",
+  "parametros": {
+    "semente": 42,
+    "repositorios_na_amostra_ouro": 60,
+    "releases_por_repositorio": 5,
+    "avaliadores": [
+      "enzo",
+      "caue",
+      "leo"
+    ],
+    "limiar_f1": 0.7
+  },
+  "populacao_disponivel": 0,
+  "pendencias": [
+    "amostra-ouro ainda nao sorteada: feche a coleta (status \"included\") e rode `npm run amostra:ouro`",
+    "sorteio bloqueado: A amostra final ainda nao foi fechada (nenhum repositorio com status \"included\"). Rode a coleta ate o fim antes de sortear a amostra-ouro: sortear de uma lista que ainda vai mudar invalida a rotulagem."
+  ]
+}
