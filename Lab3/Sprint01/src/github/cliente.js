@@ -195,7 +195,25 @@ export function criarClienteGitHub({
         continue;
       }
 
-      const texto = await resposta.text();
+      // Ler o corpo tambem pode falhar no meio (conexao derrubada depois dos
+      // cabecalhos -> TypeError "terminated"). Sem este try, o erro escapava
+      // cru e derrubava a coleta inteira, mesmo sendo uma falha temporaria de
+      // rede como qualquer outra.
+      let texto;
+      try {
+        texto = await resposta.text();
+      } catch (erro) {
+        if (tentativa >= maxTentativas) {
+          throw new ErroGitHub(
+            `Falha ao ler a resposta de ${chave} apos ${maxTentativas} novas tentativas: ${erro.message}`,
+            { status: resposta.status, url: chave }
+          );
+        }
+        await recuar(`conexao interrompida ao ler a resposta (${erro.message})`, chave, tentativa);
+        tentativa += 1;
+        continue;
+      }
+
       let corpo = null;
       if (texto !== "") {
         try {
