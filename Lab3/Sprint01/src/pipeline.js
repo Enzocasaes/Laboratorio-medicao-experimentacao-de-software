@@ -17,7 +17,7 @@ import { carregarEnv } from "./env.js";
 import { criarCacheEmDisco, criarCacheEmMemoria } from "./github/cache.js";
 import { criarClienteGitHub, lerToken } from "./github/cliente.js";
 import { criarLog } from "./log.js";
-import { executarLeadTime, executarReleases } from "./releases/index.js";
+import { executarCorretiva, executarLeadTime, executarReleases } from "./releases/index.js";
 import { executarDataset } from "./dataset/index.js";
 import { executarRuns } from "./runs/index.js";
 import { executarSelecao } from "./selecao/index.js";
@@ -30,11 +30,12 @@ export const ETAPAS = [
   // repositorio (uma por mes) e APLICA o segundo criterio do funil (>= 50 runs
   // validos), fechando a amostra final; leadtime custa 1 requisicao por
   // RELEASE (mediana de 23 por repositorio) e so' faz sentido em quem ficou na
-  // amostra. Nesta ordem, o lead time e' medido nos ~300 da amostra, e nao nos
-  // 707 que passaram so' pelo criterio de releases - diferenca de milhares de
-  // requisicoes, ou seja, horas de coleta.
+  // amostra. Nesta ordem, o lead time e a heuristica de release corretiva sao
+  // medidos nos 300 da amostra, e nao nos ~700 que passaram so' pelo criterio
+  // de releases - diferenca de dezenas de milhares de requisicoes.
   { nome: "runs", descricao: "workflow runs, change failure rate e tempo de recuperacao, RQ 03 (a) e RQ 04 (Pessoa C)", executar: executarRuns },
   { nome: "leadtime", descricao: "commits entre releases e lead time for changes, RQ 02 (Pessoa B)", executar: executarLeadTime },
+  { nome: "corretiva", descricao: "heuristica de release corretiva e change failure rate, RQ 03 (b) (Pessoa B)", executar: executarCorretiva },
   // `rede: false` -> etapa offline: nao precisa de token nem de cliente HTTP.
   { nome: "dataset", descricao: "consolida as saidas num dataset unico e gera o dicionario de dados (Pessoa C)", executar: executarDataset, rede: false },
 ];

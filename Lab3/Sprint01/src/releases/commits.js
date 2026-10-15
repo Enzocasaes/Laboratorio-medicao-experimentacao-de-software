@@ -22,12 +22,15 @@ import { logSilencioso } from "../log.js";
 export const COMMITS_POR_PAGINA = 100; // maximo aceito pela API
 export const MAX_COMMITS_POR_RELEASE = 1000;
 
-// Item de `commits` -> { sha, data }. data = commit.author.date (secao 3 do
-// enunciado: quando a mudanca foi escrita), nao committer.date.
+// Item de `commits` -> { sha, data, mensagem }. data = commit.author.date
+// (secao 3 do enunciado: quando a mudanca foi escrita), nao committer.date.
+// A mensagem vem na mesma resposta (nenhuma requisicao a mais) e alimenta a
+// heuristica de release corretiva (src/releases/corretiva.js).
 function criarCommit(item) {
   return {
     sha: typeof item?.sha === "string" ? item.sha : null,
     data: typeof item?.commit?.author?.date === "string" ? item.commit.author.date : null,
+    mensagem: typeof item?.commit?.message === "string" ? item.commit.message : null,
   };
 }
 

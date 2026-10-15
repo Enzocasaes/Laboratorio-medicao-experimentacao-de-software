@@ -53,7 +53,7 @@ test("corpo interrompido sempre: para com mensagem clara, sem erro cru", async (
   const cliente = clienteCom(async () => respostaQueFalhaAoLer());
 
   await assert.rejects(() => cliente.get("/rate_limit"), (erro) => {
-    assert.match(erro.message, /Falha ao ler a resposta/);
+    assert.match(erro.message, /Falha de rede em/);
     assert.match(erro.message, /terminated/);
     return true;
   });

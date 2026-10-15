@@ -31,19 +31,19 @@ test("coletarCommitsEntreReleases: le author.date de cada commit", async () => {
   assert.equal(coletado.total, 3);
   assert.equal(coletado.truncada, false);
   assert.deepEqual(coletado.commits, [
-    { sha: "c1", data: "2025-03-02T00:00:00Z" },
-    { sha: "c2", data: "2025-03-10T00:00:00Z" },
-    { sha: "c3", data: "2025-03-14T00:00:00Z" },
+    { sha: "c1", data: "2025-03-02T00:00:00Z", mensagem: "mudanca" },
+    { sha: "c2", data: "2025-03-10T00:00:00Z", mensagem: "mudanca" },
+    { sha: "c3", data: "2025-03-14T00:00:00Z", mensagem: "mudanca" },
   ]);
   assert.match(api.chamadas[0].caminho, /^\/repos\/a\/b\/compare\/v1\.0\.\.\.v1\.1\?per_page=100$/);
 });
 
-test("coletarCommitsEntreReleases: commit sem author.date vira data null", async () => {
+test("coletarCommitsEntreReleases: commit sem author.date nem mensagem vira null", async () => {
   const api = criarApiFalsa({
     comparacoes: { "a/b": { "v1.0...v1.1": [{ sha: "c1" }, commit("c2", "2025-03-10T00:00:00Z")] } },
   });
   const coletado = await coletarCommitsEntreReleases(clientePara(api), "a/b", "v1.0", "v1.1");
-  assert.deepEqual(coletado.commits[0], { sha: "c1", data: null });
+  assert.deepEqual(coletado.commits[0], { sha: "c1", data: null, mensagem: null });
 });
 
 test("coletarCommitsEntreReleases: segue o Link next em todas as paginas", async () => {

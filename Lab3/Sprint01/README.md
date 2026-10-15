@@ -17,6 +17,12 @@ prontas de acesso à API). Este README cobre, por enquanto, as etapas:
 As cinco rodam no mesmo comando (`npm run pipeline`), nessa ordem. A última
 não vai à rede: só lê o que as outras coletaram.
 
+A validação manual da S02 tem dois comandos próprios, fora do pipeline,
+porque dependem de pessoas e não da API: `npm run amostra:ouro` (sorteio, só
+depois que a coleta fechar) e `npm run validacao` (kappa de Fleiss, consenso e
+avaliação da heurística de release corretiva) — Pessoa A, ver
+*Concordância, consenso e avaliação da heurística*.
+
 ---
 
 ## Requisitos
@@ -74,7 +80,7 @@ para que o grupo replicador use exatamente os mesmos parâmetros):
 
 | Campo | Significado |
 |---|---|
-| `janela.inicio`, `janela.fim` | **Obrigatórios.** Datas fixadas pelo professor (seção 3 do enunciado), em UTC. O dia `fim` está dentro da janela. Não têm valor padrão: o pipeline se recusa a rodar sem elas. |
+| `janela.inicio`, `janela.fim` | **Obrigatórios.** Em UTC; o dia `fim` está dentro da janela. Não têm valor padrão: o pipeline se recusa a rodar sem elas. A janela usada é **2025-10-01 a 2026-09-30** (12 meses fechados, 365 dias). Ela termina **antes** da coleta, para que todo o período já tenha acontecido quando a API é consultada, e coincide com meses inteiros, que são as fatias da coleta de workflow runs. |
 | `selecao.estrelasAcimaDe` | Busca `stars:>N` (enunciado: 1000). |
 | `selecao.quantidadeDeCandidatos` | Quantos candidatos (os de mais estrelas) entram no topo do funil. Precisa ser bem maior que a amostra-alvo, porque muitos caem nos filtros. |
 | `selecao.tamanhoAlvoDaAmostra` | Tamanho da amostra final (S01: 100; S02: ≥ 300). |
@@ -102,9 +108,11 @@ npm run pipeline                       # = node src/pipeline.js --config config.
 npm run coletar:repositorios           # seleção, funil e metadados (A)
 npm run coletar:releases               # releases da janela (B)
 npm run coletar:leadtime               # commits entre releases e lead time (B)
+npm run corretiva                      # heuristica de release corretiva e CFR (b) (B; usa o cache do leadtime)
 npm run coletar:runs                   # workflow runs, CFR (a) e recuperacao (C)
 npm run dataset                        # dataset consolidado + dicionario (nao usa a rede)
 npm run amostra:ouro                   # sorteia a amostra-ouro da validacao manual (S02)
+npm run validacao                      # kappa de Fleiss, consenso e F1 da heuristica (S02, nao usa a rede)
 
 # opções
 node src/pipeline.js --config outro.json   # outro arquivo de configuração
@@ -139,7 +147,7 @@ Custo aproximado (estimativa, não medição):
 | `repositorios` | ~10 páginas de busca por fatia, mais uma de `actions/workflows` por candidato e uma de `contributors` por candidato com Actions |
 | `releases` | 1 a 3 por repositório (1 página de 100 releases costuma alcançar o início da janela) |
 | `leadtime` | 1 por release avaliada, mais páginas extras nas comparações com mais de 100 commits |
-| `runs` | 1 por **mês** da janela e por repositório (≈ 13 com a janela atual), mais páginas extras nos meses com mais de 100 runs |
+| `runs` | 1 por **mês** da janela e por repositório (12 com a janela atual, de meses fechados), mais páginas extras nos meses com mais de 100 runs |
 
 Com a cota autenticada de 5.000 requisições/hora, a coleta completa das três
 etapas leva algumas horas e atravessa mais de uma renovação de cota. Isso é
@@ -269,7 +277,7 @@ API apareça no relato em vez de sumir.
 run válido a taxa fica **vazia**, e não zero: "não medido" é diferente de
 "nenhuma falha". Essa variante mede **falha de pipeline**, não falha em
 produção — a diferença é discutida nas ameaças de construto do artigo. A
-variante (b), de release corretiva, é da Sprint 02.
+variante (b), de release corretiva, está na seção seguinte.
 
 **Tempo de recuperação (RQ 04):** dentro de **cada workflow**, em ordem
 cronológica por `run_started_at`, um **episódio de falha** começa na primeira
@@ -309,11 +317,99 @@ sem rebaixar os meses já coletados.
 
 ### Por que a etapa roda depois de `releases`
 
-Cada repositório custa ~13 requisições (uma por mês da janela). Quando `runs`
+Cada repositório custa ~12 requisições (uma por mês da janela). Quando `runs`
 roda depois de `releases`, quem ficou abaixo de 5 releases já saiu do funil e
 não gasta cota. A etapa devolve `valid_workflow_runs` pela mesma interface de
 B (`atualizarCriterios`), que aplica o mínimo de 50 runs e, quando não resta
 nenhum pendente, fecha a amostra final.
+
+## Release corretiva e CFR (RQ 03 b)
+
+```bash
+npm run corretiva      # depois de leadtime; as comparacoes vem do cache
+```
+
+### Definições operacionais
+
+**Release corretiva** é aquela cujo objetivo principal é corrigir um defeito
+recente. A heurística ([src/releases/corretiva.js](src/releases/corretiva.js))
+compara a release R com a **anterior** — a mesma do lead time: o deploy
+imediatamente antes na sequência por `published_at` — e usa dois sinais:
+
+- **incremento de versão** (SemVer): `major`, `minor`, `patch`, `same`,
+  `backport` (versão menor que a anterior) ou `unknown` (tag sem versão
+  numérica, ou de outro pacote num monorepo: `core@1.2.3` × `cli@1.2.4`);
+- **títulos dos commits** de `compare/{anterior}...{R}` — a primeira linha da
+  mensagem; num merge de PR, o título do PR. Cada commit vira `revert`
+  (revert, rollback), `hotfix`, `fix` (fix/fixes/fixed, bugfix, regression,
+  crash, CVE/GHSA), `dependency` (bump de dependência), `release` (preparação
+  da release) ou `other`. "Fix" de documentação, typo, lint, formatação ou
+  teste conta como `other`: não é defeito numa versão publicada.
+
+As mensagens vêm na mesma resposta do `compare` usada no lead time: **nenhuma
+requisição a mais**.
+
+**CFR (b):** R **falhou** se o deploy **seguinte** for corretivo e sair em até
+**7 dias** (`heuristica.diasParaCorrecao`). Só a seguinte imediata conta: uma
+corretiva que vem depois de outra release corrige a mais recente, não R.
+`CFR = releases que falharam ÷ releases avaliadas`.
+
+| Situação de R | Tratamento |
+|---|---|
+| Publicada nos **últimos 7 dias da janela** | `censored`: fora do denominador (ainda não se sabe se haverá correção) |
+| Seguinte em até 7 dias, mas **sem previsão** (comparação com erro, tag ausente) | `undetermined`: fora do denominador, contada à parte |
+| Sem seguinte, ou seguinte depois de 7 dias | `not_failed` |
+| Nenhuma release avaliada | CFR **vazio**, não zero |
+
+**Rework rate (RQ 08, bônus):** `releases corretivas ÷ releases classificadas`
+da janela — sai junto, de graça.
+
+### Versões da heurística
+
+Todas as versões são calculadas para toda release e gravadas em
+`processed/heuristica_corretiva.csv`, que a etapa `validacao` compara com o
+consenso da amostra-ouro (precisão, recall e F1 de cada versão). A versão que
+entra no CFR (b) do dataset é `heuristica.versao` no `config.json`.
+
+| Versão | Corretiva se… |
+|---|---|
+| `v1-semver-patch` | a versão muda só no *patch* (`2.3.0 → 2.3.1`) |
+| `v2-commits-fix` | há ao menos um commit `revert`/`hotfix`/`fix` entre as duas releases |
+| `v3-patch-e-commits` | *patch* **e** commit `revert`/`hotfix`/`fix` — o exemplo do enunciado (**padrão atual**) |
+| `v4-maioria-corretiva` | ao menos **metade** dos commits que mudam código é `revert`/`hotfix`/`fix`, e o *major* não muda; segue o critério do guia de rotulagem ("objetivo principal"), em que uma *minor* pode ser corretiva |
+
+Uma versão devolve **sem previsão** (e não "não") quando o sinal de que ela
+depende não existe: v1/v3 em tag sem versão numérica, v2/v3/v4 quando não há
+comparação. Na validação esses casos aparecem como `sem_previsao`.
+
+### Refinamento a partir da validação
+
+"Se o F1 ficar abaixo de 0,70, refine a heurística e reavalie":
+
+1. `npm run corretiva && npm run validacao` — o relatório
+   [docs/validacao-manual.md](docs/validacao-manual.md) mostra o F1 de cada versão.
+2. Os erros estão em `processed/heuristica_erros.csv` (FP e FN, com link) e os
+   sinais de cada release em `processed/release_corretiva.csv`: veja que sinal
+   enganou a regra.
+3. Acrescente uma **versão nova** em `VERSOES` (sem apagar as anteriores: o
+   artigo documenta o F1 de cada uma), com teste, e volte ao passo 1.
+4. Ponha em `heuristica.versao` a versão escolhida e rode `npm run corretiva`
+   e `npm run dataset` — o CFR (b) do dataset passa a usá-la.
+
+Escolher a versão olhando o F1 na própria amostra-ouro superestima o acerto
+(a regra foi ajustada aos mesmos 300 casos); isso entra nas ameaças à validade.
+
+### Saídas
+
+| Arquivo | Conteúdo |
+|---|---|
+| `processed/heuristica_corretiva.csv` | Previsão de cada versão para cada deploy da janela, no contrato da validação (`full_name`, `release_id`, `tag_name`, `corretiva_prevista`, `versao_heuristica`). |
+| `processed/release_corretiva.csv` | Uma linha por deploy da janela: incremento de versão, contagem de commits por tipo, `corrective_share`, previsão de cada versão (`corrective_<versao>`), release seguinte, dias até ela e situação no CFR (b). |
+| `processed/cfr_entrega.csv` | Uma linha por repositório: avaliadas, falhas, censuradas, indeterminadas, `change_failure_rate_delivery`, `rework_rate`. Entra no dataset. |
+| `raw/cfr_entrega.json` | Definições operacionais, descrição de cada versão e a versão usada no CFR. |
+
+> Os três arquivos mostram a saída da heurística: **não abra antes de terminar
+> a rotulagem** (ver o guia de rotulagem).
 
 ## Sprint 02 — coleta completa, dataset e validação manual
 
@@ -324,7 +420,7 @@ os filtros**, e o `config.json` já está com `tamanhoAlvoDaAmostra: 300`.
 
 ```bash
 cd Lab3/Sprint01
-npm run pipeline        # repositorios -> releases -> leadtime -> runs -> dataset
+npm run pipeline        # repositorios -> releases -> leadtime -> corretiva -> runs -> dataset
 ```
 
 É **um comando só**, e ele pode ser interrompido à vontade: o cache guarda cada
@@ -336,8 +432,9 @@ renovações. Ordem de grandeza, com 1.321 candidatos:
 |---|---|---|
 | `repositorios` | já executada na S01 | vem toda do cache |
 | `releases` | ~1 por candidato (1.325) | roda em **todos**, senão o corte dos 300 sai enviesado |
-| `runs` | ~13 por repositório (uma por mês) | roda em ordem de estrelas e **para assim que 300 cumprem o critério** (ver abaixo); fecha a amostra final |
-| `leadtime` | 1 por **release** avaliada | só nos ~300 da amostra final |
+| `runs` | ~12 por repositório (uma por mês) | roda em ordem de estrelas e **para assim que 300 cumprem o critério** (ver abaixo); fecha a amostra final |
+| `leadtime` | 1 por **release** avaliada | só nos 300 da amostra final |
+| `corretiva` | 0 | as mesmas comparações do `leadtime`, direto do cache |
 | `dataset` | 0 | offline |
 
 **Parada antecipada (`selecao.pararAoCompletarAmostra`).** Os repositórios são
@@ -424,6 +521,9 @@ Sorteia `validacao.repositoriosNaAmostraOuro` repositórios **da amostra final**
   colunas `tipo_do_projeto`, `releases_sao_entrega_real`, `release_corretiva` e
   `observacao`.
 
+Os critérios de cada categoria e as regras de independência estão em
+[docs/guia-de-rotulagem.md](docs/guia-de-rotulagem.md) — leia antes de rotular.
+
 Três regras que fazem o número valer alguma coisa:
 
 1. **Só sorteie depois que a coleta fechar.** O comando se recusa a rodar
@@ -438,13 +538,111 @@ Três regras que fazem o número valer alguma coisa:
    O comando **não sobrescreve** planilhas já preenchidas (use `--sobrescrever`
    se quiser mesmo recriar).
 
+Antes de embaralhar, a população é posta em ordem canônica (`rank`, depois
+`full_name`), então o sorteio depende só da semente e do conteúdo do dataset, e
+não da ordem das linhas no CSV. Cada linha da planilha traz o `repo_id` (o `id`
+da API, estável se o repositório for renomeado). O sorteio fica registrado em
+`raw/amostra_ouro.json`: critério, algoritmo, semente, tamanho da população,
+**SHA-256** de `repositories.csv` e `releases.csv` usados e a lista dos
+sorteados. Os avaliadores vêm de `validacao.avaliadores` no `config.json`.
+
+### Concordância, consenso e avaliação da heurística (Pessoa A)
+
+```bash
+npm run validacao    # não usa a rede; pode rodar a qualquer momento
+```
+
+Lê a amostra-ouro, as planilhas dos avaliadores e, se existirem, as decisões de
+reunião e as previsões da heurística de release corretiva, e gera os relatórios.
+Roda em qualquer estado: antes do sorteio, com a rotulagem pela metade ou sem a
+heurística — e diz exatamente o que está pendente em
+[docs/validacao-manual.md](docs/validacao-manual.md) (gerado, não edite). **Não
+produz rótulo humano:** rótulo ausente continua ausente, e o kappa, o consenso e
+o F1 só aparecem quando há avaliações de verdade.
+
+O que acontece, em ordem:
+
+1. **Reprodutibilidade.** O sorteio é refeito a partir dos dados atuais e
+   comparado com `amostra_ouro.csv`. Se a coleta mudou depois do sorteio, o
+   relatório mostra `divergente`.
+2. **Validação estrutural de cada planilha, separadamente** (os arquivos dos
+   avaliadores nunca são alterados). Categorias aceitas, sem diferenciar
+   maiúsculas, acentos e os separadores `/ _ -`:
+
+   | Dimensão | Unidade | Categorias (forma canônica) | Também aceita |
+   |---|---|---|---|
+   | `tipo_do_projeto` | repositório | `biblioteca_framework`, `aplicacao_servico`, `ferramenta_cli`, `outro` | `biblioteca`, `framework`, `aplicacao`, `servico`, `cli` |
+   | `releases_sao_entrega_real` | repositório | `sim`, `nao`, `incerto` | `s`, `n` |
+   | `release_corretiva` | release (`owner/nome@release_id`) | `sim`, `nao` | `s`, `n` |
+
+   Célula vazia é **ausente**; valor fora da lista é **inválido**; o mesmo
+   repositório com valores diferentes em linhas diferentes é **inconsistente**
+   (basta preencher uma das linhas dele). Nos três casos a unidade fica sem
+   rótulo daquele avaliador — nunca se escolhe um valor por ele. Também são
+   apontadas linhas faltando, duplicadas, fora da amostra, com `tag_name`
+   alterada e colunas removidas (`processed/rotulos_problemas.csv`).
+3. **Kappa de Fleiss por dimensão**, a mesma conta de
+   `statsmodels.stats.inter_rater.fleiss_kappa(aggregate_raters(...))`
+   (conferida contra o statsmodels 0.15 em 200 casos aleatórios, diferença
+   máxima menor que 10⁻¹⁴; com os rótulos reais, `scripts/conferir_kappa.py`
+   refaz a conta no statsmodels a partir de `consenso.csv`). Dados incompletos: **casos completos** — só entram unidades com
+   rótulo válido de todos os avaliadores; as demais são contadas como excluídas
+   e o kappa é marcado como *preliminar*. Quando todas as avaliações caem numa
+   única categoria, a concordância esperada é 1 e o kappa é **indefinido** (o
+   statsmodels devolve `NaN`; aqui sai vazio com o motivo). Interpretação de
+   Landis & Koch (1977).
+4. **Consenso**, com o protocolo de desempate do enunciado:
+
+   | Caso (3 avaliadores) | Resultado | `metodo` | `decisao_automatica` |
+   |---|---|---|---|
+   | 3 iguais | consenso | `unanimidade` | `true` |
+   | 2 × 1 | consenso pela maioria (listado para revisão) | `maioria_simples` | `true` |
+   | 1-1-1, ou algum rótulo ausente/inválido | **sem consenso** até o grupo decidir | — | — |
+   | decisão registrada em `consenso_reuniao.csv` | consenso | `reuniao` | `false` |
+
+   `processed/consenso_pendentes.csv` lista os casos a discutir (bloqueantes e
+   os 2 × 1), já no formato de `consenso_reuniao.csv` com as colunas de decisão
+   em branco: o grupo copia a linha, preenche `rotulo_consenso`,
+   `justificativa`, `participantes` e `data_reuniao`, e roda o comando de novo.
+   Decisão sem justificativa, sem participantes, com rótulo fora das categorias
+   ou contraditória é **rejeitada** e aparece em `rotulos_problemas.csv`.
+5. **Heurística de release corretiva (Pessoa B)** frente ao consenso:
+   precisão, recall e F1 com a classe positiva `sim` (como
+   `precision_recall_fscore_support(..., average="binary")`), por versão da
+   heurística. F1 abaixo de `validacao.limiarF1` (0,70) marca a versão como
+   `refinar` e os FP/FN vão para `processed/heuristica_erros.csv`, com link,
+   como evidência para o refinamento.
+
+**Interface com o módulo da Pessoa B.** A heurística não é implementada aqui,
+e sim na etapa `corretiva` (seção *Release corretiva e CFR (RQ 03 b)*), que grava
+`processed/heuristica_corretiva.csv`, uma linha por release e versão
+(linhas de releases fora da amostra-ouro são aceitas e ignoradas):
+
+| Coluna | Conteúdo |
+|---|---|
+| `full_name` | `owner/nome` |
+| `release_id` | `id` da release na API — a chave da associação com a amostra |
+| `tag_name` | usada só quando `release_id` vier vazio |
+| `corretiva_prevista` | `sim` / `nao` (também `true`/`false`, `1`/`0`) |
+| `versao_heuristica` | identificador da versão da regra, ex.: `v1-semver-patch` |
+
+Várias versões no mesmo arquivo são avaliadas separadamente — é o que o artigo
+precisa para "documentar cada versão testada e o F1 obtido". A mesma interface
+existe em memória: `avaliarHeuristica({ consenso, previsoes, limiarF1 })` de
+[src/validacao/heuristica.js](src/validacao/heuristica.js).
+
+**Independência dos avaliadores.** O relatório da validação mostra a saída da
+heurística; por isso ele só deve ser aberto **depois** que os três terminarem a
+rotulagem. Pela mesma razão, o pipeline **não** gera pré-classificação
+automática nas planilhas: ela seria exatamente "ver a saída da heurística".
+
 ### Dataset e dicionário de dados
 
 ```bash
 npm run dataset    # não usa a rede, pode rodar a qualquer momento
 ```
 
-Junta `repositories.csv` + `lead_time.csv` + `dora_runs.csv` numa linha por
+Junta `repositories.csv` + `lead_time.csv` + `dora_runs.csv` + `cfr_entrega.csv` numa linha por
 repositório da amostra final, calcula a coluna derivada da **RQ 01**
 (`deployment_frequency_per_week = releases_in_window / semanas da janela`) e
 grava o dicionário de dados.
@@ -480,7 +678,22 @@ zero.
 | `data/processed/dataset_dicionario.csv` | `dataset` | O dicionário de dados em CSV (para anexar ao artigo ou abrir em planilha). |
 | `docs/dicionario-de-dados.md` | `dataset` | O mesmo dicionário em Markdown, gerado junto. |
 | `data/processed/amostra_ouro.csv` | `amostra:ouro` | Releases sorteadas para a validação manual, com link direto para cada uma. |
-| `data/processed/rotulos_<nome>.csv` | `amostra:ouro` | Planilha em branco de cada avaliador. |
+| `data/processed/rotulos_<nome>.csv` | `amostra:ouro` | Planilha em branco de cada avaliador. **Preenchida só pelo avaliador** e nunca regravada pelo pipeline. |
+| `data/raw/amostra_ouro.json` | `amostra:ouro` | Registro do sorteio: critério, algoritmo, semente, população, SHA-256 das entradas e sorteados. |
+| `data/processed/consenso_reuniao.csv` | o grupo (à mão) | Decisões de reunião: `dimensao`, `unidade_id`, `rotulo_consenso`, `justificativa`, `participantes`, `data_reuniao`. |
+| `data/processed/heuristica_corretiva.csv` | `corretiva` | Previsões de todas as versões da heurística de release corretiva (contrato acima). |
+| `data/processed/release_corretiva.csv` | `corretiva` | Uma linha por deploy da janela: sinais da heurística, previsão de cada versão e situação no CFR (b). |
+| `data/processed/cfr_entrega.csv` | `corretiva` | **Uma linha por repositório: CFR (b) e rework rate.** Entrada da análise da RQ 03 (b). |
+| `data/raw/cfr_entrega.json` | `corretiva` | Definições operacionais e versões da heurística. |
+| `data/processed/rotulos_problemas.csv` | `validacao` | Problemas estruturais das planilhas e das decisões de reunião. |
+| `data/processed/concordancia_kappa.csv` | `validacao` | Kappa de Fleiss por dimensão: unidades válidas/excluídas, P observada, P esperada, interpretação. |
+| `data/processed/consenso.csv` | `validacao` | Uma linha por unidade e dimensão: rótulo de cada avaliador, votos, consenso, método, justificativa. |
+| `data/processed/consenso_pendentes.csv` | `validacao` | Casos divergentes ou sem consenso, no formato de `consenso_reuniao.csv`. |
+| `data/processed/heuristica_metricas.csv` | `validacao` | Precisão, recall, F1, VP/FP/FN/VN e situação (`aprovada`/`refinar`) por versão da heurística. |
+| `data/processed/heuristica_avaliacao.csv` | `validacao` | Classe (VP/FP/FN/VN/sem consenso/sem previsão) de cada release da amostra, por versão. |
+| `data/processed/heuristica_erros.csv` | `validacao` | Só os FP e FN, com link — evidência para o refinamento pela Pessoa B. |
+| `data/raw/validacao.json` | `validacao` | Tudo acima, mais a situação geral e a lista de pendências. |
+| `docs/validacao-manual.md` | `validacao` | Relatório legível da validação (gerado). |
 
 `data/raw/` e `data/processed/` são versionados (os demais integrantes e o
 grupo replicador partem da mesma seleção); `data/cache/` não.
@@ -722,8 +935,15 @@ Lab3/Sprint01/
 │   ├── dataset/
 │   │   ├── index.js          # etapa "dataset": junção + dicionário de dados
 │   │   └── colunas.js        # fonte única das colunas (gera CSV e dicionário)
-│   └── validacao/
-│       └── amostra-ouro.js   # sorteio semeado da amostra-ouro (S02)
+│   └── validacao/            # validação manual (S02, Pessoa A)
+│       ├── amostra-ouro.js   # sorteio semeado da amostra-ouro + registro do sorteio
+│       ├── index.js          # etapa "validacao": orquestra e gera os relatórios
+│       ├── rotulos.js        # dimensões, normalização e validação das planilhas
+│       ├── fleiss.js         # cálculo puro do kappa de Fleiss
+│       ├── consenso.js       # protocolo de desempate e decisões de reunião
+│       └── heuristica.js     # interface com a heurística de B: precisão, recall, F1
+├── scripts/
+│   └── conferir_kappa.py     # (opcional) refaz o kappa no statsmodels a partir de consenso.csv
 └── test/                     # node:test, API falsa em memória
 ```
 
@@ -758,6 +978,11 @@ mão e resultado conferido no papel — incluindo o exemplo numérico do enuncia
 | [test/runs-etapa.test.js](test/runs-etapa.test.js) | a etapa `runs` de ponta a ponta: contagem devolvida ao funil e exclusão por menos de 50 runs, os três CSVs e o JSON de auditoria, `--limite`, erro de coleta deixando o repositório pendente, ordem das etapas, segunda execução sem ir à rede e a **parada antecipada** (não medidos saem com motivo próprio, a amostra fecha, e `--limite` não dispara a parada) |
 | [test/dataset.test.js](test/dataset.test.js) | junção das três etapas, frequência de deploy (RQ 01), etapa incompleta deixando colunas vazias, amostra final vs. elegíveis, e a verificação de que o dicionário descreve exatamente as colunas do CSV |
 | [test/amostra-ouro.test.js](test/amostra-ouro.test.js) | sorteio reproduzível com a mesma semente (e diferente com outra), embaralhamento que não perde itens, link montado quando a API não traz, recusa de sortear antes de a amostra fechar, e proteção contra apagar rótulos já preenchidos |
+| [test/fleiss.test.js](test/fleiss.test.js) | **exemplo publicado da Wikipedia (κ = 0,210)**, conta de 3 avaliadores feita no papel (κ = 1/3), concordância total, κ negativo, categoria dominante (% de acordo alta com κ baixo), κ indefinido (uma só categoria, sem unidades, 1 avaliador), casos completos, categoria desconhecida, categoria não usada e faixas de Landis & Koch |
+| [test/validacao-rotulos.test.js](test/validacao-rotulos.test.js) | normalização das categorias, ausente × inválido × inconsistente, planilha inexistente/em branco/parcial/completa, linhas faltando, sobrando, duplicadas, tag alterada e coluna removida |
+| [test/consenso.test.js](test/consenso.test.js) | unanimidade, maioria 2 × 1, empate 1-1-1, rótulo faltando, 4 avaliadores (2 × 2 sem maioria), preservação dos rótulos originais, decisão de reunião aplicada como humana e decisões inválidas rejeitadas |
+| [test/heuristica.test.js](test/heuristica.test.js) | **o exemplo da seção 6 (P = 75%, R = 60%, F1 ≈ 0,67)**, divisão por zero, sem consenso, sem previsão, previsão inválida/conflitante, previsão fora da amostra, várias versões e associação pela tag — com previsões identificadas como *fixtures* de teste |
+| [test/validacao-etapa.test.js](test/validacao-etapa.test.js) | a etapa `validacao` de ponta a ponta: antes do sorteio, planilhas em branco, κ das três dimensões conferido no papel, consenso + reunião, avaliação da heurística com os erros separados, rótulo inválido, reprodutibilidade (sorteio refeito e dados alterados), registro do sorteio, independência da ordem do CSV e validação do `config` |
 
 ## Limitações conhecidas
 
