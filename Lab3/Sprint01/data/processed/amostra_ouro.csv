@@ -1,0 +1,301 @@
+repo_index,full_name,repo_url,stars,language,release_index,release_id,tag_name,release_name,published_at,release_url
+1,openclaw/openclaw,https://github.com/openclaw/openclaw,391905,TypeScript,1,398673323,v2026.8.33,openclaw 2026.8.33,2026-09-29T03:12:00Z,https://github.com/openclaw/openclaw/releases/tag/v2026.8.33
+1,openclaw/openclaw,https://github.com/openclaw/openclaw,391905,TypeScript,2,330131636,v2026.5.26,openclaw 2026.5.26,2026-05-27T11:27:24Z,https://github.com/openclaw/openclaw/releases/tag/v2026.5.26
+1,openclaw/openclaw,https://github.com/openclaw/openclaw,391905,TypeScript,3,304801451,v2026.4.2,openclaw 2026.4.2,2026-04-02T18:30:45Z,https://github.com/openclaw/openclaw/releases/tag/v2026.4.2
+1,openclaw/openclaw,https://github.com/openclaw/openclaw,391905,TypeScript,4,304300860,v2026.4.1,openclaw 2026.4.1,2026-04-01T16:58:06Z,https://github.com/openclaw/openclaw/releases/tag/v2026.4.1
+1,openclaw/openclaw,https://github.com/openclaw/openclaw,391905,TypeScript,5,265907450,v1.2.2,warelay 1.2.2,2025-11-28T07:18:45Z,https://github.com/openclaw/openclaw/releases/tag/v1.2.2
+2,affaan-m/ECC,https://github.com/affaan-m/ECC,278588,JavaScript,1,378173535,v2.2.0,"ECC 2.2.0: Guided Setup, Antigravity 2.0, and the Nasiko CLI Bridge",2026-08-28T19:55:05Z,https://github.com/affaan-m/ECC/releases/tag/v2.2.0
+2,affaan-m/ECC,https://github.com/affaan-m/ECC,278588,JavaScript,2,336965663,v2.0.0,ECC 2.0.0 — The Agent Harness Operating System,2026-06-10T01:49:20Z,https://github.com/affaan-m/ECC/releases/tag/v2.0.0
+2,affaan-m/ECC,https://github.com/affaan-m/ECC,278588,JavaScript,3,289725689,v1.6.0,ECC v1.6.0 — Codex Edition + Github App,2026-02-24T06:56:35Z,https://github.com/affaan-m/ECC/releases/tag/v1.6.0
+2,affaan-m/ECC,https://github.com/affaan-m/ECC,278588,JavaScript,4,283668792,v1.4.1,v1.4.1: Fix instinct import content loss,2026-02-06T09:13:21Z,https://github.com/affaan-m/ECC/releases/tag/v1.4.1
+2,affaan-m/ECC,https://github.com/affaan-m/ECC,278588,JavaScript,5,278983058,v1.0.0,v1.0.0 - Official Plugin Release,2026-01-22T12:17:08Z,https://github.com/affaan-m/ECC/releases/tag/v1.0.0
+3,n8n-io/n8n,https://github.com/n8n-io/n8n,207267,TypeScript,1,382036593,n8n@2.37.9,n8n@2.37.9,2026-09-03T13:16:03Z,https://github.com/n8n-io/n8n/releases/tag/n8n%402.37.9
+3,n8n-io/n8n,https://github.com/n8n-io/n8n,207267,TypeScript,2,355548950,n8n@2.30.7,n8n@2.30.7,2026-07-17T08:07:59Z,https://github.com/n8n-io/n8n/releases/tag/n8n%402.30.7
+3,n8n-io/n8n,https://github.com/n8n-io/n8n,207267,TypeScript,3,318560463,n8n@2.19.4,n8n@2.19.4,2026-05-06T18:21:40Z,https://github.com/n8n-io/n8n/releases/tag/n8n%402.19.4
+3,n8n-io/n8n,https://github.com/n8n-io/n8n,207267,TypeScript,4,301169624,n8n@2.13.3,n8n@2.13.3,2026-03-25T12:07:05Z,https://github.com/n8n-io/n8n/releases/tag/n8n%402.13.3
+3,n8n-io/n8n,https://github.com/n8n-io/n8n,207267,TypeScript,5,279389725,n8n@2.5.2,n8n@2.5.2,2026-01-23T14:40:38Z,https://github.com/n8n-io/n8n/releases/tag/n8n%402.5.2
+4,langflow-ai/langflow,https://github.com/langflow-ai/langflow,155626,Python,1,411886256,v1.12.6,1.12.6,2026-10-13T16:29:12Z,https://github.com/langflow-ai/langflow/releases/tag/v1.12.6
+4,langflow-ai/langflow,https://github.com/langflow-ai/langflow,155626,Python,2,389567216,v1.12.2,1.12.2,2026-09-16T00:53:27Z,https://github.com/langflow-ai/langflow/releases/tag/v1.12.2
+4,langflow-ai/langflow,https://github.com/langflow-ai/langflow,155626,Python,3,376517320,v1.11.5,1.11.5,2026-08-25T15:35:11Z,https://github.com/langflow-ai/langflow/releases/tag/v1.11.5
+4,langflow-ai/langflow,https://github.com/langflow-ai/langflow,155626,Python,4,296773907,v1.8.1,v1.8.1,2026-03-13T16:26:21Z,https://github.com/langflow-ai/langflow/releases/tag/v1.8.1
+4,langflow-ai/langflow,https://github.com/langflow-ai/langflow,155626,Python,5,279207131,1.7.3,1.7.3,2026-01-23T01:05:07Z,https://github.com/langflow-ai/langflow/releases/tag/1.7.3
+5,microsoft/PowerToys,https://github.com/microsoft/PowerToys,139273,C,1,369031301,v0.101.2362.0,Release v0.101.2362.0,2026-08-25T08:34:52Z,https://github.com/microsoft/PowerToys/releases/tag/v0.101.2362.0
+5,microsoft/PowerToys,https://github.com/microsoft/PowerToys,139273,C,2,301580963,v0.98.1,Release v0.98.1,2026-03-26T20:08:39Z,https://github.com/microsoft/PowerToys/releases/tag/v0.98.1
+5,microsoft/PowerToys,https://github.com/microsoft/PowerToys,139273,C,3,284277605,v0.97.2,Release v0.97.2,2026-02-10T07:37:29Z,https://github.com/microsoft/PowerToys/releases/tag/v0.97.2
+5,microsoft/PowerToys,https://github.com/microsoft/PowerToys,139273,C,4,265348250,v0.96.1,Release v0.96.1,2025-11-26T10:12:05Z,https://github.com/microsoft/PowerToys/releases/tag/v0.96.1
+5,microsoft/PowerToys,https://github.com/microsoft/PowerToys,139273,C,5,256731015,v0.95.1,Release 0.95.1,2025-10-23T16:06:23Z,https://github.com/microsoft/PowerToys/releases/tag/v0.95.1
+6,electron/electron,https://github.com/electron/electron,123312,C++,1,288007405,v40.6.0,electron v40.6.0,2026-02-19T07:48:05Z,https://github.com/electron/electron/releases/tag/v40.6.0
+6,electron/electron,https://github.com/electron/electron,123312,C++,2,278426648,v39.3.0,electron v39.3.0,2026-01-21T01:22:00Z,https://github.com/electron/electron/releases/tag/v39.3.0
+6,electron/electron,https://github.com/electron/electron,123312,C++,3,277158582,v40.0.0,electron v40.0.0,2026-01-16T02:03:02Z,https://github.com/electron/electron/releases/tag/v40.0.0
+6,electron/electron,https://github.com/electron/electron,123312,C++,4,263791660,v37.10.2,electron v37.10.2,2025-11-20T00:07:46Z,https://github.com/electron/electron/releases/tag/v37.10.2
+6,electron/electron,https://github.com/electron/electron,123312,C++,5,257635927,v39.0.0,electron v39.0.0,2025-10-27T22:21:36Z,https://github.com/electron/electron/releases/tag/v39.0.0
+7,rust-lang/rust,https://github.com/rust-lang/rust,119912,Rust,1,400956096,1.99.0,Rust 1.99.0,2026-10-01T12:41:12Z,https://github.com/rust-lang/rust/releases/tag/1.99.0
+7,rust-lang/rust,https://github.com/rust-lang/rust,119912,Rust,2,382035148,1.98.1,Rust 1.98.1,2026-09-03T13:14:07Z,https://github.com/rust-lang/rust/releases/tag/1.98.1
+7,rust-lang/rust,https://github.com/rust-lang/rust,119912,Rust,3,309991266,1.95.0,Rust 1.95.0,2026-04-16T18:19:31Z,https://github.com/rust-lang/rust/releases/tag/1.95.0
+7,rust-lang/rust,https://github.com/rust-lang/rust,119912,Rust,4,279017735,1.93.0,Rust 1.93.0,2026-01-22T13:51:49Z,https://github.com/rust-lang/rust/releases/tag/1.93.0
+7,rust-lang/rust,https://github.com/rust-lang/rust,119912,Rust,5,269556945,1.92.0,Rust 1.92.0,2025-12-11T14:58:25Z,https://github.com/rust-lang/rust/releases/tag/1.92.0
+8,browser-use/browser-use,https://github.com/browser-use/browser-use,117881,Python,1,371405128,0.13.8,0.13.8,2026-08-16T18:48:54Z,https://github.com/browser-use/browser-use/releases/tag/0.13.8
+8,browser-use/browser-use,https://github.com/browser-use/browser-use,117881,Python,2,324658792,0.12.7,0.12.7,2026-05-19T01:11:20Z,https://github.com/browser-use/browser-use/releases/tag/0.12.7
+8,browser-use/browser-use,https://github.com/browser-use/browser-use,117881,Python,3,292335320,0.12.1,0.12.1,2026-03-03T01:52:58Z,https://github.com/browser-use/browser-use/releases/tag/0.12.1
+8,browser-use/browser-use,https://github.com/browser-use/browser-use,117881,Python,4,266163003,0.10.0,Browser Use with Community!,2025-11-29T22:04:59Z,https://github.com/browser-use/browser-use/releases/tag/0.10.0
+8,browser-use/browser-use,https://github.com/browser-use/browser-use,117881,Python,5,257956346,0.9.3,0.9.3,2025-10-28T20:04:36Z,https://github.com/browser-use/browser-use/releases/tag/0.9.3
+9,mrdoob/three.js,https://github.com/mrdoob/three.js,116357,JavaScript,1,382502707,r186,r186,2026-09-24T14:35:44Z,https://github.com/mrdoob/three.js/releases/tag/r186
+9,mrdoob/three.js,https://github.com/mrdoob/three.js,116357,JavaScript,2,309953912,r184,r184,2026-04-16T16:49:08Z,https://github.com/mrdoob/three.js/releases/tag/r184
+9,mrdoob/three.js,https://github.com/mrdoob/three.js,116357,JavaScript,3,277750677,r183,r183,2026-02-20T15:31:38Z,https://github.com/mrdoob/three.js/releases/tag/r183
+9,mrdoob/three.js,https://github.com/mrdoob/three.js,116357,JavaScript,4,264604856,r182,r182,2025-12-10T16:46:04Z,https://github.com/mrdoob/three.js/releases/tag/r182
+9,mrdoob/three.js,https://github.com/mrdoob/three.js,116357,JavaScript,5,248848152,r181,r181,2025-11-19T04:42:16Z,https://github.com/mrdoob/three.js/releases/tag/r181
+10,earendil-works/pi,https://github.com/earendil-works/pi,114897,TypeScript,1,302836732,v0.63.2,v0.63.2,2026-03-29T11:15:33Z,https://github.com/earendil-works/pi/releases/tag/v0.63.2
+10,earendil-works/pi,https://github.com/earendil-works/pi,114897,TypeScript,2,275781032,v0.42.5,v0.42.5,2026-01-11T03:12:42Z,https://github.com/earendil-works/pi/releases/tag/v0.42.5
+10,earendil-works/pi,https://github.com/earendil-works/pi,114897,TypeScript,3,272835929,v0.30.2,v0.30.2,2025-12-26T02:27:05Z,https://github.com/earendil-works/pi/releases/tag/v0.30.2
+10,earendil-works/pi,https://github.com/earendil-works/pi,114897,TypeScript,4,272686060,v0.27.6,v0.27.6,2025-12-24T13:00:12Z,https://github.com/earendil-works/pi/releases/tag/v0.27.6
+10,earendil-works/pi,https://github.com/earendil-works/pi,114897,TypeScript,5,271985622,v0.25.1,v0.25.1,2025-12-21T01:48:40Z,https://github.com/earendil-works/pi/releases/tag/v0.25.1
+11,google-gemini/gemini-cli,https://github.com/google-gemini/gemini-cli,107326,TypeScript,1,297662872,v0.33.2,Release v0.33.2,2026-03-16T20:34:15Z,https://github.com/google-gemini/gemini-cli/releases/tag/v0.33.2
+11,google-gemini/gemini-cli,https://github.com/google-gemini/gemini-cli,107326,TypeScript,2,291468852,v0.30.1,Release v0.30.1,2026-02-27T18:33:34Z,https://github.com/google-gemini/gemini-cli/releases/tag/v0.30.1
+11,google-gemini/gemini-cli,https://github.com/google-gemini/gemini-cli,107326,TypeScript,3,278143092,v0.24.5,Release v0.24.5,2026-01-20T06:42:07Z,https://github.com/google-gemini/gemini-cli/releases/tag/v0.24.5
+11,google-gemini/gemini-cli,https://github.com/google-gemini/gemini-cli,107326,TypeScript,4,266840678,v0.20.0-nightly.20251202.29920b16d,Release v0.20.0-nightly.20251202.29920b16d,2025-12-02T18:30:23Z,https://github.com/google-gemini/gemini-cli/releases/tag/v0.20.0-nightly.20251202.29920b16d
+11,google-gemini/gemini-cli,https://github.com/google-gemini/gemini-cli,107326,TypeScript,5,265616486,v0.20.0-nightly.20251127.5bed97064,Release v0.20.0-nightly.20251127.5bed97064,2025-11-27T00:52:33Z,https://github.com/google-gemini/gemini-cli/releases/tag/v0.20.0-nightly.20251127.5bed97064
+12,tailwindlabs/tailwindcss,https://github.com/tailwindlabs/tailwindcss,97887,TypeScript,1,355054384,v4.3.3,v4.3.3,2026-07-16T11:55:08Z,https://github.com/tailwindlabs/tailwindcss/releases/tag/v4.3.3
+12,tailwindlabs/tailwindcss,https://github.com/tailwindlabs/tailwindcss,97887,TypeScript,2,311412582,v4.2.3,v4.2.3,2026-04-20T20:46:46Z,https://github.com/tailwindlabs/tailwindcss/releases/tag/v4.2.3
+12,tailwindlabs/tailwindcss,https://github.com/tailwindlabs/tailwindcss,97887,TypeScript,3,298531292,v4.2.2,v4.2.2,2026-03-18T16:06:04Z,https://github.com/tailwindlabs/tailwindcss/releases/tag/v4.2.2
+12,tailwindlabs/tailwindcss,https://github.com/tailwindlabs/tailwindcss,97887,TypeScript,4,269243201,v3.4.19,v3.4.19,2025-12-10T18:39:41Z,https://github.com/tailwindlabs/tailwindcss/releases/tag/v3.4.19
+12,tailwindlabs/tailwindcss,https://github.com/tailwindlabs/tailwindcss,97887,TypeScript,5,260316611,v4.1.17,v4.1.17,2025-11-06T15:34:59Z,https://github.com/tailwindlabs/tailwindcss/releases/tag/v4.1.17
+13,nvm-sh/nvm,https://github.com/nvm-sh/nvm,95350,Shell,1,392658142,v0.40.8,v0.40.8,2026-09-21T02:26:02Z,https://github.com/nvm-sh/nvm/releases/tag/v0.40.8
+13,nvm-sh/nvm,https://github.com/nvm-sh/nvm,95350,Shell,2,372127136,v0.40.7,v0.40.7,2026-08-18T06:22:50Z,https://github.com/nvm-sh/nvm/releases/tag/v0.40.7
+13,nvm-sh/nvm,https://github.com/nvm-sh/nvm,95350,Shell,3,354713311,v0.40.6,v0.40.6,2026-07-15T21:11:52Z,https://github.com/nvm-sh/nvm/releases/tag/v0.40.6
+13,nvm-sh/nvm,https://github.com/nvm-sh/nvm,95350,Shell,4,334482963,v0.40.5,v0.40.5,2026-06-04T16:59:30Z,https://github.com/nvm-sh/nvm/releases/tag/v0.40.5
+13,nvm-sh/nvm,https://github.com/nvm-sh/nvm,95350,Shell,5,281303781,v0.40.4,v0.40.4,2026-01-29T22:19:32Z,https://github.com/nvm-sh/nvm/releases/tag/v0.40.4
+14,louislam/uptime-kuma,https://github.com/louislam/uptime-kuma,92416,JavaScript,1,386940296,2.5.4,2.5.4,2026-09-11T10:09:10Z,https://github.com/louislam/uptime-kuma/releases/tag/2.5.4
+14,louislam/uptime-kuma,https://github.com/louislam/uptime-kuma,92416,JavaScript,2,374884669,2.5.3,2.5.3,2026-08-22T09:20:48Z,https://github.com/louislam/uptime-kuma/releases/tag/2.5.3
+14,louislam/uptime-kuma,https://github.com/louislam/uptime-kuma,92416,JavaScript,3,374875996,2.5.2,2.5.2,2026-08-22T08:44:26Z,https://github.com/louislam/uptime-kuma/releases/tag/2.5.2
+14,louislam/uptime-kuma,https://github.com/louislam/uptime-kuma,92416,JavaScript,4,363570031,2.5.0,2.5.0,2026-08-01T16:35:53Z,https://github.com/louislam/uptime-kuma/releases/tag/2.5.0
+14,louislam/uptime-kuma,https://github.com/louislam/uptime-kuma,92416,JavaScript,5,288003742,2.1.2,2.1.2,2026-02-19T05:09:11Z,https://github.com/louislam/uptime-kuma/releases/tag/2.1.2
+15,PaddlePaddle/PaddleOCR,https://github.com/PaddlePaddle/PaddleOCR,91040,Python,1,337935149,v3.7.0,v3.7.0,2026-06-11T12:09:14Z,https://github.com/PaddlePaddle/PaddleOCR/releases/tag/v3.7.0
+15,PaddlePaddle/PaddleOCR,https://github.com/PaddlePaddle/PaddleOCR,91040,Python,2,310993626,v3.5.0,v3.5.0,2026-04-21T08:40:47Z,https://github.com/PaddlePaddle/PaddleOCR/releases/tag/v3.5.0
+15,PaddlePaddle/PaddleOCR,https://github.com/PaddlePaddle/PaddleOCR,91040,Python,3,308661835,v3.4.1,v3.4.1,2026-04-14T05:47:27Z,https://github.com/PaddlePaddle/PaddleOCR/releases/tag/v3.4.1
+15,PaddlePaddle/PaddleOCR,https://github.com/PaddlePaddle/PaddleOCR,91040,Python,4,281053805,v3.4.0,v3.4.0,2026-01-29T11:19:45Z,https://github.com/PaddlePaddle/PaddleOCR/releases/tag/v3.4.0
+15,PaddlePaddle/PaddleOCR,https://github.com/PaddlePaddle/PaddleOCR,91040,Python,5,262138601,v3.3.2,v3.3.2,2025-11-13T14:46:03Z,https://github.com/PaddlePaddle/PaddleOCR/releases/tag/v3.3.2
+16,koala73/worldmonitor,https://github.com/koala73/worldmonitor,88394,TypeScript,1,291707459,v2.5.21,World Monitor v2.5.21,2026-03-01T00:57:28Z,https://github.com/koala73/worldmonitor/releases/tag/v2.5.21
+16,koala73/worldmonitor,https://github.com/koala73/worldmonitor,88394,TypeScript,2,291093500,v2.5.19,World Monitor v2.5.19,2026-02-26T20:28:29Z,https://github.com/koala73/worldmonitor/releases/tag/v2.5.19
+16,koala73/worldmonitor,https://github.com/koala73/worldmonitor,88394,TypeScript,3,287325448,v2.3.8,World Monitor v2.3.8,2026-02-17T16:21:42Z,https://github.com/koala73/worldmonitor/releases/tag/v2.3.8
+16,koala73/worldmonitor,https://github.com/koala73/worldmonitor,88394,TypeScript,4,286408833,v1.3.0,World Monitor v1.3.0,2026-02-14T17:36:38Z,https://github.com/koala73/worldmonitor/releases/tag/v1.3.0
+16,koala73/worldmonitor,https://github.com/koala73/worldmonitor,88394,TypeScript,5,286408667,v2.1.0,World Monitor v2.1.0,2026-02-14T17:34:42Z,https://github.com/koala73/worldmonitor/releases/tag/v2.1.0
+17,Egonex-AI/Understand-Anything,https://github.com/Egonex-AI/Understand-Anything,86174,TypeScript,1,324777206,v2.7.3,v2.7.3,2026-05-19T07:13:36Z,https://github.com/Egonex-AI/Understand-Anything/releases/tag/v2.7.3
+17,Egonex-AI/Understand-Anything,https://github.com/Egonex-AI/Understand-Anything,86174,TypeScript,2,316972427,v2.5.0,v2.5.0 — Dashboard layout overhaul (ELK + lazy containers),2026-05-04T01:58:21Z,https://github.com/Egonex-AI/Understand-Anything/releases/tag/v2.5.0
+17,Egonex-AI/Understand-Anything,https://github.com/Egonex-AI/Understand-Anything,86174,TypeScript,3,307972457,v2.3.1,v2.3.1,2026-04-12T07:25:39Z,https://github.com/Egonex-AI/Understand-Anything/releases/tag/v2.3.1
+17,Egonex-AI/Understand-Anything,https://github.com/Egonex-AI/Understand-Anything,86174,TypeScript,4,302704241,v2.0.0,v2.0.0,2026-03-28T15:33:47Z,https://github.com/Egonex-AI/Understand-Anything/releases/tag/v2.0.0
+17,Egonex-AI/Understand-Anything,https://github.com/Egonex-AI/Understand-Anything,86174,TypeScript,5,302660159,v1.3.0,v1.3.0,2026-03-28T08:49:06Z,https://github.com/Egonex-AI/Understand-Anything/releases/tag/v1.3.0
+18,typicode/json-server,https://github.com/typicode/json-server,75730,JavaScript,1,300375540,v1.0.0-beta.15,v1.0.0-beta.15,2026-03-23T19:40:05Z,https://github.com/typicode/json-server/releases/tag/v1.0.0-beta.15
+18,typicode/json-server,https://github.com/typicode/json-server,75730,JavaScript,2,299466559,v1.0.0-beta.14,v1.0.0-beta.14,2026-03-20T15:15:06Z,https://github.com/typicode/json-server/releases/tag/v1.0.0-beta.14
+18,typicode/json-server,https://github.com/typicode/json-server,75730,JavaScript,3,288492619,v1.0.0-beta.8,v1.0.0-beta.8,2026-02-19T23:08:52Z,https://github.com/typicode/json-server/releases/tag/v1.0.0-beta.8
+18,typicode/json-server,https://github.com/typicode/json-server,75730,JavaScript,4,288484806,v1.0.0-beta.7,v1.0.0-beta.7,2026-02-19T22:46:20Z,https://github.com/typicode/json-server/releases/tag/v1.0.0-beta.7
+18,typicode/json-server,https://github.com/typicode/json-server,75730,JavaScript,5,286444840,v1.0.0-beta.6,v1.0.0-beta.6,2026-02-14T22:48:17Z,https://github.com/typicode/json-server/releases/tag/v1.0.0-beta.6
+19,ruvnet/ruflo,https://github.com/ruvnet/ruflo,74559,TypeScript,1,357038131,v3.32.9,v3.32.9 — Statusline accuracy + memory/SQLite integrity fixes,2026-07-20T23:24:35Z,https://github.com/ruvnet/ruflo/releases/tag/v3.32.9
+19,ruvnet/ruflo,https://github.com/ruvnet/ruflo,74559,TypeScript,2,353943103,v3.29.0,v3.29.0 — Statusline promo UX + security key rotation,2026-07-14T16:58:19Z,https://github.com/ruvnet/ruflo/releases/tag/v3.29.0
+19,ruvnet/ruflo,https://github.com/ruvnet/ruflo,74559,TypeScript,3,338807891,v3.10.45,v3.10.45 — hive-mind --dangerously-skip-permissions deny clause,2026-06-12T21:04:59Z,https://github.com/ruvnet/ruflo/releases/tag/v3.10.45
+19,ruvnet/ruflo,https://github.com/ruvnet/ruflo,74559,TypeScript,4,338803243,v3.10.44,"v3.10.44 — CI OOM fix, Windows plugin install",2026-06-12T20:52:24Z,https://github.com/ruvnet/ruflo/releases/tag/v3.10.44
+19,ruvnet/ruflo,https://github.com/ruvnet/ruflo,74559,TypeScript,5,338048050,v3.10.42,"v3.10.42 — community bug batch: Windows path validation, trajectory feedback, init hooks",2026-06-11T15:04:38Z,https://github.com/ruvnet/ruflo/releases/tag/v3.10.42
+20,strapi/strapi,https://github.com/strapi/strapi,73299,TypeScript,1,399989778,v5.56.0,v5.56.0,2026-09-30T11:44:33Z,https://github.com/strapi/strapi/releases/tag/v5.56.0
+20,strapi/strapi,https://github.com/strapi/strapi,73299,TypeScript,2,354339553,v5.50.2,v5.50.2,2026-07-15T10:01:43Z,https://github.com/strapi/strapi/releases/tag/v5.50.2
+20,strapi/strapi,https://github.com/strapi/strapi,73299,TypeScript,3,347992007,v5.50.0,v5.50.0,2026-07-02T11:15:14Z,https://github.com/strapi/strapi/releases/tag/v5.50.0
+20,strapi/strapi,https://github.com/strapi/strapi,73299,TypeScript,4,269170802,v5.32.0,v5.32.0,2025-12-10T15:18:17Z,https://github.com/strapi/strapi/releases/tag/v5.32.0
+20,strapi/strapi,https://github.com/strapi/strapi,73299,TypeScript,5,267108238,v5.31.3,v5.31.3,2025-12-03T14:24:28Z,https://github.com/strapi/strapi/releases/tag/v5.31.3
+21,daytonaio/daytona,https://github.com/daytonaio/daytona,71553,,1,315836742,v0.171.0,v0.171.0,2026-04-30T14:21:26Z,https://github.com/daytonaio/daytona/releases/tag/v0.171.0
+21,daytonaio/daytona,https://github.com/daytonaio/daytona,71553,,2,312807745,v0.169.0,v0.169.0,2026-04-23T15:34:40Z,https://github.com/daytonaio/daytona/releases/tag/v0.169.0
+21,daytonaio/daytona,https://github.com/daytonaio/daytona,71553,,3,290343996,v0.146.0,v0.146.0,2026-02-25T12:50:21Z,https://github.com/daytonaio/daytona/releases/tag/v0.146.0
+21,daytonaio/daytona,https://github.com/daytonaio/daytona,71553,,4,266720530,v0.120.1,v0.120.1,2025-12-02T13:05:00Z,https://github.com/daytonaio/daytona/releases/tag/v0.120.1
+21,daytonaio/daytona,https://github.com/daytonaio/daytona,71553,,5,263623924,v0.115.2,v0.115.2,2025-11-19T12:55:05Z,https://github.com/daytonaio/daytona/releases/tag/v0.115.2
+22,cline/cline,https://github.com/cline/cline,70278,TypeScript,1,405436218,cli-v3.0.69,CLI v3.0.69,2026-10-07T06:12:01Z,https://github.com/cline/cline/releases/tag/cli-v3.0.69
+22,cline/cline,https://github.com/cline/cline,70278,TypeScript,2,402140006,desktop-v0.0.43,Desktop v0.0.43,2026-10-02T20:39:04Z,https://github.com/cline/cline/releases/tag/desktop-v0.0.43
+22,cline/cline,https://github.com/cline/cline,70278,TypeScript,3,380070325,desktop-v0.0.21,Desktop v0.0.21,2026-08-31T21:41:33Z,https://github.com/cline/cline/releases/tag/desktop-v0.0.21
+22,cline/cline,https://github.com/cline/cline,70278,TypeScript,4,365425281,desktop-v0.0.9,Desktop v0.0.9,2026-08-05T09:47:19Z,https://github.com/cline/cline/releases/tag/desktop-v0.0.9
+22,cline/cline,https://github.com/cline/cline,70278,TypeScript,5,363696945,sdk/sdk/v0.0.69,SDK v0.0.69,2026-08-02T04:26:34Z,https://github.com/cline/cline/releases/tag/sdk/sdk/v0.0.69
+23,tw93/Mole,https://github.com/tw93/Mole,70210,Shell,1,409573416,V1.31.0-windows,V1.31.0-windows,2026-10-11T09:45:10Z,https://github.com/tw93/Mole/releases/tag/V1.31.0-windows
+23,tw93/Mole,https://github.com/tw93/Mole,70210,Shell,2,398071553,V1.56.1,V1.56.1 Unblocked 🔓,2026-09-28T08:37:47Z,https://github.com/tw93/Mole/releases/tag/V1.56.1
+23,tw93/Mole,https://github.com/tw93/Mole,70210,Shell,3,294368568,V1.30.0,V1.30.0 Razewing Ratha 🪽,2026-03-08T08:45:14Z,https://github.com/tw93/Mole/releases/tag/V1.30.0
+23,tw93/Mole,https://github.com/tw93/Mole,70210,Shell,4,291578206,V1.28.1,V1.28.1 Continue 🙈,2026-02-28T03:32:19Z,https://github.com/tw93/Mole/releases/tag/V1.28.1
+23,tw93/Mole,https://github.com/tw93/Mole,70210,Shell,5,270189472,V1.13.13,V1.13 Merry Christmas 🎄,2025-12-14T12:22:35Z,https://github.com/tw93/Mole/releases/tag/V1.13.13
+24,code-yeongyu/oh-my-openagent,https://github.com/code-yeongyu/oh-my-openagent,70001,TypeScript,1,384971771,v5.0.0-beta.49,v5.0.0-beta.49,2026-09-08T18:33:45Z,https://github.com/code-yeongyu/oh-my-openagent/releases/tag/v5.0.0-beta.49
+24,code-yeongyu/oh-my-openagent,https://github.com/code-yeongyu/oh-my-openagent,70001,TypeScript,2,382888872,v5.0.0-beta.42,v5.0.0-beta.42,2026-09-04T16:59:36Z,https://github.com/code-yeongyu/oh-my-openagent/releases/tag/v5.0.0-beta.42
+24,code-yeongyu/oh-my-openagent,https://github.com/code-yeongyu/oh-my-openagent,70001,TypeScript,3,342289440,v4.12.1,v4.12.1,2026-06-20T09:51:36Z,https://github.com/code-yeongyu/oh-my-openagent/releases/tag/v4.12.1
+24,code-yeongyu/oh-my-openagent,https://github.com/code-yeongyu/oh-my-openagent,70001,TypeScript,4,272035538,v2.4.1,v2.4.1,2025-12-21T16:39:12Z,https://github.com/code-yeongyu/oh-my-openagent/releases/tag/v2.4.1
+24,code-yeongyu/oh-my-openagent,https://github.com/code-yeongyu/oh-my-openagent,70001,TypeScript,5,271635164,v2.3.1,v2.3.1,2025-12-19T03:10:04Z,https://github.com/code-yeongyu/oh-my-openagent/releases/tag/v2.3.1
+25,traefik/traefik,https://github.com/traefik/traefik,65195,Go,1,354435709,v3.7.8,v3.7.8,2026-07-15T12:51:10Z,https://github.com/traefik/traefik/releases/tag/v3.7.8
+25,traefik/traefik,https://github.com/traefik/traefik,65195,Go,2,351027660,v3.7.7,v3.7.7,2026-07-08T15:39:25Z,https://github.com/traefik/traefik/releases/tag/v3.7.7
+25,traefik/traefik,https://github.com/traefik/traefik,65195,Go,3,293959265,v2.11.40,v2.11.40,2026-03-06T14:23:58Z,https://github.com/traefik/traefik/releases/tag/v2.11.40
+25,traefik/traefik,https://github.com/traefik/traefik,65195,Go,4,289476495,v2.11.38,v2.11.38,2026-02-23T15:41:50Z,https://github.com/traefik/traefik/releases/tag/v2.11.38
+25,traefik/traefik,https://github.com/traefik/traefik,65195,Go,5,276737170,v3.6.7,v3.6.7,2026-01-14T14:11:45Z,https://github.com/traefik/traefik/releases/tag/v3.6.7
+26,scrapy/scrapy,https://github.com/scrapy/scrapy,64793,Python,1,386236846,2.19.0,,2026-09-10T11:48:30Z,https://github.com/scrapy/scrapy/releases/tag/2.19.0
+26,scrapy/scrapy,https://github.com/scrapy/scrapy,64793,Python,2,350173638,2.17.0,2.17.0,2026-07-07T10:40:10Z,https://github.com/scrapy/scrapy/releases/tag/2.17.0
+26,scrapy/scrapy,https://github.com/scrapy/scrapy,64793,Python,3,314608152,2.15.2,2.15.2,2026-04-28T13:32:35Z,https://github.com/scrapy/scrapy/releases/tag/2.15.2
+26,scrapy/scrapy,https://github.com/scrapy/scrapy,64793,Python,4,298389550,2.14.2,2.14.2,2026-03-18T11:01:44Z,https://github.com/scrapy/scrapy/releases/tag/2.14.2
+26,scrapy/scrapy,https://github.com/scrapy/scrapy,64793,Python,5,276145961,2.14.1,2.14.1,2026-01-12T20:37:09Z,https://github.com/scrapy/scrapy/releases/tag/2.14.1
+27,socketio/socket.io,https://github.com/socketio/socket.io,63216,TypeScript,1,340031154,engine.io@6.6.9,engine.io@6.6.9,2026-06-16T09:18:08Z,https://github.com/socketio/socket.io/releases/tag/engine.io%406.6.9
+27,socketio/socket.io,https://github.com/socketio/socket.io,63216,TypeScript,2,325801161,socket.io-adapter@2.5.7,socket.io-adapter@2.5.7,2026-05-20T09:35:31Z,https://github.com/socketio/socket.io/releases/tag/socket.io-adapter%402.5.7
+27,socketio/socket.io,https://github.com/socketio/socket.io,63216,TypeScript,3,298319010,socket.io-parser@3.3.5,socket.io-parser@3.3.5,2026-03-18T08:19:29Z,https://github.com/socketio/socket.io/releases/tag/socket.io-parser%403.3.5
+27,socketio/socket.io,https://github.com/socketio/socket.io,63216,TypeScript,4,297968650,socket.io-parser@4.2.6,socket.io-parser@4.2.6,2026-03-17T14:03:31Z,https://github.com/socketio/socket.io/releases/tag/socket.io-parser%404.2.6
+27,socketio/socket.io,https://github.com/socketio/socket.io,63216,TypeScript,5,295087289,engine.io@6.6.6,engine.io@6.6.6,2026-03-10T10:01:56Z,https://github.com/socketio/socket.io/releases/tag/engine.io%406.6.6
+28,withastro/astro,https://github.com/withastro/astro,63210,TypeScript,1,368713041,astro@7.2.1,astro@7.2.1,2026-08-11T16:44:01Z,https://github.com/withastro/astro/releases/tag/astro%407.2.1
+28,withastro/astro,https://github.com/withastro/astro,63210,TypeScript,2,366148552,@astrojs/vercel@11.0.5,@astrojs/vercel@11.0.5,2026-08-06T10:44:03Z,https://github.com/withastro/astro/releases/tag/%40astrojs/vercel%4011.0.5
+28,withastro/astro,https://github.com/withastro/astro,63210,TypeScript,3,342820581,@astrojs/vercel@11.0.0,@astrojs/vercel@11.0.0,2026-06-22T10:10:20Z,https://github.com/withastro/astro/releases/tag/%40astrojs/vercel%4011.0.0
+28,withastro/astro,https://github.com/withastro/astro,63210,TypeScript,4,333199245,@astrojs/preact@5.1.5,@astrojs/preact@5.1.5,2026-06-02T15:20:17Z,https://github.com/withastro/astro/releases/tag/%40astrojs/preact%405.1.5
+28,withastro/astro,https://github.com/withastro/astro,63210,TypeScript,5,295082528,@astrojs/alpinejs@0.5.0,@astrojs/alpinejs@0.5.0,2026-03-10T09:49:43Z,https://github.com/withastro/astro/releases/tag/%40astrojs/alpinejs%400.5.0
+29,debpalash/VoiceStudio,https://github.com/debpalash/VoiceStudio,63199,Python,1,394436097,v0.5.6,v0.5.6 — VoiceStudio,2026-09-23T08:53:32Z,https://github.com/debpalash/VoiceStudio/releases/tag/v0.5.6
+29,debpalash/VoiceStudio,https://github.com/debpalash/VoiceStudio,63199,Python,2,360127718,v0.4.1,v0.4.1 — OmniVoice Studio,2026-07-26T22:00:43Z,https://github.com/debpalash/VoiceStudio/releases/tag/v0.4.1
+29,debpalash/VoiceStudio,https://github.com/debpalash/VoiceStudio,63199,Python,3,347499797,v0.3.8,v0.3.8 — OmniVoice Studio,2026-07-01T14:05:53Z,https://github.com/debpalash/VoiceStudio/releases/tag/v0.3.8
+29,debpalash/VoiceStudio,https://github.com/debpalash/VoiceStudio,63199,Python,4,333503093,v0.3.5,v0.3.5 — OmniVoice Studio,2026-06-03T05:23:05Z,https://github.com/debpalash/VoiceStudio/releases/tag/v0.3.5
+29,debpalash/VoiceStudio,https://github.com/debpalash/VoiceStudio,63199,Python,5,333364893,v0.3.0,v0.3.0 — OmniVoice Studio,2026-06-02T20:44:29Z,https://github.com/debpalash/VoiceStudio/releases/tag/v0.3.0
+30,upstash/context7,https://github.com/upstash/context7,62991,TypeScript,1,408058914,mcpb-v4.3.0,context7.mcpb 4.3.0,2026-10-09T15:37:29Z,https://github.com/upstash/context7/releases/tag/mcpb-v4.3.0
+30,upstash/context7,https://github.com/upstash/context7,62991,TypeScript,2,408058510,ctx7@0.6.0,ctx7@0.6.0,2026-10-09T15:37:05Z,https://github.com/upstash/context7/releases/tag/ctx7%400.6.0
+30,upstash/context7,https://github.com/upstash/context7,62991,TypeScript,3,405576050,@upstash/context7-mcp@4.1.2,@upstash/context7-mcp@4.1.2,2026-10-07T09:05:16Z,https://github.com/upstash/context7/releases/tag/%40upstash/context7-mcp%404.1.2
+30,upstash/context7,https://github.com/upstash/context7,62991,TypeScript,4,334305551,ctx7@0.5.0,ctx7@0.5.0,2026-06-04T11:52:35Z,https://github.com/upstash/context7/releases/tag/ctx7%400.5.0
+30,upstash/context7,https://github.com/upstash/context7,62991,TypeScript,5,262862000,v1.0.28,v1.0.28,2025-11-17T07:17:00Z,https://github.com/upstash/context7/releases/tag/v1.0.28
+31,heygen-com/hyperframes,https://github.com/heygen-com/hyperframes,62762,TypeScript,1,408807009,v0.8.145,v0.8.145,2026-10-10T08:28:04Z,https://github.com/heygen-com/hyperframes/releases/tag/v0.8.145
+31,heygen-com/hyperframes,https://github.com/heygen-com/hyperframes,62762,TypeScript,2,376861883,v0.8.15,v0.8.15,2026-08-26T03:28:36Z,https://github.com/heygen-com/hyperframes/releases/tag/v0.8.15
+31,heygen-com/hyperframes,https://github.com/heygen-com/hyperframes,62762,TypeScript,3,332140213,v0.6.64,v0.6.64,2026-05-31T13:58:43Z,https://github.com/heygen-com/hyperframes/releases/tag/v0.6.64
+31,heygen-com/hyperframes,https://github.com/heygen-com/hyperframes,62762,TypeScript,4,308649469,v0.3.0,v0.3.0,2026-04-14T04:45:48Z,https://github.com/heygen-com/hyperframes/releases/tag/v0.3.0
+31,heygen-com/hyperframes,https://github.com/heygen-com/hyperframes,62762,TypeScript,5,302110262,v0.1.3,v0.1.3,2026-03-26T21:38:47Z,https://github.com/heygen-com/hyperframes/releases/tag/v0.1.3
+32,crewAIInc/crewAI,https://github.com/crewAIInc/crewAI,59662,Python,1,355736146,1.15.4,1.15.4,2026-07-17T14:33:30Z,https://github.com/crewAIInc/crewAI/releases/tag/1.15.4
+32,crewAIInc/crewAI,https://github.com/crewAIInc/crewAI,59662,Python,2,350658647,1.15.2,1.15.2,2026-07-08T02:05:22Z,https://github.com/crewAIInc/crewAI/releases/tag/1.15.2
+32,crewAIInc/crewAI,https://github.com/crewAIInc/crewAI,59662,Python,3,316000748,1.14.4,1.14.4,2026-04-30T19:11:45Z,https://github.com/crewAIInc/crewAI/releases/tag/1.14.4
+32,crewAIInc/crewAI,https://github.com/crewAIInc/crewAI,59662,Python,4,266103072,1.6.1,1.6.1,2025-11-29T01:57:49Z,https://github.com/crewAIInc/crewAI/releases/tag/1.6.1
+32,crewAIInc/crewAI,https://github.com/crewAIInc/crewAI,59662,Python,5,260481950,1.4.0,1.4.0,2025-11-07T04:23:41Z,https://github.com/crewAIInc/crewAI/releases/tag/1.4.0
+33,twentyhq/twenty,https://github.com/twentyhq/twenty,58296,TypeScript,1,408083998,twenty/v2.46.0,twenty/v2.46.0,2026-10-12T08:20:57Z,https://github.com/twentyhq/twenty/releases/tag/twenty/v2.46.0
+33,twentyhq/twenty,https://github.com/twentyhq/twenty,58296,TypeScript,2,401803683,twenty/v2.45.0,twenty/v2.45.0,2026-10-05T15:27:44Z,https://github.com/twentyhq/twenty/releases/tag/twenty/v2.45.0
+33,twentyhq/twenty,https://github.com/twentyhq/twenty,58296,TypeScript,3,383703538,twenty/v2.38.1,twenty/v2.38.1,2026-09-06T20:12:13Z,https://github.com/twentyhq/twenty/releases/tag/twenty/v2.38.1
+33,twentyhq/twenty,https://github.com/twentyhq/twenty,58296,TypeScript,4,372406221,twenty/v2.32.0,twenty/v2.32.0,2026-08-27T08:31:13Z,https://github.com/twentyhq/twenty/releases/tag/twenty/v2.32.0
+33,twentyhq/twenty,https://github.com/twentyhq/twenty,58296,TypeScript,5,287776352,v1.17.0,v1.17.0,2026-02-18T16:47:20Z,https://github.com/twentyhq/twenty/releases/tag/v1.17.0
+34,jamiepine/voicebox,https://github.com/jamiepine/voicebox,57379,Python,1,311686683,v0.4.4,v0.4.4,2026-04-21T12:10:46Z,https://github.com/jamiepine/voicebox/releases/tag/v0.4.4
+34,jamiepine/voicebox,https://github.com/jamiepine/voicebox,57379,Python,2,311558020,v0.4.3,voicebox v0.4.3,2026-04-21T07:51:11Z,https://github.com/jamiepine/voicebox/releases/tag/v0.4.3
+34,jamiepine/voicebox,https://github.com/jamiepine/voicebox,57379,Python,3,310789410,v0.4.1,v0.4.1,2026-04-19T01:53:36Z,https://github.com/jamiepine/voicebox/releases/tag/v0.4.1
+34,jamiepine/voicebox,https://github.com/jamiepine/voicebox,57379,Python,4,281324383,v0.1.9,v0.1.9,2026-01-30T01:44:16Z,https://github.com/jamiepine/voicebox/releases/tag/v0.1.9
+34,jamiepine/voicebox,https://github.com/jamiepine/voicebox,57379,Python,5,280128825,v0.1.0,v0.1.0,2026-01-27T04:03:34Z,https://github.com/jamiepine/voicebox/releases/tag/v0.1.0
+35,FuelLabs/fuel-core,https://github.com/FuelLabs/fuel-core,56803,Rust,1,378142252,v0.48.3,v0.48.3,2026-08-27T21:44:43Z,https://github.com/FuelLabs/fuel-core/releases/tag/v0.48.3
+35,FuelLabs/fuel-core,https://github.com/FuelLabs/fuel-core,56803,Rust,2,323943695,v0.48.2,v0.48.2,2026-05-17T18:43:58Z,https://github.com/FuelLabs/fuel-core/releases/tag/v0.48.2
+35,FuelLabs/fuel-core,https://github.com/FuelLabs/fuel-core,56803,Rust,3,315554292,v0.48.1,v0.48.1,2026-04-30T02:28:06Z,https://github.com/FuelLabs/fuel-core/releases/tag/v0.48.1
+35,FuelLabs/fuel-core,https://github.com/FuelLabs/fuel-core,56803,Rust,4,304224714,v0.48.0,v0.48.0,2026-04-01T14:15:30Z,https://github.com/FuelLabs/fuel-core/releases/tag/v0.48.0
+35,FuelLabs/fuel-core,https://github.com/FuelLabs/fuel-core,56803,Rust,5,300431021,v0.47.3,v0.47.3,2026-03-23T22:25:30Z,https://github.com/FuelLabs/fuel-core/releases/tag/v0.47.3
+36,mozilla/pdf.js,https://github.com/mozilla/pdf.js,53999,JavaScript,1,361333612,v6.2.108,v6.2.108,2026-07-28T19:49:08Z,https://github.com/mozilla/pdf.js/releases/tag/v6.2.108
+36,mozilla/pdf.js,https://github.com/mozilla/pdf.js,53999,JavaScript,2,345734630,v6.1.200,v6.1.200,2026-06-27T16:30:32Z,https://github.com/mozilla/pdf.js/releases/tag/v6.1.200
+36,mozilla/pdf.js,https://github.com/mozilla/pdf.js,53999,JavaScript,3,314221941,v5.7.284,v5.7.284,2026-04-27T19:23:17Z,https://github.com/mozilla/pdf.js/releases/tag/v5.7.284
+36,mozilla/pdf.js,https://github.com/mozilla/pdf.js,53999,JavaScript,4,291841298,v5.5.207,v5.5.207,2026-03-01T20:22:16Z,https://github.com/mozilla/pdf.js/releases/tag/v5.5.207
+36,mozilla/pdf.js,https://github.com/mozilla/pdf.js,53999,JavaScript,5,281955544,v5.4.624,v5.4.624,2026-02-01T19:17:59Z,https://github.com/mozilla/pdf.js/releases/tag/v5.4.624
+37,ionic-team/ionic-framework,https://github.com/ionic-team/ionic-framework,52697,TypeScript,1,390137087,v9.0.4,v9.0.4,2026-09-16T17:41:03Z,https://github.com/ionic-team/ionic-framework/releases/tag/v9.0.4
+37,ionic-team/ionic-framework,https://github.com/ionic-team/ionic-framework,52697,TypeScript,2,373220832,v9.0.0,v9.0.0,2026-08-19T17:11:15Z,https://github.com/ionic-team/ionic-framework/releases/tag/v9.0.0
+37,ionic-team/ionic-framework,https://github.com/ionic-team/ionic-framework,52697,TypeScript,3,347660991,v8.8.13,v8.8.13,2026-07-01T19:00:48Z,https://github.com/ionic-team/ionic-framework/releases/tag/v8.8.13
+37,ionic-team/ionic-framework,https://github.com/ionic-team/ionic-framework,52697,TypeScript,4,344262852,v8.8.12,v8.8.12,2026-06-24T17:17:19Z,https://github.com/ionic-team/ionic-framework/releases/tag/v8.8.12
+37,ionic-team/ionic-framework,https://github.com/ionic-team/ionic-framework,52697,TypeScript,5,301326863,v8.8.2,v8.8.2,2026-03-25T16:58:47Z,https://github.com/ionic-team/ionic-framework/releases/tag/v8.8.2
+38,CherryHQ/cherry-studio,https://github.com/CherryHQ/cherry-studio,52599,TypeScript,1,382495939,v2.0.12,v2.0.12,2026-09-04T06:33:46Z,https://github.com/CherryHQ/cherry-studio/releases/tag/v2.0.12
+38,CherryHQ/cherry-studio,https://github.com/CherryHQ/cherry-studio,52599,TypeScript,2,378626952,v2.0.10,v2.0.10,2026-08-28T17:08:30Z,https://github.com/CherryHQ/cherry-studio/releases/tag/v2.0.10
+38,CherryHQ/cherry-studio,https://github.com/CherryHQ/cherry-studio,52599,TypeScript,3,367199917,v2.0.3,v2.0.3,2026-08-10T07:43:53Z,https://github.com/CherryHQ/cherry-studio/releases/tag/v2.0.3
+38,CherryHQ/cherry-studio,https://github.com/CherryHQ/cherry-studio,52599,TypeScript,4,344596558,v1.9.12,v1.9.12,2026-07-05T09:35:42Z,https://github.com/CherryHQ/cherry-studio/releases/tag/v1.9.12
+38,CherryHQ/cherry-studio,https://github.com/CherryHQ/cherry-studio,52599,TypeScript,5,307821760,v1.9.1,v1.9.1,2026-04-16T00:49:24Z,https://github.com/CherryHQ/cherry-studio/releases/tag/v1.9.1
+39,prettier/prettier,https://github.com/prettier/prettier,52445,JavaScript,1,391084637,3.9.8,3.9.8,2026-09-17T21:55:32Z,https://github.com/prettier/prettier/releases/tag/3.9.8
+39,prettier/prettier,https://github.com/prettier/prettier,52445,JavaScript,2,307359429,3.8.2,3.8.2,2026-04-10T02:44:52Z,https://github.com/prettier/prettier/releases/tag/3.8.2
+39,prettier/prettier,https://github.com/prettier/prettier,52445,JavaScript,3,266151456,3.7.3,3.7.3,2025-11-29T17:55:30Z,https://github.com/prettier/prettier/releases/tag/3.7.3
+39,prettier/prettier,https://github.com/prettier/prettier,52445,JavaScript,4,265722301,3.7.1,3.7.1,2025-11-27T11:32:54Z,https://github.com/prettier/prettier/releases/tag/3.7.1
+39,prettier/prettier,https://github.com/prettier/prettier,52445,JavaScript,5,265676303,3.7.0,3.7.0,2025-11-27T08:30:50Z,https://github.com/prettier/prettier/releases/tag/3.7.0
+40,mastodon/mastodon,https://github.com/mastodon/mastodon,50402,Ruby,1,366196068,v4.4.22,v4.4.22,2026-08-06T12:33:55Z,https://github.com/mastodon/mastodon/releases/tag/v4.4.22
+40,mastodon/mastodon,https://github.com/mastodon/mastodon,50402,Ruby,2,300737252,v4.5.8,v4.5.8,2026-03-24T15:47:53Z,https://github.com/mastodon/mastodon/releases/tag/v4.5.8
+40,mastodon/mastodon,https://github.com/mastodon/mastodon,50402,Ruby,3,278185984,v4.3.18,v4.3.18,2026-01-20T15:21:50Z,https://github.com/mastodon/mastodon/releases/tag/v4.3.18
+40,mastodon/mastodon,https://github.com/mastodon/mastodon,50402,Ruby,4,268379099,v4.2.28,v4.2.28,2025-12-08T16:04:50Z,https://github.com/mastodon/mastodon/releases/tag/v4.2.28
+40,mastodon/mastodon,https://github.com/mastodon/mastodon,50402,Ruby,5,260223624,v4.5.0,v4.5.0,2025-11-06T13:19:32Z,https://github.com/mastodon/mastodon/releases/tag/v4.5.0
+41,astral-sh/ruff,https://github.com/astral-sh/ruff,50053,Rust,1,382203523,0.16.6,0.16.6,2026-09-03T17:20:13Z,https://github.com/astral-sh/ruff/releases/tag/0.16.6
+41,astral-sh/ruff,https://github.com/astral-sh/ruff,50053,Rust,2,344874888,0.15.20,0.15.20,2026-06-25T17:21:46Z,https://github.com/astral-sh/ruff/releases/tag/0.15.20
+41,astral-sh/ruff,https://github.com/astral-sh/ruff,50053,Rust,3,322563969,0.15.13,0.15.13,2026-05-14T13:45:27Z,https://github.com/astral-sh/ruff/releases/tag/0.15.13
+41,astral-sh/ruff,https://github.com/astral-sh/ruff,50053,Rust,4,293662094,0.15.5,0.15.5,2026-03-05T20:08:25Z,https://github.com/astral-sh/ruff/releases/tag/0.15.5
+41,astral-sh/ruff,https://github.com/astral-sh/ruff,50053,Rust,5,262235461,0.14.5,0.14.5,2025-11-13T20:06:01Z,https://github.com/astral-sh/ruff/releases/tag/0.14.5
+42,mudler/LocalAI,https://github.com/mudler/LocalAI,49513,Go,1,353917565,v4.7.1,v4.7.1,2026-07-14T16:09:28Z,https://github.com/mudler/LocalAI/releases/tag/v4.7.1
+42,mudler/LocalAI,https://github.com/mudler/LocalAI,49513,Go,2,320827426,v4.2.1,v4.2.1,2026-05-11T22:47:50Z,https://github.com/mudler/LocalAI/releases/tag/v4.2.1
+42,mudler/LocalAI,https://github.com/mudler/LocalAI,49513,Go,3,284074841,v3.11.0,v3.11.0,2026-02-07T21:31:43Z,https://github.com/mudler/LocalAI/releases/tag/v3.11.0
+42,mudler/LocalAI,https://github.com/mudler/LocalAI,49513,Go,4,277695849,v3.10.0,v3.10.0,2026-01-18T21:00:06Z,https://github.com/mudler/LocalAI/releases/tag/v3.10.0
+42,mudler/LocalAI,https://github.com/mudler/LocalAI,49513,Go,5,272679034,v3.9.0,v3.9.0,2025-12-24T14:31:28Z,https://github.com/mudler/LocalAI/releases/tag/v3.9.0
+43,exo-explore/exo,https://github.com/exo-explore/exo,47870,Python,1,310525359,v1.0.70,v1.0.70,2026-04-17T21:31:01Z,https://github.com/exo-explore/exo/releases/tag/v1.0.70
+43,exo-explore/exo,https://github.com/exo-explore/exo,47870,Python,2,280018333,v1.0.66,v1.0.66,2026-01-26T22:41:31Z,https://github.com/exo-explore/exo/releases/tag/v1.0.66
+43,exo-explore/exo,https://github.com/exo-explore/exo,47870,Python,3,279212759,v1.0.64,v1.0.64,2026-01-23T02:14:59Z,https://github.com/exo-explore/exo/releases/tag/v1.0.64
+43,exo-explore/exo,https://github.com/exo-explore/exo,47870,Python,4,277417372,v1.0.63,v1.0.63,2026-01-16T17:42:27Z,https://github.com/exo-explore/exo/releases/tag/v1.0.63
+43,exo-explore/exo,https://github.com/exo-explore/exo,47870,Python,5,275250181,v1.0.61,v1.0.61,2026-01-08T17:22:57Z,https://github.com/exo-explore/exo/releases/tag/v1.0.61
+44,gogs/gogs,https://github.com/gogs/gogs,47868,Go,1,335673171,v0.14.3,0.14.3,2026-06-07T20:51:06Z,https://github.com/gogs/gogs/releases/tag/v0.14.3
+44,gogs/gogs,https://github.com/gogs/gogs,47868,Go,2,287986249,v0.14.2,0.14.2,2026-02-19T03:47:48Z,https://github.com/gogs/gogs/releases/tag/v0.14.2
+44,gogs/gogs,https://github.com/gogs/gogs,47868,Go,3,281868809,v0.14.1,0.14.1,2026-02-01T03:32:24Z,https://github.com/gogs/gogs/releases/tag/v0.14.1
+44,gogs/gogs,https://github.com/gogs/gogs,47868,Go,4,281853528,v0.14.0,v0.14.0,2026-02-01T00:17:15Z,https://github.com/gogs/gogs/releases/tag/v0.14.0
+44,gogs/gogs,https://github.com/gogs/gogs,47868,Go,5,279465330,v0.13.4,0.13.4,2026-01-23T18:32:53Z,https://github.com/gogs/gogs/releases/tag/v0.13.4
+45,zhayujie/CowAgent,https://github.com/zhayujie/CowAgent,47384,Python,1,374139456,2.1.7,2.1.7,2026-08-21T02:39:37Z,https://github.com/zhayujie/CowAgent/releases/tag/2.1.7
+45,zhayujie/CowAgent,https://github.com/zhayujie/CowAgent,47384,Python,2,350781379,2.1.3,2.1.3,2026-07-08T08:07:21Z,https://github.com/zhayujie/CowAgent/releases/tag/2.1.3
+45,zhayujie/CowAgent,https://github.com/zhayujie/CowAgent,47384,Python,3,327588204,2.0.9,2.0.9,2026-05-22T04:29:00Z,https://github.com/zhayujie/CowAgent/releases/tag/2.0.9
+45,zhayujie/CowAgent,https://github.com/zhayujie/CowAgent,47384,Python,4,318276591,2.0.8,2.0.8,2026-05-06T08:47:15Z,https://github.com/zhayujie/CowAgent/releases/tag/2.0.8
+45,zhayujie/CowAgent,https://github.com/zhayujie/CowAgent,47384,Python,5,291293576,2.0.2,2.0.2,2026-02-27T10:08:43Z,https://github.com/zhayujie/CowAgent/releases/tag/2.0.2
+46,alibaba/open-code-review,https://github.com/alibaba/open-code-review,46903,Go,1,403438161,v1.12.12,v1.12.12,2026-10-05T06:57:25Z,https://github.com/alibaba/open-code-review/releases/tag/v1.12.12
+46,alibaba/open-code-review,https://github.com/alibaba/open-code-review,46903,Go,2,340495143,v1.3.14,v1.3.14,2026-06-17T02:32:25Z,https://github.com/alibaba/open-code-review/releases/tag/v1.3.14
+46,alibaba/open-code-review,https://github.com/alibaba/open-code-review,46903,Go,3,339187713,v1.3.8,v1.3.8,2026-06-14T14:46:58Z,https://github.com/alibaba/open-code-review/releases/tag/v1.3.8
+46,alibaba/open-code-review,https://github.com/alibaba/open-code-review,46903,Go,4,335408288,v1.2.2,v1.2.2,2026-06-06T13:20:36Z,https://github.com/alibaba/open-code-review/releases/tag/v1.2.2
+46,alibaba/open-code-review,https://github.com/alibaba/open-code-review,46903,Go,5,335400273,v1.2.0,v1.2.0,2026-06-06T12:28:12Z,https://github.com/alibaba/open-code-review/releases/tag/v1.2.0
+47,jgm/pandoc,https://github.com/jgm/pandoc,46676,Haskell,1,398863537,3.12,pandoc 3.12,2026-09-29T06:30:47Z,https://github.com/jgm/pandoc/releases/tag/3.12
+47,jgm/pandoc,https://github.com/jgm/pandoc,46676,Haskell,2,378830353,3.11,pandoc 3.11,2026-08-29T00:52:49Z,https://github.com/jgm/pandoc/releases/tag/3.11
+47,jgm/pandoc,https://github.com/jgm/pandoc,46676,Haskell,3,298512770,3.9.0.1,pandoc 3.9.0.1,2026-03-18T15:30:39Z,https://github.com/jgm/pandoc/releases/tag/3.9.0.1
+47,jgm/pandoc,https://github.com/jgm/pandoc,46676,Haskell,4,282867315,3.9,pandoc 3.9,2026-02-04T08:55:26Z,https://github.com/jgm/pandoc/releases/tag/3.9
+47,jgm/pandoc,https://github.com/jgm/pandoc,46676,Haskell,5,266341664,3.8.3,pandoc 3.8.3,2025-12-01T10:30:50Z,https://github.com/jgm/pandoc/releases/tag/3.8.3
+48,DIYgod/RSSHub,https://github.com/DIYgod/RSSHub,46514,TypeScript,1,411572994,v2026.10.13-8418.3b7c376,v2026.10.13-8418.3b7c376,2026-10-13T10:54:07Z,https://github.com/DIYgod/RSSHub/releases/tag/v2026.10.13-8418.3b7c376
+48,DIYgod/RSSHub,https://github.com/DIYgod/RSSHub,46514,TypeScript,2,410079323,v2026.10.12-8412.4b1f220,v2026.10.12-8412.4b1f220,2026-10-12T02:25:02Z,https://github.com/DIYgod/RSSHub/releases/tag/v2026.10.12-8412.4b1f220
+48,DIYgod/RSSHub,https://github.com/DIYgod/RSSHub,46514,TypeScript,3,409007566,v2026.10.10-8409.fdd8612,v2026.10.10-8409.fdd8612,2026-10-10T14:43:57Z,https://github.com/DIYgod/RSSHub/releases/tag/v2026.10.10-8409.fdd8612
+48,DIYgod/RSSHub,https://github.com/DIYgod/RSSHub,46514,TypeScript,4,408497775,v2026.10.10-5d857e3,v2026.10.10-5d857e3,2026-10-10T01:38:01Z,https://github.com/DIYgod/RSSHub/releases/tag/v2026.10.10-5d857e3
+48,DIYgod/RSSHub,https://github.com/DIYgod/RSSHub,46514,TypeScript,5,408265734,v2026.10.09-0b0a0c3,v2026.10.09-0b0a0c3,2026-10-09T19:26:14Z,https://github.com/DIYgod/RSSHub/releases/tag/v2026.10.09-0b0a0c3
+49,fastapi/full-stack-fastapi-template,https://github.com/fastapi/full-stack-fastapi-template,45971,TypeScript,1,369102600,0.12.0,0.12.0,2026-08-12T08:51:31Z,https://github.com/fastapi/full-stack-fastapi-template/releases/tag/0.12.0
+49,fastapi/full-stack-fastapi-template,https://github.com/fastapi/full-stack-fastapi-template,45971,TypeScript,2,368821212,0.11.1,0.11.1,2026-08-11T20:10:21Z,https://github.com/fastapi/full-stack-fastapi-template/releases/tag/0.11.1
+49,fastapi/full-stack-fastapi-template,https://github.com/fastapi/full-stack-fastapi-template,45971,TypeScript,3,368454790,0.11.0,0.11.0,2026-08-11T09:36:36Z,https://github.com/fastapi/full-stack-fastapi-template/releases/tag/0.11.0
+49,fastapi/full-stack-fastapi-template,https://github.com/fastapi/full-stack-fastapi-template,45971,TypeScript,4,279438523,0.10.0,0.10.0,2026-01-23T16:47:58Z,https://github.com/fastapi/full-stack-fastapi-template/releases/tag/0.10.0
+49,fastapi/full-stack-fastapi-template,https://github.com/fastapi/full-stack-fastapi-template,45971,TypeScript,5,268449095,0.9.0,0.9.0,2025-12-08T19:14:18Z,https://github.com/fastapi/full-stack-fastapi-template/releases/tag/0.9.0
+50,files-community/Files,https://github.com/files-community/Files,45955,C#,1,373337773,v4.2.9,v4.2.9,2026-08-19T20:39:26Z,https://github.com/files-community/Files/releases/tag/v4.2.9
+50,files-community/Files,https://github.com/files-community/Files,45955,C#,2,302864952,v4.0.38,v4.0.38,2026-03-29T15:05:26Z,https://github.com/files-community/Files/releases/tag/v4.0.38
+50,files-community/Files,https://github.com/files-community/Files,45955,C#,3,293809005,v4.0.34,v4.0.34,2026-03-06T06:22:12Z,https://github.com/files-community/Files/releases/tag/v4.0.34
+50,files-community/Files,https://github.com/files-community/Files,45955,C#,4,286908393,v4.0.28,v4.0.28,2026-02-16T15:51:57Z,https://github.com/files-community/Files/releases/tag/v4.0.28
+50,files-community/Files,https://github.com/files-community/Files,45955,C#,5,264645570,v4.0.20,v4.0.20,2025-11-23T22:04:49Z,https://github.com/files-community/Files/releases/tag/v4.0.20
+51,grpc/grpc,https://github.com/grpc/grpc,45372,C++,1,378016601,v1.83.1,Release v1.83.1,2026-08-27T17:51:06Z,https://github.com/grpc/grpc/releases/tag/v1.83.1
+51,grpc/grpc,https://github.com/grpc/grpc,45372,C++,2,377985608,v1.82.2,Release v1.82.2,2026-08-27T16:55:40Z,https://github.com/grpc/grpc/releases/tag/v1.82.2
+51,grpc/grpc,https://github.com/grpc/grpc,45372,C++,3,350907815,v1.82.1,Release v1.82.1,2026-07-08T12:18:53Z,https://github.com/grpc/grpc/releases/tag/v1.82.1
+51,grpc/grpc,https://github.com/grpc/grpc,45372,C++,4,336119396,v1.81.1,Release v1.81.1,2026-06-08T17:29:29Z,https://github.com/grpc/grpc/releases/tag/v1.81.1
+51,grpc/grpc,https://github.com/grpc/grpc,45372,C++,5,283075684,v1.78.0,Release v1.78.0,2026-02-04T18:00:57Z,https://github.com/grpc/grpc/releases/tag/v1.78.0
+52,payloadcms/payload,https://github.com/payloadcms/payload,45234,TypeScript,1,347638396,v3.85.2,v3.85.2,2026-07-01T18:10:06Z,https://github.com/payloadcms/payload/releases/tag/v3.85.2
+52,payloadcms/payload,https://github.com/payloadcms/payload,45234,TypeScript,2,336640796,v3.85.1,v3.85.1,2026-06-09T14:00:02Z,https://github.com/payloadcms/payload/releases/tag/v3.85.1
+52,payloadcms/payload,https://github.com/payloadcms/payload,45234,TypeScript,3,284567118,v3.76.0,v3.76.0,2026-02-09T21:30:11Z,https://github.com/payloadcms/payload/releases/tag/v3.76.0
+52,payloadcms/payload,https://github.com/payloadcms/payload,45234,TypeScript,4,281572263,v3.74.0,v3.74.0,2026-01-30T16:32:01Z,https://github.com/payloadcms/payload/releases/tag/v3.74.0
+52,payloadcms/payload,https://github.com/payloadcms/payload,45234,TypeScript,5,276529459,v3.71.1,v3.71.1,2026-01-13T21:38:10Z,https://github.com/payloadcms/payload/releases/tag/v3.71.1
+53,danielmiessler/Fabric,https://github.com/danielmiessler/Fabric,44250,Go,1,400696063,v1.4.501,v1.4.501,2026-10-01T06:20:07Z,https://github.com/danielmiessler/Fabric/releases/tag/v1.4.501
+53,danielmiessler/Fabric,https://github.com/danielmiessler/Fabric,44250,Go,2,384282737,v1.4.478,v1.4.478,2026-09-07T19:29:11Z,https://github.com/danielmiessler/Fabric/releases/tag/v1.4.478
+53,danielmiessler/Fabric,https://github.com/danielmiessler/Fabric,44250,Go,3,378239370,v1.4.471,v1.4.471,2026-08-28T03:09:00Z,https://github.com/danielmiessler/Fabric/releases/tag/v1.4.471
+53,danielmiessler/Fabric,https://github.com/danielmiessler/Fabric,44250,Go,4,336908124,v1.4.455,v1.4.455,2026-06-09T22:09:36Z,https://github.com/danielmiessler/Fabric/releases/tag/v1.4.455
+53,danielmiessler/Fabric,https://github.com/danielmiessler/Fabric,44250,Go,5,265465751,v1.4.334,v1.4.334,2025-11-26T13:49:14Z,https://github.com/danielmiessler/Fabric/releases/tag/v1.4.334
+54,herdrdev/herdr,https://github.com/herdrdev/herdr,43824,Rust,1,399168439,v0.9.2,v0.9.2,2026-09-29T13:19:42Z,https://github.com/herdrdev/herdr/releases/tag/v0.9.2
+54,herdrdev/herdr,https://github.com/herdrdev/herdr,43824,Rust,2,390177651,v0.9.1,v0.9.1,2026-09-16T18:40:01Z,https://github.com/herdrdev/herdr/releases/tag/v0.9.1
+54,herdrdev/herdr,https://github.com/herdrdev/herdr,43824,Rust,3,324973165,v0.5.11,v0.5.11,2026-05-19T12:10:38Z,https://github.com/herdrdev/herdr/releases/tag/v0.5.11
+54,herdrdev/herdr,https://github.com/herdrdev/herdr,43824,Rust,4,306184167,v0.4.3,v0.4.3,2026-04-07T16:21:01Z,https://github.com/herdrdev/herdr/releases/tag/v0.4.3
+54,herdrdev/herdr,https://github.com/herdrdev/herdr,43824,Rust,5,303651437,v0.2.1,v0.2.1,2026-03-31T11:27:39Z,https://github.com/herdrdev/herdr/releases/tag/v0.2.1
+55,curl/curl,https://github.com/curl/curl,43206,C,1,381006034,curl-8_22_0,8.22.0,2026-09-02T05:59:35Z,https://github.com/curl/curl/releases/tag/curl-8_22_0
+55,curl/curl,https://github.com/curl/curl,43206,C,2,343907436,curl-8_21_0,8.21.0,2026-06-24T06:03:04Z,https://github.com/curl/curl/releases/tag/curl-8_21_0
+55,curl/curl,https://github.com/curl/curl,43206,C,3,315028247,curl-8_20_0,8.20.0,2026-04-29T06:31:23Z,https://github.com/curl/curl/releases/tag/curl-8_20_0
+55,curl/curl,https://github.com/curl/curl,43206,C,4,274727430,curl-8_18_0,8.18.0,2026-01-07T07:03:41Z,https://github.com/curl/curl/releases/tag/curl-8_18_0
+55,curl/curl,https://github.com/curl/curl,43206,C,5,259795201,curl-8_17_0,8.17.0,2025-11-05T07:18:19Z,https://github.com/curl/curl/releases/tag/curl-8_17_0
+56,sxyazi/yazi,https://github.com/sxyazi/yazi,42808,Rust,1,380340063,v26.9.1,v26.9.1,2026-09-01T08:52:30Z,https://github.com/sxyazi/yazi/releases/tag/v26.9.1
+56,sxyazi/yazi,https://github.com/sxyazi/yazi,42808,Rust,2,370992376,v26.8.15,v26.8.15,2026-08-15T08:15:56Z,https://github.com/sxyazi/yazi/releases/tag/v26.8.15
+56,sxyazi/yazi,https://github.com/sxyazi/yazi,42808,Rust,3,317982992,v26.5.6,v26.5.6,2026-05-05T18:30:21Z,https://github.com/sxyazi/yazi/releases/tag/v26.5.6
+56,sxyazi/yazi,https://github.com/sxyazi/yazi,42808,Rust,4,279063985,v26.1.22,v26.1.22,2026-01-22T15:57:14Z,https://github.com/sxyazi/yazi/releases/tag/v26.1.22
+56,sxyazi/yazi,https://github.com/sxyazi/yazi,42808,Rust,5,273109678,v25.12.29,v25.12.29,2025-12-29T00:48:35Z,https://github.com/sxyazi/yazi/releases/tag/v25.12.29
+57,gkd-kit/gkd,https://github.com/gkd-kit/gkd,42786,Kotlin,1,270125634,v1.11.6,Release v1.11.6,2025-12-13T18:03:36Z,https://github.com/gkd-kit/gkd/releases/tag/v1.11.6
+57,gkd-kit/gkd,https://github.com/gkd-kit/gkd,42786,Kotlin,2,263949708,v1.11.4,Release v1.11.4,2025-11-20T11:17:33Z,https://github.com/gkd-kit/gkd/releases/tag/v1.11.4
+57,gkd-kit/gkd,https://github.com/gkd-kit/gkd,42786,Kotlin,3,262868394,v1.11.3,Release v1.11.3,2025-11-17T07:54:08Z,https://github.com/gkd-kit/gkd/releases/tag/v1.11.3
+57,gkd-kit/gkd,https://github.com/gkd-kit/gkd,42786,Kotlin,4,262683223,v1.11.2,Release v1.11.2,2025-11-15T16:40:35Z,https://github.com/gkd-kit/gkd/releases/tag/v1.11.2
+57,gkd-kit/gkd,https://github.com/gkd-kit/gkd,42786,Kotlin,5,262079817,v1.11.1,Release v1.11.1,2025-11-13T11:46:28Z,https://github.com/gkd-kit/gkd/releases/tag/v1.11.1
+58,saadeghi/daisyui,https://github.com/saadeghi/daisyui,42587,JavaScript,1,395927500,v5.7.45,v5.7.45,2026-09-24T17:48:28Z,https://github.com/saadeghi/daisyui/releases/tag/v5.7.45
+58,saadeghi/daisyui,https://github.com/saadeghi/daisyui,42587,JavaScript,2,380868150,v5.7.26,v5.7.26,2026-09-01T22:48:57Z,https://github.com/saadeghi/daisyui/releases/tag/v5.7.26
+58,saadeghi/daisyui,https://github.com/saadeghi/daisyui,42587,JavaScript,3,335503968,v5.5.23,v5.5.23,2026-06-07T00:32:45Z,https://github.com/saadeghi/daisyui/releases/tag/v5.5.23
+58,saadeghi/daisyui,https://github.com/saadeghi/daisyui,42587,JavaScript,4,262064352,v5.5.1,v5.5.1,2025-11-13T10:55:47Z,https://github.com/saadeghi/daisyui/releases/tag/v5.5.1
+58,saadeghi/daisyui,https://github.com/saadeghi/daisyui,42587,JavaScript,5,259029828,v5.4.1,v5.4.1,2025-11-01T22:26:14Z,https://github.com/saadeghi/daisyui/releases/tag/v5.4.1
+59,psf/black,https://github.com/psf/black,41913,Python,1,403112703,26.10.0,26.10.0,2026-10-04T16:50:23Z,https://github.com/psf/black/releases/tag/26.10.0
+59,psf/black,https://github.com/psf/black,41913,Python,2,323745106,26.5.0,26.5.0,2026-05-16T17:56:23Z,https://github.com/psf/black/releases/tag/26.5.0
+59,psf/black,https://github.com/psf/black,41913,Python,3,294034683,26.3.0,26.3.0,2026-03-06T17:41:48Z,https://github.com/psf/black/releases/tag/26.3.0
+59,psf/black,https://github.com/psf/black,41913,Python,4,268176374,25.12.0,25.12.0,2025-12-08T01:40:32Z,https://github.com/psf/black/releases/tag/25.12.0
+59,psf/black,https://github.com/psf/black,41913,Python,5,260980107,25.11.0,25.11.0,2025-11-10T01:53:31Z,https://github.com/psf/black/releases/tag/25.11.0
+60,HKUDS/DeepTutor,https://github.com/HKUDS/DeepTutor,41304,Python,1,383481779,v1.6.5,v1.6.5,2026-09-06T05:59:59Z,https://github.com/HKUDS/DeepTutor/releases/tag/v1.6.5
+60,HKUDS/DeepTutor,https://github.com/HKUDS/DeepTutor,41304,Python,2,360049540,v1.5.5,v1.5.5,2026-07-26T15:20:09Z,https://github.com/HKUDS/DeepTutor/releases/tag/v1.5.5
+60,HKUDS/DeepTutor,https://github.com/HKUDS/DeepTutor,41304,Python,3,339013623,v1.4.5,v1.4.5,2026-06-13T17:11:32Z,https://github.com/HKUDS/DeepTutor/releases/tag/v1.4.5
+60,HKUDS/DeepTutor,https://github.com/HKUDS/DeepTutor,41304,Python,4,307541269,v1.0.1,DeepTutor-v1.0.1,2026-04-10T15:00:43Z,https://github.com/HKUDS/DeepTutor/releases/tag/v1.0.1
+60,HKUDS/DeepTutor,https://github.com/HKUDS/DeepTutor,41304,Python,5,277690521,v0.5.2,ver0.5.2,2026-01-18T07:49:12Z,https://github.com/HKUDS/DeepTutor/releases/tag/v0.5.2

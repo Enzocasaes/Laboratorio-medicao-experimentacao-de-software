@@ -8,3 +8,9 @@ node_modules/
 # Os resultados da coleta (data/raw/ e data/processed/) SAO versionados, para
 # que os demais integrantes e o grupo replicador partam da mesma amostra.
 data/cache/
+
+# O CSV de workflow runs (uma linha por execucao de CI) passa de 250 MB na
+# coleta completa, acima do limite de 100 MB por arquivo do GitHub. O que vai
+# versionado e' a versao compactada (workflow_runs.csv.gz, ~21 MB); para
+# descompactar: gzip -d -k data/processed/workflow_runs.csv.gz
+data/processed/workflow_runs.csv
