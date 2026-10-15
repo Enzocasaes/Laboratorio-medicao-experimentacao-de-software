@@ -107,6 +107,7 @@ npm run pipeline                       # = node src/pipeline.js --config config.
 npm run coletar:repositorios           # seleção, funil e metadados (A)
 npm run coletar:releases               # releases da janela (B)
 npm run coletar:leadtime               # commits entre releases e lead time (B)
+npm run corretiva                      # heuristica de release corretiva e CFR (b) (B; usa o cache do leadtime)
 npm run coletar:runs                   # workflow runs, CFR (a) e recuperacao (C)
 npm run dataset                        # dataset consolidado + dicionario (nao usa a rede)
 npm run amostra:ouro                   # sorteia a amostra-ouro da validacao manual (S02)
@@ -275,7 +276,7 @@ API apareça no relato em vez de sumir.
 run válido a taxa fica **vazia**, e não zero: "não medido" é diferente de
 "nenhuma falha". Essa variante mede **falha de pipeline**, não falha em
 produção — a diferença é discutida nas ameaças de construto do artigo. A
-variante (b), de release corretiva, é da Sprint 02.
+variante (b), de release corretiva, está na seção seguinte.
 
 **Tempo de recuperação (RQ 04):** dentro de **cada workflow**, em ordem
 cronológica por `run_started_at`, um **episódio de falha** começa na primeira
@@ -321,6 +322,94 @@ não gasta cota. A etapa devolve `valid_workflow_runs` pela mesma interface de
 B (`atualizarCriterios`), que aplica o mínimo de 50 runs e, quando não resta
 nenhum pendente, fecha a amostra final.
 
+## Release corretiva e CFR (RQ 03 b)
+
+```bash
+npm run corretiva      # depois de leadtime; as comparacoes vem do cache
+```
+
+### Definições operacionais
+
+**Release corretiva** é aquela cujo objetivo principal é corrigir um defeito
+recente. A heurística ([src/releases/corretiva.js](src/releases/corretiva.js))
+compara a release R com a **anterior** — a mesma do lead time: o deploy
+imediatamente antes na sequência por `published_at` — e usa dois sinais:
+
+- **incremento de versão** (SemVer): `major`, `minor`, `patch`, `same`,
+  `backport` (versão menor que a anterior) ou `unknown` (tag sem versão
+  numérica, ou de outro pacote num monorepo: `core@1.2.3` × `cli@1.2.4`);
+- **títulos dos commits** de `compare/{anterior}...{R}` — a primeira linha da
+  mensagem; num merge de PR, o título do PR. Cada commit vira `revert`
+  (revert, rollback), `hotfix`, `fix` (fix/fixes/fixed, bugfix, regression,
+  crash, CVE/GHSA), `dependency` (bump de dependência), `release` (preparação
+  da release) ou `other`. "Fix" de documentação, typo, lint, formatação ou
+  teste conta como `other`: não é defeito numa versão publicada.
+
+As mensagens vêm na mesma resposta do `compare` usada no lead time: **nenhuma
+requisição a mais**.
+
+**CFR (b):** R **falhou** se o deploy **seguinte** for corretivo e sair em até
+**7 dias** (`heuristica.diasParaCorrecao`). Só a seguinte imediata conta: uma
+corretiva que vem depois de outra release corrige a mais recente, não R.
+`CFR = releases que falharam ÷ releases avaliadas`.
+
+| Situação de R | Tratamento |
+|---|---|
+| Publicada nos **últimos 7 dias da janela** | `censored`: fora do denominador (ainda não se sabe se haverá correção) |
+| Seguinte em até 7 dias, mas **sem previsão** (comparação com erro, tag ausente) | `undetermined`: fora do denominador, contada à parte |
+| Sem seguinte, ou seguinte depois de 7 dias | `not_failed` |
+| Nenhuma release avaliada | CFR **vazio**, não zero |
+
+**Rework rate (RQ 08, bônus):** `releases corretivas ÷ releases classificadas`
+da janela — sai junto, de graça.
+
+### Versões da heurística
+
+Todas as versões são calculadas para toda release e gravadas em
+`processed/heuristica_corretiva.csv`, que a etapa `validacao` compara com o
+consenso da amostra-ouro (precisão, recall e F1 de cada versão). A versão que
+entra no CFR (b) do dataset é `heuristica.versao` no `config.json`.
+
+| Versão | Corretiva se… |
+|---|---|
+| `v1-semver-patch` | a versão muda só no *patch* (`2.3.0 → 2.3.1`) |
+| `v2-commits-fix` | há ao menos um commit `revert`/`hotfix`/`fix` entre as duas releases |
+| `v3-patch-e-commits` | *patch* **e** commit `revert`/`hotfix`/`fix` — o exemplo do enunciado (**padrão atual**) |
+| `v4-maioria-corretiva` | ao menos **metade** dos commits que mudam código é `revert`/`hotfix`/`fix`, e o *major* não muda; segue o critério do guia de rotulagem ("objetivo principal"), em que uma *minor* pode ser corretiva |
+
+Uma versão devolve **sem previsão** (e não "não") quando o sinal de que ela
+depende não existe: v1/v3 em tag sem versão numérica, v2/v3/v4 quando não há
+comparação. Na validação esses casos aparecem como `sem_previsao`.
+
+### Refinamento a partir da validação
+
+"Se o F1 ficar abaixo de 0,70, refine a heurística e reavalie":
+
+1. `npm run corretiva && npm run validacao` — o relatório
+   [docs/validacao-manual.md](docs/validacao-manual.md) mostra o F1 de cada versão.
+2. Os erros estão em `processed/heuristica_erros.csv` (FP e FN, com link) e os
+   sinais de cada release em `processed/release_corretiva.csv`: veja que sinal
+   enganou a regra.
+3. Acrescente uma **versão nova** em `VERSOES` (sem apagar as anteriores: o
+   artigo documenta o F1 de cada uma), com teste, e volte ao passo 1.
+4. Ponha em `heuristica.versao` a versão escolhida e rode `npm run corretiva`
+   e `npm run dataset` — o CFR (b) do dataset passa a usá-la.
+
+Escolher a versão olhando o F1 na própria amostra-ouro superestima o acerto
+(a regra foi ajustada aos mesmos 300 casos); isso entra nas ameaças à validade.
+
+### Saídas
+
+| Arquivo | Conteúdo |
+|---|---|
+| `processed/heuristica_corretiva.csv` | Previsão de cada versão para cada deploy da janela, no contrato da validação (`full_name`, `release_id`, `tag_name`, `corretiva_prevista`, `versao_heuristica`). |
+| `processed/release_corretiva.csv` | Uma linha por deploy da janela: incremento de versão, contagem de commits por tipo, `corrective_share`, previsão de cada versão (`corrective_<versao>`), release seguinte, dias até ela e situação no CFR (b). |
+| `processed/cfr_entrega.csv` | Uma linha por repositório: avaliadas, falhas, censuradas, indeterminadas, `change_failure_rate_delivery`, `rework_rate`. Entra no dataset. |
+| `raw/cfr_entrega.json` | Definições operacionais, descrição de cada versão e a versão usada no CFR. |
+
+> Os três arquivos mostram a saída da heurística: **não abra antes de terminar
+> a rotulagem** (ver o guia de rotulagem).
+
 ## Sprint 02 — coleta completa, dataset e validação manual
 
 Na S01 a amostra-alvo era de 100 repositórios; a S02 exige **no mínimo 300 após
@@ -330,7 +419,7 @@ os filtros**, e o `config.json` já está com `tamanhoAlvoDaAmostra: 300`.
 
 ```bash
 cd Lab3/Sprint01
-npm run pipeline        # repositorios -> releases -> leadtime -> runs -> dataset
+npm run pipeline        # repositorios -> releases -> leadtime -> corretiva -> runs -> dataset
 ```
 
 É **um comando só**, e ele pode ser interrompido à vontade: o cache guarda cada
@@ -343,6 +432,7 @@ renovações. Ordem de grandeza, com 1.321 candidatos:
 | `repositorios` | já executada na S01 | vem toda do cache |
 | `releases` | ~1 por candidato | roda em todos, senão o corte dos 300 sai enviesado |
 | `leadtime` | 1 por release avaliada | só nos que passaram no mínimo de 5 releases |
+| `corretiva` | 0 | as mesmas comparações do `leadtime`, do cache |
 | `runs` | ~12 por repositório (uma por mês) | só nos que ainda estão no funil |
 | `dataset` | 0 | offline |
 
@@ -459,9 +549,10 @@ O que acontece, em ordem:
    `refinar` e os FP/FN vão para `processed/heuristica_erros.csv`, com link,
    como evidência para o refinamento.
 
-**Interface com o módulo da Pessoa B.** A heurística não é implementada aqui.
-O módulo dela grava `processed/heuristica_corretiva.csv`, uma linha por release
-classificada (linhas de releases fora da amostra-ouro são aceitas e ignoradas):
+**Interface com o módulo da Pessoa B.** A heurística não é implementada aqui,
+e sim na etapa `corretiva` (seção *Release corretiva e CFR (RQ 03 b)*), que grava
+`processed/heuristica_corretiva.csv`, uma linha por release e versão
+(linhas de releases fora da amostra-ouro são aceitas e ignoradas):
 
 | Coluna | Conteúdo |
 |---|---|
@@ -487,7 +578,7 @@ automática nas planilhas: ela seria exatamente "ver a saída da heurística".
 npm run dataset    # não usa a rede, pode rodar a qualquer momento
 ```
 
-Junta `repositories.csv` + `lead_time.csv` + `dora_runs.csv` numa linha por
+Junta `repositories.csv` + `lead_time.csv` + `dora_runs.csv` + `cfr_entrega.csv` numa linha por
 repositório da amostra final, calcula a coluna derivada da **RQ 01**
 (`deployment_frequency_per_week = releases_in_window / semanas da janela`) e
 grava o dicionário de dados.
@@ -526,7 +617,10 @@ zero.
 | `data/processed/rotulos_<nome>.csv` | `amostra:ouro` | Planilha em branco de cada avaliador. **Preenchida só pelo avaliador** e nunca regravada pelo pipeline. |
 | `data/raw/amostra_ouro.json` | `amostra:ouro` | Registro do sorteio: critério, algoritmo, semente, população, SHA-256 das entradas e sorteados. |
 | `data/processed/consenso_reuniao.csv` | o grupo (à mão) | Decisões de reunião: `dimensao`, `unidade_id`, `rotulo_consenso`, `justificativa`, `participantes`, `data_reuniao`. |
-| `data/processed/heuristica_corretiva.csv` | módulo da Pessoa B | Previsões da heurística de release corretiva (contrato acima). |
+| `data/processed/heuristica_corretiva.csv` | `corretiva` | Previsões de todas as versões da heurística de release corretiva (contrato acima). |
+| `data/processed/release_corretiva.csv` | `corretiva` | Uma linha por deploy da janela: sinais da heurística, previsão de cada versão e situação no CFR (b). |
+| `data/processed/cfr_entrega.csv` | `corretiva` | **Uma linha por repositório: CFR (b) e rework rate.** Entrada da análise da RQ 03 (b). |
+| `data/raw/cfr_entrega.json` | `corretiva` | Definições operacionais e versões da heurística. |
 | `data/processed/rotulos_problemas.csv` | `validacao` | Problemas estruturais das planilhas e das decisões de reunião. |
 | `data/processed/concordancia_kappa.csv` | `validacao` | Kappa de Fleiss por dimensão: unidades válidas/excluídas, P observada, P esperada, interpretação. |
 | `data/processed/consenso.csv` | `validacao` | Uma linha por unidade e dimensão: rótulo de cada avaliador, votos, consenso, método, justificativa. |

@@ -5,9 +5,9 @@
 > a mesma lista descreve e constrói o CSV, para documentação e dado não
 > divergirem.
 
-- Janela de observação: **2025-10-22 a 2026-10-22** (366 dias, 52.29 semanas).
+- Janela de observação: **2025-10-01 a 2026-09-30** (365 dias, 52.14 semanas).
 - Linhas: **0** (uma por repositório da amostra final).
-- Gerado em: 2026-10-13T23:39:51.031Z.
+- Gerado em: 2026-10-14T19:00:26.644Z.
 
 Toda data vem da API em UTC (ISO 8601). Campo vazio significa **não medido**
 — e nunca zero: a diferença está descrita na coluna.
@@ -42,6 +42,15 @@ Toda data vem da API em UTC (ISO 8601). Campo vazio significa **não medido**
 | `failed_runs` | inteiro | execucoes | RQ 03 | processed/dora_runs.csv (etapa runs) | `conclusion em failure, timed_out ou startup_failure` | Execucoes com falha na janela. |
 | `change_failure_rate_ci` | decimal 0-1 | proporcao | RQ 03 | processed/dora_runs.csv (etapa runs) | `failed_runs / (failed_runs + successful_runs)` | **RQ 03, variante (a)** - proxy de CI. Vazio quando nao ha run valido (diferente de zero). |
 | `ignored_runs` | inteiro | execucoes | RQ 03 | processed/dora_runs.csv (etapa runs) | `conclusion em cancelled, skipped, neutral, action_required, stale ou vazia` | Execucoes fora de todos os calculos, pela tabela da secao 3 do enunciado. |
+| `change_failure_rate_delivery` | decimal 0-1 | proporcao | RQ 03 | processed/cfr_entrega.csv (etapa corretiva) | `cfr_delivery_failed / cfr_delivery_evaluated` | **RQ 03, variante (b)** - proxy de entrega: R falhou se o deploy seguinte for uma release corretiva publicada em ate 7 dias. Vazio quando nenhuma release pode ser avaliada. |
+| `cfr_delivery_evaluated` | inteiro | releases | RQ 03 | processed/cfr_entrega.csv (etapa corretiva) | `deploys da janela - censurados - indeterminados` | Denominador do CFR (b). |
+| `cfr_delivery_failed` | inteiro | releases | RQ 03 | processed/cfr_entrega.csv (etapa corretiva) | coluna cfr_delivery_failed de cfr_entrega.csv | Releases seguidas, em ate 7 dias, por uma release corretiva. Numerador do CFR (b). |
+| `cfr_delivery_censored` | inteiro | releases | RQ 03 | processed/cfr_entrega.csv (etapa corretiva) | `deploys publicados nos ultimos 7 dias da janela` | Censura a direita: ainda nao se sabe se havera correcao. Fora do denominador. |
+| `cfr_delivery_undetermined` | inteiro | releases | RQ 03 | processed/cfr_entrega.csv (etapa corretiva) | coluna cfr_delivery_undetermined de cfr_entrega.csv | Seguinte em ate 7 dias, mas sem previsao da heuristica (comparacao indisponivel). Fora do denominador. |
+| `corrective_heuristic` | texto | - | RQ 03 | processed/cfr_entrega.csv (etapa corretiva) | config.json, heuristica.versao | Versao da heuristica de release corretiva usada no CFR (b) e no rework rate (ver src/releases/corretiva.js e docs/validacao-manual.md). |
+| `corrective_releases` | inteiro | releases | RQ 08 | processed/cfr_entrega.csv (etapa corretiva) | coluna corrective_releases de cfr_entrega.csv | Deploys da janela classificados como corretivos pela heuristica. |
+| `releases_classified` | inteiro | releases | RQ 08 | processed/cfr_entrega.csv (etapa corretiva) | coluna releases_classified de cfr_entrega.csv | Deploys da janela com previsao da heuristica (denominador do rework rate). |
+| `rework_rate` | decimal 0-1 | proporcao | RQ 08 | processed/cfr_entrega.csv (etapa corretiva) | `corrective_releases / releases_classified` | **RQ 08 (bonus).** Proporcao de releases corretivas; ao contrario do CFR (b), nao exige que a correcao saia em ate 7 dias. |
 | `recovery_median_hours` | decimal | horas | RQ 04 | processed/dora_runs.csv (etapa runs) | `mediana de (updated_at do sucesso - run_started_at da primeira falha), por workflow` | **RQ 04.** Episodios censurados ficam de fora desta mediana. |
 | `recovery_median_days` | decimal | dias | RQ 04 | processed/dora_runs.csv (etapa runs) | `recovery_median_hours / 24` | A mesma mediana em dias (a tabela de referencia usa < 1 hora para Elite). |
 | `recovery_iqr_hours` | decimal | horas | RQ 04 | processed/dora_runs.csv (etapa runs) | `Q3 - Q1 dos episodios do repositorio` | Dispersao interna da RQ 04. |
@@ -69,4 +78,7 @@ Toda data vem da API em UTC (ISO 8601). Campo vazio significa **não medido**
 | `processed/workflow_runs.csv` | uma linha por execução de CI | README |
 | `processed/recovery_episodes.csv` | uma linha por episódio de falha (RQ 04) | README |
 | `processed/dora_runs.csv` | uma linha por repositório (RQ 03 a e RQ 04) | README |
+| `processed/release_corretiva.csv` | uma linha por deploy da janela: sinais da heurística, previsão de cada versão e situação no CFR (b) | README, *Heurística de release corretiva* |
+| `processed/heuristica_corretiva.csv` | previsões de todas as versões da heurística (entrada da validação) | README, *Validação manual* |
+| `processed/cfr_entrega.csv` | uma linha por repositório (RQ 03 b e rework rate) | README |
 | `processed/amostra_ouro.csv` | releases sorteadas para a validação manual | README, *Validação manual* |

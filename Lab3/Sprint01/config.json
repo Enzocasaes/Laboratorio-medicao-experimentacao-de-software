@@ -25,6 +25,10 @@
     "avaliadores": ["enzo", "caue", "leo"],
     "limiarF1": 0.7
   },
+  "heuristica": {
+    "versao": "v3-patch-e-commits",
+    "diasParaCorrecao": 7
+  },
   "diretorios": {
     "cache": "data/cache",
     "saida": "data"

@@ -2,7 +2,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { writeFileSync } from "node:fs";
 import { join, resolve } from "node:path";
-import { SELECAO_PADRAO, carregarConfig, validarConfig } from "../src/config.js";
+import { HEURISTICA_PADRAO, SELECAO_PADRAO, carregarConfig, validarConfig } from "../src/config.js";
 import { pastaTemporaria } from "./apoio/api-falsa.js";
 
 const JANELA = { inicio: "2025-01-01", fim: "2025-12-31" };
@@ -46,6 +46,14 @@ test("validarConfig: numeros invalidos sao rejeitados com o nome do campo", () =
     assert.throws(() => validarConfig({ janela: JANELA, selecao }), erro);
   }
   assert.throws(() => validarConfig(null), /objeto JSON/);
+});
+
+test("validarConfig: heuristica corretiva tem padrao e so' aceita versoes existentes", () => {
+  assert.deepEqual(validarConfig({ janela: JANELA }).heuristica, { ...HEURISTICA_PADRAO });
+  assert.equal(HEURISTICA_PADRAO.diasParaCorrecao, 7, "o prazo do enunciado");
+  assert.equal(validarConfig({ janela: JANELA, heuristica: { versao: "v1-semver-patch" } }).heuristica.versao, "v1-semver-patch");
+  assert.throws(() => validarConfig({ janela: JANELA, heuristica: { versao: "v9" } }), /heuristica.versao deve ser uma de v1-semver-patch/);
+  assert.throws(() => validarConfig({ janela: JANELA, heuristica: { diasParaCorrecao: 0 } }), /heuristica.diasParaCorrecao/);
 });
 
 test("carregarConfig: le o arquivo e resolve caminhos relativos a ele", () => {

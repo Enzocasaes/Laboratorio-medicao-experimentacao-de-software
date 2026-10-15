@@ -8,6 +8,7 @@
 import { readFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { criarJanela } from "./janela.js";
+import { DIAS_PARA_CORRECAO, IDS_DAS_VERSOES } from "./releases/corretiva.js";
 
 // Criterio minimo de inclusao da secao 3 do enunciado (5 releases e 50
 // workflow runs validos na janela). Ficam configuraveis, mas o padrao e'
@@ -32,6 +33,14 @@ export const VALIDACAO_PADRAO = Object.freeze({
   avaliadores: Object.freeze(["enzo", "caue", "leo"]),
   // Secao 6: "se o F1 ficar abaixo de 0,70, refine a heuristica e reavalie".
   limiarF1: 0.7,
+});
+
+// Heuristica de release corretiva (RQ 03 b). `versao` escolhe qual das versoes
+// de src/releases/corretiva.js entra no CFR (b) do dataset; todas sao gravadas
+// e avaliadas na validacao. Troque pela de maior F1 depois da validacao.
+export const HEURISTICA_PADRAO = Object.freeze({
+  versao: "v3-patch-e-commits",
+  diasParaCorrecao: DIAS_PARA_CORRECAO, // "seguida, em ate 7 dias, por uma release corretiva"
 });
 
 export const DIRETORIOS_PADRAO = Object.freeze({
@@ -139,13 +148,24 @@ export function validarConfig(bruta, { baseDir = process.cwd() } = {}) {
     limiarF1: proporcao(v.limiarF1, "validacao.limiarF1"),
   };
 
+  const h = { ...HEURISTICA_PADRAO, ...(bruta.heuristica ?? {}) };
+  if (!IDS_DAS_VERSOES.includes(h.versao)) {
+    throw new Error(
+      `Configuracao invalida: heuristica.versao deve ser uma de ${IDS_DAS_VERSOES.join(", ")} (recebido: ${JSON.stringify(h.versao)})`
+    );
+  }
+  const heuristica = {
+    versao: h.versao,
+    diasParaCorrecao: inteiroPositivo(h.diasParaCorrecao, "heuristica.diasParaCorrecao"),
+  };
+
   const d = { ...DIRETORIOS_PADRAO, ...(bruta.diretorios ?? {}) };
   const diretorios = {
     cache: resolve(baseDir, d.cache),
     saida: resolve(baseDir, d.saida),
   };
 
-  return { janela, selecao, coleta, validacao, diretorios };
+  return { janela, selecao, coleta, validacao, heuristica, diretorios };
 }
 
 export function carregarConfig(caminho) {

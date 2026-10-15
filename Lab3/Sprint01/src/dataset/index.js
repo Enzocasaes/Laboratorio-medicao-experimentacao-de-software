@@ -1,4 +1,4 @@
-// Etapa "dataset" (Pessoa C, S02): junta as saidas das tres etapas de coleta
+// Etapa "dataset" (Pessoa C, S02): junta as saidas das etapas de coleta
 // num unico CSV - uma linha por repositorio da amostra final - e gera o
 // DICIONARIO DE DADOS a partir da mesma lista de colunas (src/dataset/colunas.js),
 // para que documentacao e arquivo nao possam divergir.
@@ -66,12 +66,13 @@ export function frequenciaDeDeploy(releasesNaJanela, janela) {
 }
 
 // Monta uma linha do dataset a partir das tres fontes.
-export function montarLinha({ repositorio, leadtime = {}, runs = {}, janela }) {
+export function montarLinha({ repositorio, leadtime = {}, runs = {}, corretiva = {}, janela }) {
   const releasesNaJanela = inteiro(leadtime.releases_in_window ?? repositorio.releases_in_window);
   const valores = {
     ...repositorio,
     ...leadtime,
     ...runs,
+    ...corretiva,
     releases_in_window: releasesNaJanela ?? "",
     window_weeks: arredondar(janela.dias / DIAS_POR_SEMANA, 2),
     deployment_frequency_per_week: frequenciaDeDeploy(releasesNaJanela, janela),
@@ -100,6 +101,7 @@ function fonteLegivel(de) {
       repositorio: "processed/repositories.csv (etapa repositorios)",
       leadtime: "processed/lead_time.csv (etapa leadtime)",
       runs: "processed/dora_runs.csv (etapa runs)",
+      corretiva: "processed/cfr_entrega.csv (etapa corretiva)",
       derivada: "calculada em src/dataset/index.js",
     }[de] ?? de
   );
@@ -162,6 +164,9 @@ export function gerarDicionarioMarkdown({ janela, geradoEm, totalDeLinhas }) {
     "| `processed/workflow_runs.csv` | uma linha por execução de CI | README |",
     "| `processed/recovery_episodes.csv` | uma linha por episódio de falha (RQ 04) | README |",
     "| `processed/dora_runs.csv` | uma linha por repositório (RQ 03 a e RQ 04) | README |",
+    "| `processed/release_corretiva.csv` | uma linha por deploy da janela: sinais da heurística, previsão de cada versão e situação no CFR (b) | README, *Heurística de release corretiva* |",
+    "| `processed/heuristica_corretiva.csv` | previsões de todas as versões da heurística (entrada da validação) | README, *Validação manual* |",
+    "| `processed/cfr_entrega.csv` | uma linha por repositório (RQ 03 b e rework rate) | README |",
     "| `processed/amostra_ouro.csv` | releases sorteadas para a validação manual | README, *Validação manual* |",
     ""
   );
@@ -188,6 +193,7 @@ export async function executarDataset({ config, log = logSilencioso, agora = () 
   }
   const leadtime = lerPorRepositorio(join(processados, "lead_time.csv"));
   const runs = lerPorRepositorio(join(processados, "dora_runs.csv"));
+  const corretiva = lerPorRepositorio(join(processados, "cfr_entrega.csv"));
 
   const alvos = repositoriosDoDataset(repositorios);
   const linhas = alvos.map((repositorio) =>
@@ -195,12 +201,14 @@ export async function executarDataset({ config, log = logSilencioso, agora = () 
       repositorio,
       leadtime: leadtime.get(repositorio.full_name) ?? {},
       runs: runs.get(repositorio.full_name) ?? {},
+      corretiva: corretiva.get(repositorio.full_name) ?? {},
       janela,
     })
   );
 
   const semLeadTime = alvos.filter((r) => !leadtime.has(r.full_name)).length;
   const semRuns = alvos.filter((r) => !runs.has(r.full_name)).length;
+  const semCorretiva = alvos.filter((r) => !corretiva.has(r.full_name)).length;
 
   const caminhos = caminhosDeSaida(diretorios.saida);
   escrever(caminhos.dataset, gerarCSV(NOMES_DAS_COLUNAS, linhas));
@@ -213,7 +221,8 @@ export async function executarDataset({ config, log = logSilencioso, agora = () 
   log.info(`dataset: ${linhas.length} repositorios x ${NOMES_DAS_COLUNAS.length} colunas`);
   if (semLeadTime > 0) log.aviso(`${semLeadTime} repositorios sem lead time (etapa "leadtime" incompleta)`);
   if (semRuns > 0) log.aviso(`${semRuns} repositorios sem workflow runs (etapa "runs" incompleta)`);
+  if (semCorretiva > 0) log.aviso(`${semCorretiva} repositorios sem CFR (b) (etapa "corretiva" incompleta)`);
   log.info(`saidas: ${caminhos.dataset}, ${caminhos.dicionarioCSV}, ${caminhos.dicionarioMD}`);
 
-  return { linhas: linhas.length, colunas: NOMES_DAS_COLUNAS.length, semLeadTime, semRuns, caminhos };
+  return { linhas: linhas.length, colunas: NOMES_DAS_COLUNAS.length, semLeadTime, semRuns, semCorretiva, caminhos };
 }
