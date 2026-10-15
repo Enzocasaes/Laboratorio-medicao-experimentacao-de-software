@@ -12,8 +12,9 @@ um trabalha **sozinho**.
 
 1. **Não converse** sobre casos específicos com os outros avaliadores até os
    três terminarem.
-2. **Não abra** `docs/validacao-manual.md`, `processed/consenso*.csv` nem
-   `processed/heuristica*.csv` antes de terminar. Eles mostram a saída da
+2. **Não abra** `docs/validacao-manual.md`, `processed/consenso*.csv`,
+   `processed/heuristica*.csv`, `processed/release_corretiva.csv` nem
+   `processed/cfr_entrega.csv` antes de terminar. Eles mostram a saída da
    heurística e os rótulos dos outros.
 3. Não copie a planilha de outro avaliador. Cada um parte da sua cópia em branco.
 4. Commite **só o seu arquivo**, na sua Issue.

@@ -17,7 +17,7 @@ import { carregarEnv } from "./env.js";
 import { criarCacheEmDisco, criarCacheEmMemoria } from "./github/cache.js";
 import { criarClienteGitHub, lerToken } from "./github/cliente.js";
 import { criarLog } from "./log.js";
-import { executarLeadTime, executarReleases } from "./releases/index.js";
+import { executarCorretiva, executarLeadTime, executarReleases } from "./releases/index.js";
 import { executarDataset } from "./dataset/index.js";
 import { executarRuns } from "./runs/index.js";
 import { executarSelecao } from "./selecao/index.js";
@@ -26,6 +26,7 @@ export const ETAPAS = [
   { nome: "repositorios", descricao: "selecao, funil e metadados dos repositorios (Pessoa A)", executar: executarSelecao },
   { nome: "releases", descricao: "releases da janela e contagem para o criterio minimo (Pessoa B)", executar: executarReleases },
   { nome: "leadtime", descricao: "commits entre releases e lead time for changes, RQ 02 (Pessoa B)", executar: executarLeadTime },
+  { nome: "corretiva", descricao: "heuristica de release corretiva e change failure rate, RQ 03 (b) (Pessoa B)", executar: executarCorretiva },
   { nome: "runs", descricao: "workflow runs, change failure rate e tempo de recuperacao, RQ 03 (a) e RQ 04 (Pessoa C)", executar: executarRuns },
   // `rede: false` -> etapa offline: nao precisa de token nem de cliente HTTP.
   { nome: "dataset", descricao: "consolida as saidas num dataset unico e gera o dicionario de dados (Pessoa C)", executar: executarDataset, rede: false },

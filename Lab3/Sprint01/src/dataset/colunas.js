@@ -7,6 +7,7 @@
 //   repositorio -> processed/repositories.csv (etapa "repositorios", A)
 //   leadtime    -> processed/lead_time.csv    (etapa "leadtime", B)
 //   runs        -> processed/dora_runs.csv    (etapa "runs", C)
+//   corretiva   -> processed/cfr_entrega.csv  (etapa "corretiva", B)
 //   derivada    -> calculada aqui (a formula fica em `formula`)
 
 export const COLUNAS_DATASET = Object.freeze([
@@ -45,6 +46,17 @@ export const COLUNAS_DATASET = Object.freeze([
   { nome: "failed_runs", tipo: "inteiro", unidade: "execucoes", rq: "RQ 03", de: "runs", formula: "conclusion em failure, timed_out ou startup_failure", descricao: "Execucoes com falha na janela." },
   { nome: "change_failure_rate_ci", tipo: "decimal 0-1", unidade: "proporcao", rq: "RQ 03", de: "runs", formula: "failed_runs / (failed_runs + successful_runs)", descricao: "**RQ 03, variante (a)** - proxy de CI. Vazio quando nao ha run valido (diferente de zero)." },
   { nome: "ignored_runs", tipo: "inteiro", unidade: "execucoes", rq: "RQ 03", de: "runs", formula: "conclusion em cancelled, skipped, neutral, action_required, stale ou vazia", descricao: "Execucoes fora de todos os calculos, pela tabela da secao 3 do enunciado." },
+
+  // ---- RQ 03 (b): change failure rate, proxy de entrega
+  { nome: "change_failure_rate_delivery", tipo: "decimal 0-1", unidade: "proporcao", rq: "RQ 03", de: "corretiva", formula: "cfr_delivery_failed / cfr_delivery_evaluated", descricao: "**RQ 03, variante (b)** - proxy de entrega: R falhou se o deploy seguinte for uma release corretiva publicada em ate 7 dias. Vazio quando nenhuma release pode ser avaliada." },
+  { nome: "cfr_delivery_evaluated", tipo: "inteiro", unidade: "releases", rq: "RQ 03", de: "corretiva", formula: "deploys da janela - censurados - indeterminados", descricao: "Denominador do CFR (b)." },
+  { nome: "cfr_delivery_failed", tipo: "inteiro", unidade: "releases", rq: "RQ 03", de: "corretiva", origem: "coluna cfr_delivery_failed de cfr_entrega.csv", descricao: "Releases seguidas, em ate 7 dias, por uma release corretiva. Numerador do CFR (b)." },
+  { nome: "cfr_delivery_censored", tipo: "inteiro", unidade: "releases", rq: "RQ 03", de: "corretiva", formula: "deploys publicados nos ultimos 7 dias da janela", descricao: "Censura a direita: ainda nao se sabe se havera correcao. Fora do denominador." },
+  { nome: "cfr_delivery_undetermined", tipo: "inteiro", unidade: "releases", rq: "RQ 03", de: "corretiva", origem: "coluna cfr_delivery_undetermined de cfr_entrega.csv", descricao: "Seguinte em ate 7 dias, mas sem previsao da heuristica (comparacao indisponivel). Fora do denominador." },
+  { nome: "corrective_heuristic", tipo: "texto", unidade: "-", rq: "RQ 03", de: "corretiva", origem: "config.json, heuristica.versao", descricao: "Versao da heuristica de release corretiva usada no CFR (b) e no rework rate (ver src/releases/corretiva.js e docs/validacao-manual.md)." },
+  { nome: "corrective_releases", tipo: "inteiro", unidade: "releases", rq: "RQ 08", de: "corretiva", origem: "coluna corrective_releases de cfr_entrega.csv", descricao: "Deploys da janela classificados como corretivos pela heuristica." },
+  { nome: "releases_classified", tipo: "inteiro", unidade: "releases", rq: "RQ 08", de: "corretiva", origem: "coluna releases_classified de cfr_entrega.csv", descricao: "Deploys da janela com previsao da heuristica (denominador do rework rate)." },
+  { nome: "rework_rate", tipo: "decimal 0-1", unidade: "proporcao", rq: "RQ 08", de: "corretiva", formula: "corrective_releases / releases_classified", descricao: "**RQ 08 (bonus).** Proporcao de releases corretivas; ao contrario do CFR (b), nao exige que a correcao saia em ate 7 dias." },
 
   // ---- RQ 04: tempo de recuperacao
   { nome: "recovery_median_hours", tipo: "decimal", unidade: "horas", rq: "RQ 04", de: "runs", formula: "mediana de (updated_at do sucesso - run_started_at da primeira falha), por workflow", descricao: "**RQ 04.** Episodios censurados ficam de fora desta mediana." },
