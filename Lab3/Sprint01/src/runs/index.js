@@ -73,7 +73,22 @@ export async function executarRuns({ config, cliente, log = logSilencioso, limit
   let comErro = 0;
   let comFatiaTruncada = 0;
 
+  // PARADA ANTECIPADA. Os repositorios vem em ordem de estrelas e a amostra
+  // final e' "os N melhores que cumprem o criterio": assim que N cumprirem,
+  // medir o resto nao muda a amostra - so' gasta cota (cada repositorio custa
+  // uma requisicao por mes da janela). Os nao medidos saem do funil com motivo
+  // proprio, em vez de ficarem pendentes e impedirem a amostra de fechar.
+  // Ausente na configuracao = ligado (o padrao de validarConfig).
+  const pararAoCompletar = selecao.pararAoCompletarAmostra !== false && limite === null;
+  let aprovados = 0;
+  let paradaAntecipada = false;
+  const naoAvaliados = [];
+
   for (const [indice, registro] of registros.entries()) {
+    if (paradaAntecipada) {
+      naoAvaliados.push(registro.full_name);
+      continue;
+    }
     const prefixo = `[${indice + 1}/${registros.length}] ${registro.full_name}`;
     const branch = registro.default_branch ?? "main";
 
@@ -125,6 +140,14 @@ export async function executarRuns({ config, cliente, log = logSilencioso, limit
 
     if (fatiasTruncadas > 0) comFatiaTruncada += 1;
     contagensParaOFunil[registro.full_name] = { valid_workflow_runs: contagens.valid_workflow_runs };
+    if (contagens.valid_workflow_runs >= selecao.minimoDeWorkflowRuns) aprovados += 1;
+    if (pararAoCompletar && aprovados >= selecao.tamanhoAlvoDaAmostra) {
+      paradaAntecipada = true;
+      log.info(
+        `amostra-alvo completa: ${aprovados} repositorios com >= ${selecao.minimoDeWorkflowRuns} runs validos ` +
+          `apos ${indice + 1} avaliados; os demais nao serao medidos (nao mudariam a amostra final)`
+      );
+    }
     log.info(
       `${prefixo}: ${contagens.valid_workflow_runs} runs validos ` +
         `(${contagens.successful_runs} ok, ${contagens.failed_runs} falhas, ${contagens.ignored_runs} ignorados), ` +
@@ -167,7 +190,7 @@ export async function executarRuns({ config, cliente, log = logSilencioso, limit
     ) + "\n"
   );
 
-  const atualizada = atualizarCriterios(diretorios.saida, contagensParaOFunil);
+  const atualizada = atualizarCriterios(diretorios.saida, contagensParaOFunil, { naoAvaliados });
   const acimaDoMinimo = Object.values(contagensParaOFunil).filter(
     (c) => c.valid_workflow_runs >= selecao.minimoDeWorkflowRuns
   ).length;
@@ -176,7 +199,8 @@ export async function executarRuns({ config, cliente, log = logSilencioso, limit
   log.info(
     `etapa concluida: ${Object.keys(contagensParaOFunil).length} repositorios contados, ` +
       `${acimaDoMinimo} com >= ${selecao.minimoDeWorkflowRuns} runs validos, ${comErro} com erro de coleta, ` +
-      `${comFatiaTruncada} com alguma fatia mensal truncada`
+      `${comFatiaTruncada} com alguma fatia mensal truncada` +
+      (naoAvaliados.length > 0 ? `, ${naoAvaliados.length} nao medidos (amostra ja completa)` : "")
   );
   log.info(
     `recuperacao: ${episodiosTotais} episodios de falha, ${censurados} censurados ` +

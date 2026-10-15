@@ -30,6 +30,10 @@ export const ETAPAS = Object.freeze({
 export const MOTIVOS = Object.freeze({
   SEM_ACTIONS: "no_github_actions",
   FORA_DA_AMOSTRA: "beyond_target_sample_size",
+  // Parada antecipada: a amostra-alvo ja estava completa com repositorios de
+  // rank melhor, entao este nem chegou a ser medido. NAO e' "reprovou no
+  // criterio" - e' "nao foi avaliado, porque nao mudaria a amostra".
+  NAO_AVALIADO: "not_evaluated_target_sample_reached",
   menosReleases: (minimo) => `fewer_than_${minimo}_releases_in_window`,
   menosRuns: (minimo) => `fewer_than_${minimo}_valid_workflow_runs_in_window`,
 });

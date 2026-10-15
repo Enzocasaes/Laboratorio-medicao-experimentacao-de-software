@@ -6,8 +6,8 @@
 > divergirem.
 
 - Janela de observação: **2025-10-01 a 2026-09-30** (365 dias, 52.14 semanas).
-- Linhas: **0** (uma por repositório da amostra final).
-- Gerado em: 2026-10-14T19:00:26.644Z.
+- Linhas: **300** (uma por repositório da amostra final).
+- Gerado em: 2026-10-15T15:54:06.515Z.
 
 Toda data vem da API em UTC (ISO 8601). Campo vazio significa **não medido**
 — e nunca zero: a diferença está descrita na coluna.

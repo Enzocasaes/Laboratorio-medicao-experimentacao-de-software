@@ -85,6 +85,7 @@ para que o grupo replicador use exatamente os mesmos parâmetros):
 | `selecao.quantidadeDeCandidatos` | Quantos candidatos (os de mais estrelas) entram no topo do funil. Precisa ser bem maior que a amostra-alvo, porque muitos caem nos filtros. |
 | `selecao.tamanhoAlvoDaAmostra` | Tamanho da amostra final (S01: 100; S02: ≥ 300). |
 | `selecao.minimoDeReleases`, `minimoDeWorkflowRuns` | Critério mínimo de inclusão do enunciado (5 e 50). |
+| `selecao.pararAoCompletarAmostra` | `true` (padrão): a etapa `runs` encerra assim que a amostra-alvo está completa. `false` mede todos os candidatos. |
 | `coleta.releasesPorPagina`, `commitsPorPagina` | `per_page` das listagens (máximo 100, o limite da API). |
 | `coleta.maxPaginasDeReleases` | Teto de páginas de `/releases` por repositório. Ao ser atingido sem alcançar o início da janela, a coleta é marcada como `truncated` em vez de fingir que a lista acabou. |
 | `coleta.maxCommitsPorRelease` | Teto de commits por comparação entre duas releases. Ver *Releases e lead time*. |
@@ -430,15 +431,82 @@ renovações. Ordem de grandeza, com 1.321 candidatos:
 | Etapa | Requisições | Observação |
 |---|---|---|
 | `repositorios` | já executada na S01 | vem toda do cache |
-| `releases` | ~1 por candidato | roda em todos, senão o corte dos 300 sai enviesado |
-| `leadtime` | 1 por release avaliada | só nos que passaram no mínimo de 5 releases |
-| `corretiva` | 0 | as mesmas comparações do `leadtime`, do cache |
-| `runs` | ~12 por repositório (uma por mês) | só nos que ainda estão no funil |
+| `releases` | ~1 por candidato (1.325) | roda em **todos**, senão o corte dos 300 sai enviesado |
+| `runs` | ~12 por repositório (uma por mês) | roda em ordem de estrelas e **para assim que 300 cumprem o critério** (ver abaixo); fecha a amostra final |
+| `leadtime` | 1 por **release** avaliada | só nos 300 da amostra final |
+| `corretiva` | 0 | as mesmas comparações do `leadtime`, direto do cache |
 | `dataset` | 0 | offline |
+
+**Parada antecipada (`selecao.pararAoCompletarAmostra`).** Os repositórios são
+processados em ordem de estrelas, e a amostra final é "os 300 melhores que
+cumprem o critério". Então, assim que 300 cumprirem, medir os demais **não muda
+a amostra** — só gasta cota. A etapa encerra ali e os não medidos saem do funil
+com motivo próprio (`not_evaluated_target_sample_reached`), que é diferente de
+"reprovou no critério": `valid_workflow_runs` fica **vazio**, não zero. Para
+medir todos mesmo assim (análise exploratória), ponha a chave em `false`.
+
+**Por que `runs` vem antes de `leadtime`.** As duas dependem de `releases`, mas
+o custo é muito diferente: `runs` custa ~13 requisições por repositório e aplica
+o segundo critério do funil (≥ 50 runs válidos), fechando a amostra final;
+`leadtime` custa **1 requisição por release** (mediana de 23 por repositório).
+Medindo o lead time depois do corte, ele roda nos ~300 da amostra em vez dos 707
+que passaram só pelo critério de releases — a diferença é de dezenas de milhares
+de requisições, ou seja, horas de coleta.
 
 **Se sobrarem menos de 300 elegíveis**, aumente `selecao.quantidadeDeCandidatos`
 (1500 → 2000, por exemplo) e rode de novo: os candidatos já coletados vêm do
 cache, e só os novos custam requisições.
+
+### Resultado da coleta (2026-10-15)
+
+Coleta completa com a janela **2025-10-01 a 2026-09-30** (365 dias).
+**Funil final:**
+
+| # | Etapa | Entraram | Passaram | Descartados |
+|---|---|---|---|---|
+| 1 | Candidatos da busca `stars:>1000` | 1.500 | 1.500 | — |
+| 2 | Usa GitHub Actions | 1.500 | 1.325 | 175 |
+| 3 | ≥ 5 releases na janela | 1.325 | 703 | 622 |
+| 4 | ≥ 50 workflow runs válidos | 703 | **300** | 403 |
+| 5 | Amostra final | 300 | **300** | 0 |
+
+Na etapa 4, os 403 descartados se dividem em **46 que reprovaram** no critério e
+**357 que não foram avaliados** (parada antecipada: a amostra-alvo já estava
+completa). Os dois motivos aparecem separados em `selection_funnel.csv` —
+`fewer_than_50_valid_workflow_runs_in_window` e
+`not_evaluated_target_sample_reached` —, porque significam coisas diferentes na
+Metodologia.
+
+**Medianas da amostra final (n = 300):**
+
+| RQ | Métrica | Mediana | IQR |
+|---|---|---|---|
+| RQ 01 | deploys por semana | 0,54 | 0,25 – 1,23 |
+| RQ 02 (a) | lead time por release | 10,5 dias | 3,0 – 39,2 |
+| RQ 02 (b) | lead time por commit | 7,8 dias | 2,7 – 25,5 |
+| RQ 03 (a) | change failure rate (CI) | 4,9% | 2,3% – 11,4% |
+| RQ 04 | tempo de recuperação | 2,4 h | 0,9 – 6,6 |
+
+Pontos para a discussão do artigo, já visíveis nos dados:
+
+- **As duas variantes do lead time divergem** (10,5 contra 7,8 dias), como o
+  enunciado antecipa: um commit antigo numa release pesa muito mais na variante
+  (a) do que na (b).
+- **17 dos 300 repositórios ficam sem tempo de recuperação**, porque o CI deles
+  nunca quebrou na janela. O campo fica **vazio**, e não zero — não houve
+  episódio a medir.
+- **`event = push` exclui repositórios que têm CI.** `ollama/ollama` e
+  `microsoft/markitdown`, por exemplo, ficaram com **zero** runs válidos: eles
+  rodam CI no default branch, mas com outros eventos (`pull_request`,
+  `dynamic`). Conferido direto na API: `branch=main&event=push` devolve 0, e sem
+  o filtro de evento devolve 119 e 354 runs. A definição operacional do
+  enunciado é essa, e foi seguida à risca — mas é uma **ameaça de construto**: o
+  CFR e o tempo de recuperação medem apenas a parte da CI disparada por push.
+
+> **`workflow_runs.csv` não é versionado** como CSV: na coleta completa ele passa
+> de 230 MB, acima do limite de 100 MB por arquivo do GitHub. O que vai no
+> repositório é `workflow_runs.csv.gz` (~20 MB). Para usá-lo:
+> `gzip -d -k data/processed/workflow_runs.csv.gz`.
 
 ### Amostra-ouro da validação manual
 
@@ -911,7 +979,7 @@ mão e resultado conferido no papel — incluindo o exemplo numérico do enuncia
 | [test/runs-modelo.test.js](test/runs-modelo.test.js) | a tabela de `conclusion` inteira (sucesso, falha, ignorados, vazio, valor novo da API), normalização do run, filtro de branch/evento e as contagens do critério mínimo |
 | [test/runs-coleta.test.js](test/runs-coleta.test.js) | fatiamento mensal (12 meses, recorte nas pontas, fevereiro bissexto, janela de um dia), filtros da URL, paginação, teto de 1.000 por consulta, teto de páginas, run repetido na fronteira de mês, item sem `id`, 404, corpo inesperado e retomada pelo cache |
 | [test/runs-metricas.test.js](test/runs-metricas.test.js) | **o exemplo do enunciado (1h20)**, CFR com e sem runs válidos, duas quebras seguidas, episódio censurado, falha sem sucesso anterior, execuções ignoradas no meio, workflows independentes, mediana/IQR/proporção de censurados e duração negativa |
-| [test/runs-etapa.test.js](test/runs-etapa.test.js) | a etapa `runs` de ponta a ponta: contagem devolvida ao funil e exclusão por menos de 50 runs, os três CSVs e o JSON de auditoria, `--limite`, erro de coleta deixando o repositório pendente, ordem das etapas e segunda execução sem ir à rede |
+| [test/runs-etapa.test.js](test/runs-etapa.test.js) | a etapa `runs` de ponta a ponta: contagem devolvida ao funil e exclusão por menos de 50 runs, os três CSVs e o JSON de auditoria, `--limite`, erro de coleta deixando o repositório pendente, ordem das etapas, segunda execução sem ir à rede e a **parada antecipada** (não medidos saem com motivo próprio, a amostra fecha, e `--limite` não dispara a parada) |
 | [test/dataset.test.js](test/dataset.test.js) | junção das três etapas, frequência de deploy (RQ 01), etapa incompleta deixando colunas vazias, amostra final vs. elegíveis, e a verificação de que o dicionário descreve exatamente as colunas do CSV |
 | [test/amostra-ouro.test.js](test/amostra-ouro.test.js) | sorteio reproduzível com a mesma semente (e diferente com outra), embaralhamento que não perde itens, link montado quando a API não traz, recusa de sortear antes de a amostra fechar, e proteção contra apagar rótulos já preenchidos |
 | [test/fleiss.test.js](test/fleiss.test.js) | **exemplo publicado da Wikipedia (κ = 0,210)**, conta de 3 avaliadores feita no papel (κ = 1/3), concordância total, κ negativo, categoria dominante (% de acordo alta com κ baixo), κ indefinido (uma só categoria, sem unidades, 1 avaliador), casos completos, categoria desconhecida, categoria não usada e faixas de Landis & Koch |
