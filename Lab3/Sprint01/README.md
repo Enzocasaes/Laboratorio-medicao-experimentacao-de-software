@@ -459,49 +459,53 @@ cache, e só os novos custam requisições.
 
 ### Resultado da coleta (2026-10-15)
 
-Coleta completa executada entre 13 e 15/10/2026, com a janela de 2025-10-22 a
-2026-10-22. **Funil final:**
+Coleta completa com a janela **2025-10-01 a 2026-09-30** (365 dias).
+**Funil final:**
 
 | # | Etapa | Entraram | Passaram | Descartados |
 |---|---|---|---|---|
 | 1 | Candidatos da busca `stars:>1000` | 1.500 | 1.500 | — |
 | 2 | Usa GitHub Actions | 1.500 | 1.325 | 175 |
-| 3 | ≥ 5 releases na janela | 1.325 | 707 | 618 |
-| 4 | ≥ 50 workflow runs válidos | 707 | **300** | 407 |
+| 3 | ≥ 5 releases na janela | 1.325 | 703 | 622 |
+| 4 | ≥ 50 workflow runs válidos | 703 | **300** | 403 |
 | 5 | Amostra final | 300 | **300** | 0 |
 
-Na etapa 4, os 407 descartados se dividem em **45 que reprovaram** no critério e
-**362 que não foram avaliados** (parada antecipada: a amostra-alvo já estava
+Na etapa 4, os 403 descartados se dividem em **46 que reprovaram** no critério e
+**357 que não foram avaliados** (parada antecipada: a amostra-alvo já estava
 completa). Os dois motivos aparecem separados em `selection_funnel.csv` —
 `fewer_than_50_valid_workflow_runs_in_window` e
 `not_evaluated_target_sample_reached` —, porque significam coisas diferentes na
-Metodologia. Entre os 345 efetivamente medidos, a taxa de aprovação foi de 87%.
+Metodologia.
 
 **Medianas da amostra final (n = 300):**
 
 | RQ | Métrica | Mediana | IQR |
 |---|---|---|---|
-| RQ 01 | deploys por semana | 0,52 | 0,23 – 1,26 |
-| RQ 02 (a) | lead time por release | 9,8 dias | 2,9 – 37,2 |
-| RQ 02 (b) | lead time por commit | 7,2 dias | 2,6 – 24,4 |
-| RQ 03 (a) | change failure rate (CI) | 4,9% | 2,3% – 11,6% |
-| RQ 04 | tempo de recuperação | 2,4 h | 1,0 – 6,2 |
+| RQ 01 | deploys por semana | 0,54 | 0,25 – 1,23 |
+| RQ 02 (a) | lead time por release | 10,5 dias | 3,0 – 39,2 |
+| RQ 02 (b) | lead time por commit | 7,8 dias | 2,7 – 25,5 |
+| RQ 03 (a) | change failure rate (CI) | 4,9% | 2,3% – 11,4% |
+| RQ 04 | tempo de recuperação | 2,4 h | 0,9 – 6,6 |
 
 Pontos para a discussão do artigo, já visíveis nos dados:
 
-- **As duas variantes do lead time divergem** (9,8 contra 7,2 dias), como o
+- **As duas variantes do lead time divergem** (10,5 contra 7,8 dias), como o
   enunciado antecipa: um commit antigo numa release pesa muito mais na variante
   (a) do que na (b).
-- **13 dos 300 repositórios ficam sem tempo de recuperação**, porque o CI deles
+- **17 dos 300 repositórios ficam sem tempo de recuperação**, porque o CI deles
   nunca quebrou na janela. O campo fica **vazio**, e não zero — não houve
   episódio a medir.
-- **Zero erros de coleta** nos workflow runs; 5 repositórios tiveram alguma
-  comparação de commits que falhou (tag apagada), registrada em
-  `leadtime_errors`.
+- **`event = push` exclui repositórios que têm CI.** `ollama/ollama` e
+  `microsoft/markitdown`, por exemplo, ficaram com **zero** runs válidos: eles
+  rodam CI no default branch, mas com outros eventos (`pull_request`,
+  `dynamic`). Conferido direto na API: `branch=main&event=push` devolve 0, e sem
+  o filtro de evento devolve 119 e 354 runs. A definição operacional do
+  enunciado é essa, e foi seguida à risca — mas é uma **ameaça de construto**: o
+  CFR e o tempo de recuperação medem apenas a parte da CI disparada por push.
 
 > **`workflow_runs.csv` não é versionado** como CSV: na coleta completa ele passa
-> de 250 MB, acima do limite de 100 MB por arquivo do GitHub. O que vai no
-> repositório é `workflow_runs.csv.gz` (~21 MB). Para usá-lo:
+> de 230 MB, acima do limite de 100 MB por arquivo do GitHub. O que vai no
+> repositório é `workflow_runs.csv.gz` (~20 MB). Para usá-lo:
 > `gzip -d -k data/processed/workflow_runs.csv.gz`.
 
 ### Amostra-ouro da validação manual

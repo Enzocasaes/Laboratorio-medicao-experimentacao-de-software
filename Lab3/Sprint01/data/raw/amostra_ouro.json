@@ -1,0 +1,502 @@
+{
+  "generated_at": "2026-10-15T15:55:28.964Z",
+  "criterio": "populacao = repositorios com status \"included\" em processed/repositories.csv (amostra final); releases rotulaveis = deploy releases (is_deploy) publicadas na janela (in_window), de processed/releases.csv",
+  "algoritmo": "populacao em ordem canonica (rank, full_name); embaralhamento de Fisher-Yates com o gerador mulberry32 semeado; os N primeiros repositorios; depois, com o mesmo gerador, as releases de cada repositorio na ordem do rank",
+  "semente": 42,
+  "repositorios_pedidos": 60,
+  "releases_por_repositorio": 5,
+  "tamanho_da_populacao": 300,
+  "entradas_sha256": {
+    "processed/repositories.csv": "5f1763c576bcbb4c45af88bb74bfbb796d56ea3ada5c138138615354b5c19ab7",
+    "processed/releases.csv": "b4b424562b4e19e7d58eab2993813dc934c66b912ce814d76c562e4895042e4a"
+  },
+  "avaliadores": [
+    "enzo",
+    "caue",
+    "leo"
+  ],
+  "repositorios_sorteados": [
+    {
+      "repo_index": 1,
+      "repo_id": "1103012935",
+      "full_name": "openclaw/openclaw",
+      "rank": 6,
+      "releases_rotulaveis": 122,
+      "releases_sorteadas": 5
+    },
+    {
+      "repo_index": 2,
+      "repo_id": "1136590548",
+      "full_name": "affaan-m/ECC",
+      "rank": 15,
+      "releases_rotulaveis": 17,
+      "releases_sorteadas": 5
+    },
+    {
+      "repo_index": 3,
+      "repo_id": "193215554",
+      "full_name": "n8n-io/n8n",
+      "rank": 27,
+      "releases_rotulaveis": 257,
+      "releases_sorteadas": 5
+    },
+    {
+      "repo_index": 4,
+      "repo_id": "599320067",
+      "full_name": "langflow-ai/langflow",
+      "rank": 58,
+      "releases_rotulaveis": 41,
+      "releases_sorteadas": 5
+    },
+    {
+      "repo_index": 5,
+      "repo_id": "184456251",
+      "full_name": "microsoft/PowerToys",
+      "rank": 75,
+      "releases_rotulaveis": 15,
+      "releases_sorteadas": 5
+    },
+    {
+      "repo_index": 6,
+      "repo_id": "9384267",
+      "full_name": "electron/electron",
+      "rank": 91,
+      "releases_rotulaveis": 184,
+      "releases_sorteadas": 5
+    },
+    {
+      "repo_index": 7,
+      "repo_id": "724712",
+      "full_name": "rust-lang/rust",
+      "rank": 96,
+      "releases_rotulaveis": 14,
+      "releases_sorteadas": 5
+    },
+    {
+      "repo_index": 8,
+      "repo_id": "881458615",
+      "full_name": "browser-use/browser-use",
+      "rank": 100,
+      "releases_rotulaveis": 50,
+      "releases_sorteadas": 5
+    },
+    {
+      "repo_index": 9,
+      "repo_id": "576201",
+      "full_name": "mrdoob/three.js",
+      "rank": 101,
+      "releases_rotulaveis": 6,
+      "releases_sorteadas": 5
+    },
+    {
+      "repo_index": 10,
+      "repo_id": "1035029907",
+      "full_name": "earendil-works/pi",
+      "rank": 104,
+      "releases_rotulaveis": 266,
+      "releases_sorteadas": 5
+    },
+    {
+      "repo_index": 11,
+      "repo_id": "133442384",
+      "full_name": "denoland/deno",
+      "rank": 115,
+      "releases_rotulaveis": 44,
+      "releases_sorteadas": 5
+    },
+    {
+      "repo_index": 12,
+      "repo_id": "23083156",
+      "full_name": "mui/material-ui",
+      "rank": 134,
+      "releases_rotulaveis": 18,
+      "releases_sorteadas": 5
+    },
+    {
+      "repo_index": 13,
+      "repo_id": "90796663",
+      "full_name": "puppeteer/puppeteer",
+      "rank": 146,
+      "releases_rotulaveis": 130,
+      "releases_sorteadas": 5
+    },
+    {
+      "repo_index": 14,
+      "repo_id": "599547518",
+      "full_name": "vllm-project/vllm",
+      "rank": 156,
+      "releases_rotulaveis": 32,
+      "releases_sorteadas": 5
+    },
+    {
+      "repo_index": 15,
+      "repo_id": "890668799",
+      "full_name": "modelcontextprotocol/servers",
+      "rank": 167,
+      "releases_rotulaveis": 8,
+      "releases_sorteadas": 5
+    },
+    {
+      "repo_index": 16,
+      "repo_id": "74293321",
+      "full_name": "sveltejs/svelte",
+      "rank": 181,
+      "releases_rotulaveis": 113,
+      "releases_sorteadas": 5
+    },
+    {
+      "repo_index": 17,
+      "repo_id": "173228436",
+      "full_name": "NationalSecurityAgency/ghidra",
+      "rank": 184,
+      "releases_rotulaveis": 10,
+      "releases_sorteadas": 5
+    },
+    {
+      "repo_index": 18,
+      "repo_id": "1129940957",
+      "full_name": "headroomlabs-ai/headroom",
+      "rank": 247,
+      "releases_rotulaveis": 172,
+      "releases_sorteadas": 5
+    },
+    {
+      "repo_index": 19,
+      "repo_id": "1201476594",
+      "full_name": "career-ops-hq/career-ops",
+      "rank": 257,
+      "releases_rotulaveis": 48,
+      "releases_sorteadas": 5
+    },
+    {
+      "repo_index": 20,
+      "repo_id": "7691631",
+      "full_name": "moby/moby",
+      "rank": 271,
+      "releases_rotulaveis": 57,
+      "releases_sorteadas": 5
+    },
+    {
+      "repo_index": 21,
+      "repo_id": "824874689",
+      "full_name": "cline/cline",
+      "rank": 280,
+      "releases_rotulaveis": 260,
+      "releases_sorteadas": 5
+    },
+    {
+      "repo_index": 22,
+      "repo_id": "1062356571",
+      "full_name": "tw93/Mole",
+      "rank": 281,
+      "releases_rotulaveis": 63,
+      "releases_sorteadas": 5
+    },
+    {
+      "repo_index": 23,
+      "repo_id": "1108837393",
+      "full_name": "code-yeongyu/oh-my-openagent",
+      "rank": 282,
+      "releases_rotulaveis": 316,
+      "releases_sorteadas": 5
+    },
+    {
+      "repo_index": 24,
+      "repo_id": "237159",
+      "full_name": "expressjs/express",
+      "rank": 284,
+      "releases_rotulaveis": 5,
+      "releases_sorteadas": 5
+    },
+    {
+      "repo_index": 25,
+      "repo_id": "529502",
+      "full_name": "scrapy/scrapy",
+      "rank": 324,
+      "releases_rotulaveis": 11,
+      "releases_sorteadas": 5
+    },
+    {
+      "repo_index": 26,
+      "repo_id": "1116260703",
+      "full_name": "gsd-build/get-shit-done",
+      "rank": 327,
+      "releases_rotulaveis": 67,
+      "releases_sorteadas": 5
+    },
+    {
+      "repo_index": 27,
+      "repo_id": "1206390571",
+      "full_name": "debpalash/VoiceStudio",
+      "rank": 344,
+      "releases_rotulaveis": 41,
+      "releases_sorteadas": 5
+    },
+    {
+      "repo_index": 28,
+      "repo_id": "955620917",
+      "full_name": "upstash/context7",
+      "rank": 345,
+      "releases_rotulaveis": 111,
+      "releases_sorteadas": 5
+    },
+    {
+      "repo_index": 29,
+      "repo_id": "332880689",
+      "full_name": "coollabsio/coolify",
+      "rank": 346,
+      "releases_rotulaveis": 70,
+      "releases_sorteadas": 5
+    },
+    {
+      "repo_index": 30,
+      "repo_id": "1177402105",
+      "full_name": "heygen-com/hyperframes",
+      "rank": 350,
+      "releases_rotulaveis": 406,
+      "releases_sorteadas": 5
+    },
+    {
+      "repo_index": 31,
+      "repo_id": "571186647",
+      "full_name": "pathwaycom/pathway",
+      "rank": 356,
+      "releases_rotulaveis": 13,
+      "releases_sorteadas": 5
+    },
+    {
+      "repo_index": 32,
+      "repo_id": "8514",
+      "full_name": "rails/rails",
+      "rank": 393,
+      "releases_rotulaveis": 18,
+      "releases_sorteadas": 5
+    },
+    {
+      "repo_index": 33,
+      "repo_id": "290882787",
+      "full_name": "FuelLabs/fuel-core",
+      "rank": 416,
+      "releases_rotulaveis": 8,
+      "releases_sorteadas": 5
+    },
+    {
+      "repo_index": 34,
+      "repo_id": "49609581",
+      "full_name": "PowerShell/PowerShell",
+      "rank": 427,
+      "releases_rotulaveis": 23,
+      "releases_sorteadas": 5
+    },
+    {
+      "repo_index": 35,
+      "repo_id": "9852918",
+      "full_name": "TryGhost/Ghost",
+      "rank": 430,
+      "releases_rotulaveis": 99,
+      "releases_sorteadas": 5
+    },
+    {
+      "repo_index": 36,
+      "repo_id": "805155266",
+      "full_name": "CherryHQ/cherry-studio",
+      "rank": 473,
+      "releases_rotulaveis": 60,
+      "releases_sorteadas": 5
+    },
+    {
+      "repo_index": 37,
+      "repo_id": "11225014",
+      "full_name": "etcd-io/etcd",
+      "rank": 477,
+      "releases_rotulaveis": 32,
+      "releases_sorteadas": 5
+    },
+    {
+      "repo_index": 38,
+      "repo_id": "1167300963",
+      "full_name": "Imbad0202/academic-research-skills",
+      "rank": 483,
+      "releases_rotulaveis": 45,
+      "releases_sorteadas": 5
+    },
+    {
+      "repo_index": 39,
+      "repo_id": "571613891",
+      "full_name": "roboflow/supervision",
+      "rank": 489,
+      "releases_rotulaveis": 13,
+      "releases_sorteadas": 5
+    },
+    {
+      "repo_index": 40,
+      "repo_id": "523043277",
+      "full_name": "astral-sh/ruff",
+      "rank": 508,
+      "releases_rotulaveis": 48,
+      "releases_sorteadas": 5
+    },
+    {
+      "repo_index": 41,
+      "repo_id": "255378816",
+      "full_name": "bigskysoftware/htmx",
+      "rank": 520,
+      "releases_rotulaveis": 7,
+      "releases_sorteadas": 5
+    },
+    {
+      "repo_index": 42,
+      "repo_id": "350360184",
+      "full_name": "calcom/cal.diy",
+      "rank": 533,
+      "releases_rotulaveis": 70,
+      "releases_sorteadas": 5
+    },
+    {
+      "repo_index": 43,
+      "repo_id": "542284380",
+      "full_name": "usebruno/bruno",
+      "rank": 563,
+      "releases_rotulaveis": 29,
+      "releases_sorteadas": 5
+    },
+    {
+      "repo_index": 44,
+      "repo_id": "522158088",
+      "full_name": "zhayujie/CowAgent",
+      "rank": 564,
+      "releases_rotulaveis": 21,
+      "releases_sorteadas": 5
+    },
+    {
+      "repo_index": 45,
+      "repo_id": "212613049",
+      "full_name": "cli/cli",
+      "rank": 578,
+      "releases_rotulaveis": 28,
+      "releases_sorteadas": 5
+    },
+    {
+      "repo_index": 46,
+      "repo_id": "1185389803",
+      "full_name": "MadsLorentzen/ai-job-search",
+      "rank": 581,
+      "releases_rotulaveis": 10,
+      "releases_sorteadas": 5
+    },
+    {
+      "repo_index": 47,
+      "repo_id": "35866694",
+      "full_name": "RocketChat/Rocket.Chat",
+      "rank": 590,
+      "releases_rotulaveis": 101,
+      "releases_sorteadas": 5
+    },
+    {
+      "repo_index": 48,
+      "repo_id": "15428480",
+      "full_name": "ColorlibHQ/AdminLTE",
+      "rank": 602,
+      "releases_rotulaveis": 23,
+      "releases_sorteadas": 5
+    },
+    {
+      "repo_index": 49,
+      "repo_id": "27729880",
+      "full_name": "grpc/grpc",
+      "rank": 609,
+      "releases_rotulaveis": 12,
+      "releases_sorteadas": 5
+    },
+    {
+      "repo_index": 50,
+      "repo_id": "552877440",
+      "full_name": "juspay/hyperswitch",
+      "rank": 610,
+      "releases_rotulaveis": 12,
+      "releases_sorteadas": 5
+    },
+    {
+      "repo_index": 51,
+      "repo_id": "174038031",
+      "full_name": "react-hook-form/react-hook-form",
+      "rank": 619,
+      "releases_rotulaveis": 31,
+      "releases_sorteadas": 5
+    },
+    {
+      "repo_index": 52,
+      "repo_id": "273871859",
+      "full_name": "juanfont/headscale",
+      "rank": 626,
+      "releases_rotulaveis": 8,
+      "releases_sorteadas": 5
+    },
+    {
+      "repo_index": 53,
+      "repo_id": "1193909050",
+      "full_name": "herdrdev/herdr",
+      "rank": 647,
+      "releases_rotulaveis": 59,
+      "releases_sorteadas": 5
+    },
+    {
+      "repo_index": 54,
+      "repo_id": "663900193",
+      "full_name": "sxyazi/yazi",
+      "rank": 662,
+      "releases_rotulaveis": 6,
+      "releases_sorteadas": 5
+    },
+    {
+      "repo_index": 55,
+      "repo_id": "27442967",
+      "full_name": "fastlane/fastlane",
+      "rank": 673,
+      "releases_rotulaveis": 19,
+      "releases_sorteadas": 5
+    },
+    {
+      "repo_index": 56,
+      "repo_id": "311315731",
+      "full_name": "XTLS/Xray-core",
+      "rank": 678,
+      "releases_rotulaveis": 5,
+      "releases_sorteadas": 5
+    },
+    {
+      "repo_index": 57,
+      "repo_id": "1161163182",
+      "full_name": "tinyhumansai/openhuman",
+      "rank": 680,
+      "releases_rotulaveis": 61,
+      "releases_sorteadas": 5
+    },
+    {
+      "repo_index": 58,
+      "repo_id": "1092047360",
+      "full_name": "luongnv89/claude-howto",
+      "rank": 684,
+      "releases_rotulaveis": 10,
+      "releases_sorteadas": 5
+    },
+    {
+      "repo_index": 59,
+      "repo_id": "1124219907",
+      "full_name": "HKUDS/DeepTutor",
+      "rank": 698,
+      "releases_rotulaveis": 84,
+      "releases_sorteadas": 5
+    },
+    {
+      "repo_index": 60,
+      "repo_id": "275993885",
+      "full_name": "appsmithorg/appsmith",
+      "rank": 707,
+      "releases_rotulaveis": 20,
+      "releases_sorteadas": 5
+    }
+  ],
+  "sem_releases_rotulaveis": [],
+  "total_de_releases": 300
+}
