@@ -701,6 +701,14 @@ Saídas: `processed/dora_classificacao.csv` (uma linha por repositório),
 Categoria geral: **Elite 25 (8,3%), High 132 (44,0%), Medium 129 (43,0%),
 Low 14 (4,7%)**.
 
+**Variantes obrigatórias** (fora da classificação, que usa só a combinação C1):
+
+| RQ | Métrica | Mediana | IQR |
+|---|---|---|---|
+| RQ 02 (b) | lead time por commit | 7,8 dias | 2,7 – 25,4 |
+| RQ 03 (b) | CFR por release corretiva | 18,8% | 2,4% – 40,0% |
+| RQ 04 | proporção de episódios censurados | 0% | 0% – 0,8% |
+
 Três leituras para a discussão do artigo:
 
 - **A estabilidade é alta e a velocidade é baixa.** 82% dos repositórios são
@@ -713,6 +721,13 @@ Três leituras para a discussão do artigo:
 - **A escala de recuperação está comprimida:** 86% em Elite ou High sugere que o
   corte de "1 hora" discrimina pouco um CI automatizado, que costuma ser
   consertado no mesmo dia.
+- **As duas variantes do CFR discordam muito:** 4,9% pelo proxy de CI contra
+  18,8% pelo proxy de entrega — quase quatro vezes. Medir "o pipeline quebrou" e
+  "a release precisou de correção" são coisas diferentes, e a RQ 07 vai mostrar
+  quanto a classificação final depende dessa escolha.
+- **Quase não há censura na RQ 04:** mediana 0% de episódios sem recuperação, o
+  que reforça que as medianas de tempo de recuperação não estão sendo
+  distorcidas por falhas abandonadas.
 
 ## Arquivos gerados
 

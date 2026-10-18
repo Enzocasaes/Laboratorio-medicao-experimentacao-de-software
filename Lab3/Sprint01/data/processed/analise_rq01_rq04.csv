@@ -1,5 +1,8 @@
-rq,metrica,coluna,unidade,n,sem_valor,mediana,q1,q3,iqr,minimo,maximo,elite,high,medium,low,sem_classificacao
-RQ 01,Deployment frequency,deployment_frequency_per_week,releases/semana,300,0,0.537,0.2493,1.2274,0.9781,0.0959,28.1726,8,83,144,65,0
-RQ 02,Lead time for changes (a),lead_time_release_median_days,dias,299,1,10.529,3.0175,39.2105,36.193,0,2109.741,46,76,90,87,1
-RQ 03,Change failure rate (a),change_failure_rate_ci,proporcao 0-1,300,0,0.0485,0.0234,0.1129,0.0896,0,0.9334,247,36,10,7,0
-RQ 04,Tempo de recuperacao,recovery_median_hours,horas,283,17,2.429,0.949,6.277,5.328,0.065,181.768,75,182,24,2,17
+rq,papel,metrica,coluna,unidade,n,sem_valor,mediana,q1,q3,iqr,minimo,maximo,elite,high,medium,low,sem_classificacao
+RQ 01,principal (C1),Deployment frequency,deployment_frequency_per_week,releases/semana,300,0,0.537,0.2493,1.2274,0.9781,0.0959,28.1726,8,83,144,65,0
+RQ 02,principal (C1),Lead time for changes (a),lead_time_release_median_days,dias,299,1,10.529,3.0175,39.2105,36.193,0,2109.741,46,76,90,87,1
+RQ 03,principal (C1),Change failure rate (a),change_failure_rate_ci,proporcao 0-1,300,0,0.0485,0.0234,0.1129,0.0896,0,0.9334,247,36,10,7,0
+RQ 04,principal (C1),Tempo de recuperacao,recovery_median_hours,horas,283,17,2.429,0.949,6.277,5.328,0.065,181.768,75,182,24,2,17
+RQ 02,complementar,"Lead time for changes (b), por commit",lead_time_commit_median_days,dias,299,1,7.761,2.694,25.3845,22.6905,0,929.236,,,,,
+RQ 03,complementar,"Change failure rate (b), proxy de entrega",change_failure_rate_delivery,proporcao 0-1,298,2,0.1875,0.0242,0.4,0.3758,0,0.9808,,,,,
+RQ 04,complementar,Proporcao de episodios censurados,recovery_censored_ratio,proporcao 0-1,284,16,0,0,0.0075,0.0075,0,1,,,,,

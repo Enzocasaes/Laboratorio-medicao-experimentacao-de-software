@@ -4,7 +4,7 @@
 
 - Amostra: **300 repositórios** (amostra final da S02).
 - Janela: **2025-10-01 a 2026-09-30**.
-- Gerado em: 2026-10-18T02:38:39.380Z.
+- Gerado em: 2026-10-18T02:40:56.290Z.
 
 Mediana e IQR, e não média e desvio-padrão: as distribuições são muito
 assimétricas e a média seria puxada por poucos repositórios extremos
@@ -18,6 +18,19 @@ assimétricas e a média seria puxada por poucos repositórios extremos
 | RQ 02 | Lead time for changes (a) (dias) | 299 | **10.529** | 3.0175 – 39.2105 | 0 | 2109.741 |
 | RQ 03 | Change failure rate (a) (proporcao 0-1) | 300 | **0.0485** | 0.0234 – 0.1129 | 0 | 0.9334 |
 | RQ 04 | Tempo de recuperacao (horas) | 283 | **2.429** | 0.949 – 6.277 | 0.065 | 181.768 |
+
+## Variantes obrigatórias e censura (fora da classificação)
+
+O enunciado exige duas variantes em RQ 02 e RQ 03, e a proporção de
+episódios censurados em RQ 04. A tabela DORA é aplicada apenas sobre a
+combinação C1 (release + lead time (a) + CFR (a)); estas entram na
+descritiva e na discussão.
+
+| RQ | Métrica | n | Mediana | IQR (Q1–Q3) | Mín | Máx |
+|---|---|---|---|---|---|---|
+| RQ 02 | Lead time for changes (b), por commit (dias) | 299 | **7.761** | 2.694 – 25.3845 | 0 | 929.236 |
+| RQ 03 | Change failure rate (b), proxy de entrega (proporcao 0-1) | 298 | **0.1875** | 0.0242 – 0.4 | 0 | 0.9808 |
+| RQ 04 | Proporcao de episodios censurados (proporcao 0-1) | 284 | **0** | 0 – 0.0075 | 0 | 1 |
 
 ## Distribuição das categorias por métrica
 

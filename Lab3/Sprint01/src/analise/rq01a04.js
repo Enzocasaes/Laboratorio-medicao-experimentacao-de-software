@@ -29,6 +29,17 @@ export const METRICAS = Object.freeze([
   { chave: "time_to_restore", rq: "RQ 04", rotulo: "Tempo de recuperacao", coluna: "recovery_median_hours", unidade: "horas", melhor: "menor" },
 ]);
 
+// Variantes obrigatorias das RQ 02 e RQ 03 e a censura da RQ 04. Elas entram
+// na DESCRITIVA, mas nao na classificacao: a tabela DORA e' aplicada sobre a
+// combinacao C1 (release + lead time (a) + CFR (a)). Comparar as variantes e'
+// justamente o que a RQ 07 vai medir; aqui elas aparecem para a discussao de
+// por que (a) e (b) divergem.
+export const COMPLEMENTARES = Object.freeze([
+  { rq: "RQ 02", rotulo: "Lead time for changes (b), por commit", coluna: "lead_time_commit_median_days", unidade: "dias" },
+  { rq: "RQ 03", rotulo: "Change failure rate (b), proxy de entrega", coluna: "change_failure_rate_delivery", unidade: "proporcao 0-1" },
+  { rq: "RQ 04", rotulo: "Proporcao de episodios censurados", coluna: "recovery_censored_ratio", unidade: "proporcao 0-1" },
+]);
+
 export const COLUNAS_CLASSIFICACAO = Object.freeze([
   "full_name",
   "rank",
@@ -49,6 +60,7 @@ export const COLUNAS_CLASSIFICACAO = Object.freeze([
 
 export const COLUNAS_RESUMO = Object.freeze([
   "rq",
+  "papel",
   "metrica",
   "coluna",
   "unidade",
@@ -159,6 +171,7 @@ export function resumirMetricas(repositorios, classificados) {
     const dist = distribuicao(classificados.map((c) => c[`${metrica.chave}_category`]));
     return {
       rq: metrica.rq,
+      papel: "principal (C1)",
       metrica: metrica.rotulo,
       coluna: metrica.coluna,
       unidade: metrica.unidade,
@@ -173,11 +186,34 @@ export function resumirMetricas(repositorios, classificados) {
   });
 }
 
+// Descritiva das variantes obrigatorias e da censura. Sem distribuicao de
+// categorias: a tabela DORA nao se aplica a elas.
+export function resumirComplementares(repositorios) {
+  return COMPLEMENTARES.map((metrica) => {
+    const valores = repositorios.map((r) => numero(r[metrica.coluna]));
+    const estatisticas = descritiva(valores);
+    return {
+      rq: metrica.rq,
+      papel: "complementar",
+      metrica: metrica.rotulo,
+      coluna: metrica.coluna,
+      unidade: metrica.unidade,
+      ...estatisticas,
+      sem_valor: repositorios.length - estatisticas.n,
+      elite: "",
+      high: "",
+      medium: "",
+      low: "",
+      sem_classificacao: "",
+    };
+  });
+}
+
 // ---- relatorio -----------------------------------------------------------
 
 const pct = (parte, total) => (total === 0 ? "0%" : `${((parte / total) * 100).toFixed(1)}%`);
 
-export function gerarRelatorioMarkdown({ resumos, classificados, geral, geradoEm, janela }) {
+export function gerarRelatorioMarkdown({ resumos, complementares = [], classificados, geral, geradoEm, janela }) {
   const total = classificados.length;
   const linhas = [
     "# RQ 01 a RQ 04 — descritiva e classificação DORA",
@@ -199,6 +235,22 @@ export function gerarRelatorioMarkdown({ resumos, classificados, geral, geradoEm
   ];
 
   for (const r of resumos) {
+    linhas.push(
+      `| ${r.rq} | ${r.metrica} (${r.unidade}) | ${r.n} | **${r.mediana}** | ${r.q1} – ${r.q3} | ${r.minimo} | ${r.maximo} |`
+    );
+  }
+
+  linhas.push("", "## Variantes obrigatórias e censura (fora da classificação)", "");
+  linhas.push(
+    "O enunciado exige duas variantes em RQ 02 e RQ 03, e a proporção de",
+    "episódios censurados em RQ 04. A tabela DORA é aplicada apenas sobre a",
+    "combinação C1 (release + lead time (a) + CFR (a)); estas entram na",
+    "descritiva e na discussão.",
+    "",
+    "| RQ | Métrica | n | Mediana | IQR (Q1–Q3) | Mín | Máx |",
+    "|---|---|---|---|---|---|---|"
+  );
+  for (const r of complementares) {
     linhas.push(
       `| ${r.rq} | ${r.metrica} (${r.unidade}) | ${r.n} | **${r.mediana}** | ${r.q1} – ${r.q3} | ${r.minimo} | ${r.maximo} |`
     );
@@ -267,6 +319,8 @@ export async function executarAnaliseDora({ config, log = logSilencioso, agora =
 
   const classificados = classificarAmostra(repositorios);
   const resumos = resumirMetricas(repositorios, classificados);
+  const complementares = resumirComplementares(repositorios);
+  const todasAsLinhas = [...resumos, ...complementares];
   const geral = distribuicao(classificados.map((c) => c.dora_category));
 
   const caminhos = caminhosDeSaida(diretorios.saida);
@@ -274,10 +328,13 @@ export async function executarAnaliseDora({ config, log = logSilencioso, agora =
     caminhos.classificacao,
     gerarCSV(COLUNAS_CLASSIFICACAO, classificados.map((c) => COLUNAS_CLASSIFICACAO.map((coluna) => c[coluna] ?? "")))
   );
-  escrever(caminhos.resumo, gerarCSV(COLUNAS_RESUMO, resumos.map((r) => COLUNAS_RESUMO.map((coluna) => r[coluna] ?? ""))));
+  escrever(
+    caminhos.resumo,
+    gerarCSV(COLUNAS_RESUMO, todasAsLinhas.map((r) => COLUNAS_RESUMO.map((coluna) => r[coluna] ?? "")))
+  );
   escrever(
     caminhos.relatorio,
-    gerarRelatorioMarkdown({ resumos, classificados, geral, geradoEm: agora().toISOString(), janela })
+    gerarRelatorioMarkdown({ resumos, complementares, classificados, geral, geradoEm: agora().toISOString(), janela })
   );
 
   for (const r of resumos) {
@@ -287,11 +344,14 @@ export async function executarAnaliseDora({ config, log = logSilencioso, agora =
         (r.sem_classificacao ? `, ${r.sem_classificacao} sem medida` : "")
     );
   }
+  for (const r of complementares) {
+    log.info(`${r.rq} ${r.metrica}: n=${r.n} mediana=${r.mediana} IQR=${r.q1}..${r.q3}`);
+  }
   log.info(
     `categoria geral: Elite ${geral.Elite}, High ${geral.High}, Medium ${geral.Medium}, Low ${geral.Low}` +
       (geral.sem_classificacao ? `, ${geral.sem_classificacao} sem classificacao` : "")
   );
   log.info(`saidas: ${caminhos.classificacao}, ${caminhos.resumo}, ${caminhos.relatorio}`);
 
-  return { classificados, resumos, geral, caminhos };
+  return { classificados, resumos, complementares, geral, caminhos };
 }

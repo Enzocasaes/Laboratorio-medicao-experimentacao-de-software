@@ -258,3 +258,51 @@ test("gerarRelatorioMarkdown: traz as quatro RQs e a distribuicao geral", () => 
   for (const rq of ["RQ 01", "RQ 02", "RQ 03", "RQ 04"]) assert.ok(md.includes(rq), rq);
   assert.match(md, /\| Elite \| 1 \| 100.0% \|/);
 });
+
+// ---- variantes obrigatórias (RQ 02 b, RQ 03 b) e censura (RQ 04) ----------
+
+test("resumirComplementares: descritiva das variantes, sem classificar", async () => {
+  const { resumirComplementares, COMPLEMENTARES } = await import("../src/analise/rq01a04.js");
+  const repositorios = [
+    { lead_time_commit_median_days: "2", change_failure_rate_delivery: "0.1", recovery_censored_ratio: "0" },
+    { lead_time_commit_median_days: "8", change_failure_rate_delivery: "0.5", recovery_censored_ratio: "0.5" },
+  ];
+
+  const linhas = resumirComplementares(repositorios);
+  assert.deepEqual(linhas.map((l) => l.rq), ["RQ 02", "RQ 03", "RQ 04"]);
+  assert.equal(linhas[0].mediana, 5);
+  assert.equal(linhas[0].papel, "complementar");
+  // a tabela DORA nao se aplica a elas: as colunas de categoria ficam vazias
+  assert.equal(linhas[0].elite, "");
+  assert.equal(linhas[1].sem_classificacao, "");
+  assert.equal(COMPLEMENTARES.length, 3);
+});
+
+test("resumirComplementares: variante sem valor nao vira zero", async () => {
+  const { resumirComplementares } = await import("../src/analise/rq01a04.js");
+  const [leadB] = resumirComplementares([{ lead_time_commit_median_days: "" }]);
+  assert.equal(leadB.n, 0);
+  assert.equal(leadB.mediana, null);
+  assert.equal(leadB.sem_valor, 1);
+});
+
+test("executarAnaliseDora: o CSV de resumo traz as principais e as complementares", async () => {
+  const pasta = pastaTemporaria();
+  const processados = join(pasta, "data", "processed");
+  mkdirSync(processados, { recursive: true });
+  writeFileSync(
+    join(processados, "dataset.csv"),
+    [
+      "full_name,rank,stars,language,deployment_frequency_per_week,lead_time_release_median_days,change_failure_rate_ci,recovery_median_hours,lead_time_commit_median_days,change_failure_rate_delivery,recovery_censored_ratio",
+      "a/um,1,5000,Go,10,0.5,0.02,0.5,0.4,0.1,0",
+    ].join("\n") + "\n"
+  );
+
+  const config = { janela: criarJanela("2025-10-01", "2026-09-30"), diretorios: { saida: join(pasta, "data") } };
+  const { complementares, caminhos } = await executarAnaliseDora({ config, log: logSilencioso });
+
+  assert.equal(complementares.length, 3);
+  const { linhas } = lerCSV(readFileSync(caminhos.resumo, "utf8"));
+  assert.equal(linhas.length, 7); // 4 principais + 3 complementares
+  assert.match(readFileSync(caminhos.relatorio, "utf8"), /Variantes obrigatórias e censura/);
+});
