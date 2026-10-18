@@ -13,6 +13,7 @@ prontas de acesso à API). Este README cobre, por enquanto, as etapas:
 | `leadtime` | commits entre releases e **lead time for changes (RQ 02)** | Pessoa B, Issue #67 |
 | `runs` | workflow runs do default branch, **change failure rate (RQ 03 a)** e **tempo de recuperação (RQ 04)** | Pessoa C, Issue #68 |
 | `dataset` | consolida tudo num CSV único e **gera o dicionário de dados** (etapa offline) | Pessoa C, S02 |
+| `analise` | descritiva das **RQ 01 a 04** e **classificação DORA** de referência (etapa offline) | S03, Issue #83 |
 
 As cinco rodam no mesmo comando (`npm run pipeline`), nessa ordem. A última
 não vai à rede: só lê o que as outras coletaram.
@@ -111,6 +112,7 @@ npm run coletar:leadtime               # commits entre releases e lead time (B)
 npm run corretiva                      # heuristica de release corretiva e CFR (b) (B; usa o cache do leadtime)
 npm run coletar:runs                   # workflow runs, CFR (a) e recuperacao (C)
 npm run dataset                        # dataset consolidado + dicionario (nao usa a rede)
+npm run analise:dora                   # RQ 01-04: mediana, IQR e classificacao DORA (S03)
 npm run amostra:ouro                   # sorteia a amostra-ouro da validacao manual (S02)
 npm run validacao                      # kappa de Fleiss, consenso e F1 da heuristica (S02, nao usa a rede)
 
@@ -661,6 +663,72 @@ Colunas que uma etapa ainda não produziu saem **vazias**, e o comando avisa
 quantos repositórios estão nessa situação. Vazio significa *não medido*, nunca
 zero.
 
+## Análise das RQ 01 a 04 e classificação DORA (S03)
+
+```bash
+npm run analise:dora    # offline: lê data/processed/dataset.csv
+```
+
+Calcula **mediana e IQR** das quatro métricas (e não média e desvio-padrão, pela
+assimetria das distribuições) e classifica cada repositório em
+**Elite / High / Medium / Low**, com os cortes fixados pela disciplina na
+seção 5 do enunciado. A combinação usada é a **C1** da RQ 07: deploy = release
+publicada, lead time = variante (a), CFR = variante (a).
+
+A categoria geral é a **mediana dos quatro pontos** (Elite 4 … Low 1),
+arredondada para baixo — o exemplo do enunciado, `(4, 3, 3, 1) → High`, é um
+teste automatizado.
+
+**Métrica não medida não vira Low.** Um repositório cujo CI nunca quebrou não
+tem tempo de recuperação: puni-lo com Low seria penalizá-lo por não ter
+falhado, e dar-lhe Elite seria inventar um dado. A métrica fica fora da mediana
+e a coluna `metricas_classificadas` registra sobre quantas a categoria foi
+calculada (17 dos 300 repositórios estão nessa situação).
+
+Saídas: `processed/dora_classificacao.csv` (uma linha por repositório),
+`processed/analise_rq01_rq04.csv` (uma linha por métrica) e
+[docs/analise-rq01-rq04.md](docs/analise-rq01-rq04.md).
+
+### Resultado (n = 300)
+
+| RQ | Métrica | Mediana | IQR |
+|---|---|---|---|
+| RQ 01 | deploys por semana | 0,54 | 0,25 – 1,23 |
+| RQ 02 | lead time (a) | 10,5 dias | 3,0 – 39,2 |
+| RQ 03 | change failure rate (a) | 4,9% | 2,3% – 11,3% |
+| RQ 04 | tempo de recuperação | 2,4 h | 0,9 – 6,3 |
+
+Categoria geral: **Elite 25 (8,3%), High 132 (44,0%), Medium 129 (43,0%),
+Low 14 (4,7%)**.
+
+**Variantes obrigatórias** (fora da classificação, que usa só a combinação C1):
+
+| RQ | Métrica | Mediana | IQR |
+|---|---|---|---|
+| RQ 02 (b) | lead time por commit | 7,8 dias | 2,7 – 25,4 |
+| RQ 03 (b) | CFR por release corretiva | 18,8% | 2,4% – 40,0% |
+| RQ 04 | proporção de episódios censurados | 0% | 0% – 0,8% |
+
+Três leituras para a discussão do artigo:
+
+- **A estabilidade é alta e a velocidade é baixa.** 82% dos repositórios são
+  Elite em taxa de falha e 86% são Elite ou High em recuperação, mas só 2,7%
+  são Elite em frequência de deploy, e 70% ficam em Medium ou Low. Projetos
+  open-source populares publicam releases a cada duas semanas, não várias vezes
+  ao dia — o que o DORA chama de deploy não é o mesmo evento aqui.
+- **O lead time é o que mais espalha:** as quatro categorias ficam bem
+  distribuídas (15% a 30% cada), e o IQR vai de 3 a 39 dias.
+- **A escala de recuperação está comprimida:** 86% em Elite ou High sugere que o
+  corte de "1 hora" discrimina pouco um CI automatizado, que costuma ser
+  consertado no mesmo dia.
+- **As duas variantes do CFR discordam muito:** 4,9% pelo proxy de CI contra
+  18,8% pelo proxy de entrega — quase quatro vezes. Medir "o pipeline quebrou" e
+  "a release precisou de correção" são coisas diferentes, e a RQ 07 vai mostrar
+  quanto a classificação final depende dessa escolha.
+- **Quase não há censura na RQ 04:** mediana 0% de episódios sem recuperação, o
+  que reforça que as medianas de tempo de recuperação não estão sendo
+  distorcidas por falhas abandonadas.
+
 ## Arquivos gerados
 
 | Arquivo | Etapa | Conteúdo |
@@ -678,6 +746,9 @@ zero.
 | `data/processed/recovery_episodes.csv` | `runs` | Uma linha por episódio de falha: início, recuperação, duração e censura. |
 | `data/processed/dora_runs.csv` | `runs` | **Uma linha por repositório: contagens, CFR (a) e tempo de recuperação.** Entrada da análise das RQ 03 e RQ 04. |
 | `data/raw/workflow_runs.json` | `runs` | Fatias mensais pedidas (com `total_count` e truncamento), contagens e erros por repositório, mais as definições operacionais usadas. |
+| `data/processed/dora_classificacao.csv` | `analise` | Uma linha por repositório: as quatro métricas, a categoria em cada uma e a categoria geral. |
+| `data/processed/analise_rq01_rq04.csv` | `analise` | Uma linha por métrica: n, mediana, IQR, extremos e distribuição das categorias. |
+| `docs/analise-rq01-rq04.md` | `analise` | O mesmo resumo em texto, para a seção de Resultados do artigo. |
 | `data/processed/dataset.csv` | `dataset` | **Uma linha por repositório da amostra final, com todas as métricas das RQ 01 a 04.** É o dataset entregue na S02. |
 | `data/processed/dataset_dicionario.csv` | `dataset` | O dicionário de dados em CSV (para anexar ao artigo ou abrir em planilha). |
 | `docs/dicionario-de-dados.md` | `dataset` | O mesmo dicionário em Markdown, gerado junto. |
