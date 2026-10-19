@@ -1,0 +1,7 @@
+id,papel,x,y,descricao,n,rho,ic95_inf,ic95_sup,p,p_holm,magnitude,significativo_holm
+freq_x_cfr_ci,principal,deployment_frequency_per_week,change_failure_rate_ci,"CFR (a), proxy de CI",300,0.1624,0.0493,0.2713,0.004813,0.009625,fraca,true
+freq_x_cfr_entrega,principal,deployment_frequency_per_week,change_failure_rate_delivery,"CFR (b), proxy de entrega",298,0.515,0.4203,0.5986,1.394e-21,6.968e-21,forte,true
+freq_x_cfr_entrega_min10,robustez,deployment_frequency_per_week,change_failure_rate_delivery,"CFR (b), so' com >= 10 releases avaliadas",248,0.4687,0.3596,0.5651,6.046e-15,2.418e-14,moderada,true
+freq_x_oportunidade,mecanismo,deployment_frequency_per_week,oportunidade,Oportunidade: releases com a seguinte em <= 7 dias,298,0.7441,0.6809,0.7964,8.56e-54,5.136e-53,forte,true
+freq_x_condicional,mecanismo,deployment_frequency_per_week,condicional,"Condicional: seguinte corretiva, dado que saiu em <= 7 dias",266,-0.043,-0.1625,0.0777,0.4848,0.4848,nula,false
+freq_x_recuperacao,complementar,deployment_frequency_per_week,recovery_median_hours,Tempo de recuperacao (horas),283,-0.2037,-0.314,-0.088,0.0005644,0.001693,fraca,true
