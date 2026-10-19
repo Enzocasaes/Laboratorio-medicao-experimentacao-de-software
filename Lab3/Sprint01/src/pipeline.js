@@ -18,6 +18,7 @@ import { criarCacheEmDisco, criarCacheEmMemoria } from "./github/cache.js";
 import { criarClienteGitHub, lerToken } from "./github/cliente.js";
 import { criarLog } from "./log.js";
 import { executarCorretiva, executarLeadTime, executarReleases } from "./releases/index.js";
+import { executarAnaliseDora } from "./analise/rq01a04.js";
 import { executarDataset } from "./dataset/index.js";
 import { executarRuns } from "./runs/index.js";
 import { executarSelecao } from "./selecao/index.js";
@@ -38,6 +39,7 @@ export const ETAPAS = [
   { nome: "corretiva", descricao: "heuristica de release corretiva e change failure rate, RQ 03 (b) (Pessoa B)", executar: executarCorretiva },
   // `rede: false` -> etapa offline: nao precisa de token nem de cliente HTTP.
   { nome: "dataset", descricao: "consolida as saidas num dataset unico e gera o dicionario de dados (Pessoa C)", executar: executarDataset, rede: false },
+  { nome: "analise", descricao: "descritiva das RQ 01-04 e classificacao DORA de referencia (Passo 4)", executar: executarAnaliseDora, rede: false },
 ];
 
 export function lerArgumentos(argv) {
