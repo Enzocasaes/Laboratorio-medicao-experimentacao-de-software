@@ -21,6 +21,7 @@ import { executarCorretiva, executarLeadTime, executarReleases } from "./release
 import { executarAnaliseDora } from "./analise/rq01a04.js";
 import { executarRQ05 } from "./analise/rq05.js";
 import { executarRQ06 } from "./analise/rq06.js";
+import { executarRQ08 } from "./analise/rq08.js";
 import { executarDataset } from "./dataset/index.js";
 import { executarRuns } from "./runs/index.js";
 import { executarSelecao } from "./selecao/index.js";
@@ -44,6 +45,7 @@ export const ETAPAS = [
   { nome: "analise", descricao: "descritiva das RQ 01-04 e classificacao DORA de referencia (Passo 4)", executar: executarAnaliseDora, rede: false },
   { nome: "rq05", descricao: "frequencia de deploy x taxa de falha, correlacao de Spearman (RQ 05)", executar: executarRQ05, rede: false },
   { nome: "rq06", descricao: "caracteristicas do repositorio x desempenho DORA, Kruskal-Wallis e contrastes (RQ 06)", executar: executarRQ06, rede: false },
+  { nome: "rq08", descricao: "rework rate: descritiva, Spearman com as metricas DORA e quartis de frequencia (RQ 08, bonus)", executar: executarRQ08, rede: false },
 ];
 
 export function lerArgumentos(argv) {

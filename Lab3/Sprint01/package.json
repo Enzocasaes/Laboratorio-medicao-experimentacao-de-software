@@ -15,6 +15,7 @@
     "analise:dora": "node src/pipeline.js --config config.json --etapa analise",
     "analise:rq05": "node src/pipeline.js --config config.json --etapa rq05",
     "analise:rq06": "node src/pipeline.js --config config.json --etapa rq06",
+    "analise:rq08": "node src/pipeline.js --config config.json --etapa rq08",
     "amostra:ouro": "node src/validacao/amostra-ouro.js --config config.json",
     "validacao": "node src/validacao/index.js --config config.json",
     "test": "node --test test/*.test.js",
