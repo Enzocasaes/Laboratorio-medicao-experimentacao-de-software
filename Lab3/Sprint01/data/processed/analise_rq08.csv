@@ -1,0 +1,5 @@
+id,x,y,descricao,n,rho,ic95_inf,ic95_sup,p,p_holm,magnitude,significativo_holm
+rework_x_cfr_entrega,rework_rate,change_failure_rate_delivery,"CFR (b), proxy de entrega",291,0.5152,0.4193,0.5997,3.964e-21,1.585e-20,forte,true
+rework_x_cfr_ci,rework_rate,change_failure_rate_ci,"CFR (a), proxy de CI",292,0.0123,-0.1026,0.1269,0.8337,1,nula,false
+rework_x_frequencia,rework_rate,deployment_frequency_per_week,Deployment frequency (releases/semana),292,0.0433,-0.0718,0.1574,0.4606,1,nula,false
+rework_x_recuperacao,rework_rate,recovery_median_hours,Tempo de recuperacao (horas),277,-0.02,-0.1375,0.0981,0.7403,1,nula,false
