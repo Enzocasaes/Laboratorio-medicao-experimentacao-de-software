@@ -19,6 +19,8 @@ import { criarClienteGitHub, lerToken } from "./github/cliente.js";
 import { criarLog } from "./log.js";
 import { executarCorretiva, executarLeadTime, executarReleases } from "./releases/index.js";
 import { executarAnaliseDora } from "./analise/rq01a04.js";
+import { executarRQ05 } from "./analise/rq05.js";
+import { executarRQ06 } from "./analise/rq06.js";
 import { executarDataset } from "./dataset/index.js";
 import { executarRuns } from "./runs/index.js";
 import { executarSelecao } from "./selecao/index.js";
@@ -40,6 +42,8 @@ export const ETAPAS = [
   // `rede: false` -> etapa offline: nao precisa de token nem de cliente HTTP.
   { nome: "dataset", descricao: "consolida as saidas num dataset unico e gera o dicionario de dados (Pessoa C)", executar: executarDataset, rede: false },
   { nome: "analise", descricao: "descritiva das RQ 01-04 e classificacao DORA de referencia (Passo 4)", executar: executarAnaliseDora, rede: false },
+  { nome: "rq05", descricao: "frequencia de deploy x taxa de falha, correlacao de Spearman (RQ 05)", executar: executarRQ05, rede: false },
+  { nome: "rq06", descricao: "caracteristicas do repositorio x desempenho DORA, Kruskal-Wallis e contrastes (RQ 06)", executar: executarRQ06, rede: false },
 ];
 
 export function lerArgumentos(argv) {
