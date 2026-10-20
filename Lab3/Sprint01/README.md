@@ -14,6 +14,8 @@ prontas de acesso à API). Este README cobre, por enquanto, as etapas:
 | `runs` | workflow runs do default branch, **change failure rate (RQ 03 a)** e **tempo de recuperação (RQ 04)** | Pessoa C, Issue #68 |
 | `dataset` | consolida tudo num CSV único e **gera o dicionário de dados** (etapa offline) | Pessoa C, S02 |
 | `analise` | descritiva das **RQ 01 a 04** e **classificação DORA** de referência (etapa offline) | S03, Issue #83 |
+| `tags` | tags da amostra final e a data do commit de cada uma, para a variante C3 | S03, Issue #85 |
+| `sensibilidade` | **RQ 07**: as três combinações de definições e o quanto a classificação muda (offline) | S03, Issue #85 |
 | `rq05` | **RQ 05**: frequência de deploy × taxa de falha, Spearman com Holm (etapa offline) | S03, Pessoa B |
 | `rq06` | **RQ 06**: características do repositório × desempenho DORA, Kruskal–Wallis e contrastes com Holm (etapa offline) | S03, Pessoa B |
 
@@ -97,6 +99,8 @@ para que o grupo replicador use exatamente os mesmos parâmetros):
 | `validacao.semente` | Semente do sorteio da amostra-ouro. **Fixa e versionada**, para o sorteio ser reproduzível (equivale ao `random_state=42` do enunciado). |
 | `validacao.repositoriosNaAmostraOuro` | Repositórios sorteados para rotulagem manual (enunciado: 60). |
 | `validacao.releasesPorRepositorio` | Releases sorteadas por repositório para rotular (enunciado: 5). |
+| `coleta.tagsPorPagina`, `maxPaginasDeTags` | `per_page` e teto de páginas da listagem de tags. |
+| `coleta.maxCommitsDeTag` | Teto de requisições de **data de commit** por repositório. Tag que já é release não gasta requisição; as demais custam uma cada. Ao atingir o teto, a coleta é marcada como truncada. |
 | `diretorios.*` | Relativos à pasta do `config.json`. |
 
 ## Execução
@@ -115,6 +119,8 @@ npm run corretiva                      # heuristica de release corretiva e CFR (
 npm run coletar:runs                   # workflow runs, CFR (a) e recuperacao (C)
 npm run dataset                        # dataset consolidado + dicionario (nao usa a rede)
 npm run analise:dora                   # RQ 01-04: mediana, IQR e classificacao DORA (S03)
+npm run coletar:tags                   # tags da amostra final, para a variante C3 da RQ 07
+npm run analise:sensibilidade          # RQ 07: compara as tres combinacoes (nao usa a rede)
 npm run amostra:ouro                   # sorteia a amostra-ouro da validacao manual (S02)
 npm run validacao                      # kappa de Fleiss, consenso e F1 da heuristica (S02, nao usa a rede)
 
@@ -791,6 +797,82 @@ Detalhes em [docs/analise-rq05.md](docs/analise-rq05.md),
 [docs/analise-rq06.md](docs/analise-rq06.md) e no texto do artigo
 ([../Docs/Artigo/04-Resultados-Discussao-RQ05-RQ06.md](../Docs/Artigo/04-Resultados-Discussao-RQ05-RQ06.md)).
 
+## RQ 07 — análise de sensibilidade (S03)
+
+```bash
+npm run coletar:tags            # ~1h: as tags dos 300 repositórios
+npm run analise:sensibilidade   # offline
+```
+
+Mede **o quanto a classificação DORA depende da definição operacional
+escolhida**, comparando três combinações:
+
+| Combinação | Unidade de deploy | Lead time | CFR |
+|---|---|---|---|
+| **C1** (referência) | release publicada | (a) por release | (a) proxy de CI |
+| **C2** | release + pré-release | (b) por commit | (b) proxy de entrega |
+| **C3** | tag | (b) por commit | (a) proxy de CI |
+
+O **tempo de recuperação é o mesmo nas três**: ele vem dos workflow runs e não
+depende da unidade de deploy. Manter essa métrica fixa isola o efeito do que
+realmente muda.
+
+### A coleta de tags
+
+`GET /tags` devolve o nome e o commit, mas **não a data** — e a janela é
+definida por data. Cada tag exigiria uma requisição a mais. Duas decisões
+cortam esse custo:
+
+- **Tag que já é release reaproveita a data da release**, sem gastar
+  requisição. Isso resolveu **21.445 das 26.037 tags** (82%): só 4.578
+  precisaram de consulta ao commit.
+- A coleta de um repositório **para quando encontra 10 tags seguidas anteriores
+  à janela** — tags antigas não entram em métrica nenhuma.
+
+Resultado: 300 repositórios em ~1 hora, 20.836 tags na janela (mediana de 25,5
+por repositório), zero erros. **45 repositórios foram truncados** no teto de
+150 datas; ficam marcados em `tags_resumo.csv`, e a frequência de deploy de C3
+neles é um piso, não o valor exato.
+
+### Resultado (n = 300)
+
+| Combinação | Elite | High | Medium | Low |
+|---|---|---|---|---|
+| C1 | 25 | 132 | 129 | 14 |
+| C2 | 8 | 128 | 152 | 12 |
+| C3 | 20 | 146 | 122 | 12 |
+
+| Par | Mudaram de categoria | Kappa ponderado | Concordância |
+|---|---|---|---|
+| C1 × C2 | **83 (27,7%)** | 0,566 | moderada |
+| C1 × C3 | 63 (21,0%) | 0,703 | substancial |
+| C2 × C3 | 70 (23,3%) | 0,653 | substancial |
+
+O **kappa ponderado** (pesos lineares) leva em conta que as categorias são
+ordenadas: trocar Elite por High pesa menos que trocar Elite por Low. A escala
+de interpretação é a de Landis & Koch, a mesma do kappa de Fleiss da validação
+manual.
+
+**Resposta da RQ 07: a classificação é sensível à definição.** Entre um quinto
+e mais de um quarto dos repositórios muda de categoria conforme as definições
+adotadas, e nenhum par chega à faixa "quase perfeita".
+
+Três leituras para a discussão:
+
+- **O par que mais diverge é C1 × C2 (27,7%)**, e ele é justamente o que **não**
+  muda a unidade de deploy — muda as variantes de lead time e de CFR. A escolha
+  entre "falha de pipeline" e "release corretiva" pesa mais na classificação do
+  que trocar release por tag.
+- **Trocar release por tag mexe pouco** (C1 × C3, kappa 0,70): nesta amostra
+  quase toda tag vira release, então as duas unidades quase coincidem — achado
+  sobre a amostra, não sobre a métrica.
+- **C2 é a combinação mais severa**: só 8 repositórios Elite, contra 25 em C1.
+  O CFR por release corretiva (mediana 18,8%) empurra muitos para fora da faixa
+  Elite, que exige ≤ 15%.
+
+Saídas: `processed/rq07_classificacao.csv`, `processed/rq07_sensibilidade.csv` e
+[docs/analise-rq07.md](docs/analise-rq07.md).
+
 ## Arquivos gerados
 
 | Arquivo | Etapa | Conteúdo |
@@ -808,6 +890,11 @@ Detalhes em [docs/analise-rq05.md](docs/analise-rq05.md),
 | `data/processed/recovery_episodes.csv` | `runs` | Uma linha por episódio de falha: início, recuperação, duração e censura. |
 | `data/processed/dora_runs.csv` | `runs` | **Uma linha por repositório: contagens, CFR (a) e tempo de recuperação.** Entrada da análise das RQ 03 e RQ 04. |
 | `data/raw/workflow_runs.json` | `runs` | Fatias mensais pedidas (com `total_count` e truncamento), contagens e erros por repositório, mais as definições operacionais usadas. |
+| `data/processed/tags.csv` | `tags` | Uma linha por tag coletada, com a data e a origem dela (release ou commit). |
+| `data/processed/tags_resumo.csv` | `tags` | Uma linha por repositório: tags na janela, custo em requisições e truncamento. |
+| `data/processed/rq07_classificacao.csv` | `sensibilidade` | Categoria de cada repositório nas três combinações. |
+| `data/processed/rq07_sensibilidade.csv` | `sensibilidade` | Um par de combinações por linha: quantos mudaram e o kappa ponderado. |
+| `docs/analise-rq07.md` | `sensibilidade` | O relatório da RQ 07 para o artigo. |
 | `data/processed/dora_classificacao.csv` | `analise` | Uma linha por repositório: as quatro métricas, a categoria em cada uma e a categoria geral. |
 | `data/processed/analise_rq01_rq04.csv` | `analise` | Uma linha por métrica: n, mediana, IQR, extremos e distribuição das categorias. |
 | `docs/analise-rq01-rq04.md` | `analise` | O mesmo resumo em texto, para a seção de Resultados do artigo. |
@@ -1135,6 +1222,8 @@ mão e resultado conferido no papel — incluindo o exemplo numérico do enuncia
 | [test/validacao-rotulos.test.js](test/validacao-rotulos.test.js) | normalização das categorias, ausente × inválido × inconsistente, planilha inexistente/em branco/parcial/completa, linhas faltando, sobrando, duplicadas, tag alterada e coluna removida |
 | [test/consenso.test.js](test/consenso.test.js) | unanimidade, maioria 2 × 1, empate 1-1-1, rótulo faltando, 4 avaliadores (2 × 2 sem maioria), preservação dos rótulos originais, decisão de reunião aplicada como humana e decisões inválidas rejeitadas |
 | [test/heuristica.test.js](test/heuristica.test.js) | **o exemplo da seção 6 (P = 75%, R = 60%, F1 ≈ 0,67)**, divisão por zero, sem consenso, sem previsão, previsão inválida/conflitante, previsão fora da amostra, várias versões e associação pela tag — com previsões identificadas como *fixtures* de teste |
+| [test/analise-rq07.test.js](test/analise-rq07.test.js) | as três combinações (C2 somando pré-releases, C3 usando tags, recuperação fixa), o **kappa ponderado** distinguindo troca vizinha de troca distante, pares sem categoria e a etapa avisando quando faltam tags |
+| [test/tags.test.js](test/tags.test.js) | listagem paginada, data vinda da release (sem requisição), data vinda do commit, parada por idade, teto de datas e erro de coleta |
 | [test/validacao-etapa.test.js](test/validacao-etapa.test.js) | a etapa `validacao` de ponta a ponta: antes do sorteio, planilhas em branco, κ das três dimensões conferido no papel, consenso + reunião, avaliação da heurística com os erros separados, rótulo inválido, reprodutibilidade (sorteio refeito e dados alterados), registro do sorteio, independência da ordem do CSV e validação do `config` |
 
 ## Limitações conhecidas
