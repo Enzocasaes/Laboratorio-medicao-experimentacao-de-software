@@ -15,7 +15,7 @@ data/cache/
 # descompactar: gzip -d -k data/processed/workflow_runs.csv.gz
 data/processed/workflow_runs.csv
 
-# Planilha de rotulagem em HTML: ferramenta gerada de rotulos_<nome>.csv por
-# scripts/planilha-rotulagem.mjs. Nao e' dado - sao ~225 KB por avaliador, so'
-# com o que ja esta no CSV.
+# Planilha de rotulagem em HTML: e' uma FERRAMENTA, gerada de rotulos_<nome>.csv
+# por scripts/planilha-rotulagem.mjs. Nao e' dado e nao precisa ser versionada
+# (sao ~225 KB por avaliador, so' com o que ja esta no CSV).
 data/processed/rotulagem_*.html
