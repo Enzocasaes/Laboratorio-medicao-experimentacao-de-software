@@ -1,6 +1,6 @@
 {
-  "generated_at": "2026-10-14T12:28:40.511Z",
-  "situacao": "amostra_nao_sorteada",
+  "generated_at": "2026-10-20T20:27:40.075Z",
+  "situacao": "pendente",
   "parametros": {
     "semente": 42,
     "repositorios_na_amostra_ouro": 60,
@@ -12,9 +12,266 @@
     ],
     "limiar_f1": 0.7
   },
-  "populacao_disponivel": 0,
+  "amostra": {
+    "repositorios": 60,
+    "releases": 300,
+    "reproducao": {
+      "situacao": "reproduzida",
+      "detalhe": "o sorteio refeito com a semente 42 gera as mesmas 300 releases"
+    }
+  },
+  "avaliadores": [
+    {
+      "avaliador": "enzo",
+      "arquivo": "processed/rotulos_enzo.csv",
+      "existe": true,
+      "situacao": "completo",
+      "por_dimensao": {
+        "tipo_do_projeto": {
+          "esperados": 60,
+          "validos": 60,
+          "ausentes": 0,
+          "invalidos": 0,
+          "inconsistentes": 0
+        },
+        "releases_sao_entrega_real": {
+          "esperados": 60,
+          "validos": 60,
+          "ausentes": 0,
+          "invalidos": 0,
+          "inconsistentes": 0
+        },
+        "release_corretiva": {
+          "esperados": 300,
+          "validos": 300,
+          "ausentes": 0,
+          "invalidos": 0,
+          "inconsistentes": 0
+        }
+      },
+      "problemas": 0
+    },
+    {
+      "avaliador": "caue",
+      "arquivo": "processed/rotulos_caue.csv",
+      "existe": true,
+      "situacao": "completo",
+      "por_dimensao": {
+        "tipo_do_projeto": {
+          "esperados": 60,
+          "validos": 60,
+          "ausentes": 0,
+          "invalidos": 0,
+          "inconsistentes": 0
+        },
+        "releases_sao_entrega_real": {
+          "esperados": 60,
+          "validos": 60,
+          "ausentes": 0,
+          "invalidos": 0,
+          "inconsistentes": 0
+        },
+        "release_corretiva": {
+          "esperados": 300,
+          "validos": 300,
+          "ausentes": 0,
+          "invalidos": 0,
+          "inconsistentes": 0
+        }
+      },
+      "problemas": 0
+    },
+    {
+      "avaliador": "leo",
+      "arquivo": "processed/rotulos_leo.csv",
+      "existe": true,
+      "situacao": "completo",
+      "por_dimensao": {
+        "tipo_do_projeto": {
+          "esperados": 60,
+          "validos": 60,
+          "ausentes": 0,
+          "invalidos": 0,
+          "inconsistentes": 0
+        },
+        "releases_sao_entrega_real": {
+          "esperados": 60,
+          "validos": 60,
+          "ausentes": 0,
+          "invalidos": 0,
+          "inconsistentes": 0
+        },
+        "release_corretiva": {
+          "esperados": 300,
+          "validos": 300,
+          "ausentes": 0,
+          "invalidos": 0,
+          "inconsistentes": 0
+        }
+      },
+      "problemas": 0
+    }
+  ],
+  "problemas_por_tipo": {},
+  "concordancia": [
+    {
+      "dimensao": "tipo_do_projeto",
+      "unidade": "repositorio",
+      "categorias": "biblioteca_framework|aplicacao_servico|ferramenta_cli|outro",
+      "avaliadores": 3,
+      "unidades_totais": 60,
+      "unidades_validas": 60,
+      "unidades_excluidas": 0,
+      "concordancia_observada": 0.9667,
+      "concordancia_esperada": 0.3119,
+      "kappa_fleiss": 0.9516,
+      "interpretacao": "quase perfeita",
+      "distribuicao": "biblioteca_framework:0.3;aplicacao_servico:0.422;ferramenta_cli:0.189;outro:0.089",
+      "observacao": ""
+    },
+    {
+      "dimensao": "releases_sao_entrega_real",
+      "unidade": "repositorio",
+      "categorias": "sim|nao|incerto",
+      "avaliadores": 3,
+      "unidades_totais": 60,
+      "unidades_validas": 60,
+      "unidades_excluidas": 0,
+      "concordancia_observada": 0.9667,
+      "concordancia_esperada": 0.9143,
+      "kappa_fleiss": 0.611,
+      "interpretacao": "substancial",
+      "distribuicao": "sim:0.956;nao:0.033;incerto:0.011",
+      "observacao": ""
+    },
+    {
+      "dimensao": "release_corretiva",
+      "unidade": "release",
+      "categorias": "sim|nao",
+      "avaliadores": 3,
+      "unidades_totais": 300,
+      "unidades_validas": 300,
+      "unidades_excluidas": 0,
+      "concordancia_observada": 0.8889,
+      "concordancia_esperada": 0.5158,
+      "kappa_fleiss": 0.7705,
+      "interpretacao": "substancial",
+      "distribuicao": "sim:0.411;nao:0.589",
+      "observacao": ""
+    }
+  ],
+  "consenso": {
+    "tipo_do_projeto": {
+      "unidades": 60,
+      "unanimidade": 57,
+      "maioria_simples": 3,
+      "reuniao": 0,
+      "sem_consenso": 0,
+      "divergentes": 3,
+      "empates": 0,
+      "incompletos": 0
+    },
+    "releases_sao_entrega_real": {
+      "unidades": 60,
+      "unanimidade": 57,
+      "maioria_simples": 3,
+      "reuniao": 0,
+      "sem_consenso": 0,
+      "divergentes": 3,
+      "empates": 0,
+      "incompletos": 0
+    },
+    "release_corretiva": {
+      "unidades": 300,
+      "unanimidade": 250,
+      "maioria_simples": 50,
+      "reuniao": 0,
+      "sem_consenso": 0,
+      "divergentes": 50,
+      "empates": 0,
+      "incompletos": 0
+    }
+  },
+  "decisoes_de_reuniao": {
+    "registradas": 0,
+    "aplicadas": 0,
+    "rejeitadas": 0
+  },
+  "heuristica": {
+    "situacao": "avaliada",
+    "previsoes_fora_da_amostra": 68855,
+    "problemas": [],
+    "versoes": [
+      {
+        "versao": "v1-semver-patch",
+        "vp": 77,
+        "fp": 61,
+        "fn": 37,
+        "vn": 95,
+        "avaliadas": 270,
+        "precisao": 0.5579710144927537,
+        "recall": 0.6754385964912281,
+        "f1": 0.6111111111111112,
+        "acuracia": 0.6370370370370371,
+        "sem_consenso": 0,
+        "sem_previsao": 30,
+        "limiar_f1": 0.7,
+        "situacao": "refinar"
+      },
+      {
+        "versao": "v2-commits-fix",
+        "vp": 114,
+        "fp": 158,
+        "fn": 6,
+        "vn": 22,
+        "avaliadas": 300,
+        "precisao": 0.41911764705882354,
+        "recall": 0.95,
+        "f1": 0.5816326530612245,
+        "acuracia": 0.4533333333333333,
+        "sem_consenso": 0,
+        "sem_previsao": 0,
+        "limiar_f1": 0.7,
+        "situacao": "refinar"
+      },
+      {
+        "versao": "v3-patch-e-commits",
+        "vp": 73,
+        "fp": 53,
+        "fn": 41,
+        "vn": 103,
+        "avaliadas": 270,
+        "precisao": 0.5793650793650794,
+        "recall": 0.6403508771929824,
+        "f1": 0.6083333333333333,
+        "acuracia": 0.6518518518518519,
+        "sem_consenso": 0,
+        "sem_previsao": 30,
+        "limiar_f1": 0.7,
+        "situacao": "refinar"
+      },
+      {
+        "versao": "v4-maioria-corretiva",
+        "vp": 52,
+        "fp": 33,
+        "fn": 68,
+        "vn": 147,
+        "avaliadas": 300,
+        "precisao": 0.611764705882353,
+        "recall": 0.43333333333333335,
+        "f1": 0.5073170731707317,
+        "acuracia": 0.6633333333333333,
+        "sem_consenso": 0,
+        "sem_previsao": 0,
+        "limiar_f1": 0.7,
+        "situacao": "refinar"
+      }
+    ]
+  },
   "pendencias": [
-    "amostra-ouro ainda nao sorteada: feche a coleta (status \"included\") e rode `npm run amostra:ouro`",
-    "sorteio bloqueado: A amostra final ainda nao foi fechada (nenhum repositorio com status \"included\"). Rode a coleta ate o fim antes de sortear a amostra-ouro: sortear de uma lista que ainda vai mudar invalida a rotulagem."
+    "heuristica v1-semver-patch: F1 = 0.611 < 0.7, refinar e reavaliar (evidencias em processed/heuristica_erros.csv)",
+    "heuristica v2-commits-fix: F1 = 0.582 < 0.7, refinar e reavaliar (evidencias em processed/heuristica_erros.csv)",
+    "heuristica v3-patch-e-commits: F1 = 0.608 < 0.7, refinar e reavaliar (evidencias em processed/heuristica_erros.csv)",
+    "heuristica v4-maioria-corretiva: F1 = 0.507 < 0.7, refinar e reavaliar (evidencias em processed/heuristica_erros.csv)"
   ]
 }
