@@ -1,0 +1,4 @@
+dimensao,unidade,categorias,avaliadores,unidades_totais,unidades_validas,unidades_excluidas,concordancia_observada,concordancia_esperada,kappa_fleiss,interpretacao,distribuicao,observacao
+tipo_do_projeto,repositorio,biblioteca_framework|aplicacao_servico|ferramenta_cli|outro,3,60,60,0,0.9667,0.3119,0.9516,quase perfeita,biblioteca_framework:0.3;aplicacao_servico:0.422;ferramenta_cli:0.189;outro:0.089,
+releases_sao_entrega_real,repositorio,sim|nao|incerto,3,60,60,0,0.9667,0.9143,0.611,substancial,sim:0.956;nao:0.033;incerto:0.011,
+release_corretiva,release,sim|nao,3,300,300,0,0.8889,0.5158,0.7705,substancial,sim:0.411;nao:0.589,
