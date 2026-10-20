@@ -12,6 +12,8 @@
     "corretiva": "node src/pipeline.js --config config.json --etapa corretiva",
     "coletar:runs": "node src/pipeline.js --config config.json --etapa runs",
     "dataset": "node src/pipeline.js --config config.json --etapa dataset",
+    "coletar:tags": "node src/pipeline.js --config config.json --etapa tags",
+    "analise:sensibilidade": "node src/pipeline.js --config config.json --etapa sensibilidade",
     "analise:dora": "node src/pipeline.js --config config.json --etapa analise",
     "analise:rq05": "node src/pipeline.js --config config.json --etapa rq05",
     "analise:rq06": "node src/pipeline.js --config config.json --etapa rq06",

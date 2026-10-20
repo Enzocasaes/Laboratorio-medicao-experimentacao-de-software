@@ -16,6 +16,9 @@
     "maxPaginasDeReleases": 20,
     "commitsPorPagina": 100,
     "maxCommitsPorRelease": 1000,
+    "tagsPorPagina": 100,
+    "maxPaginasDeTags": 10,
+    "maxCommitsDeTag": 150,
     "runsPorPagina": 100,
     "maxPaginasDeRunsPorMes": 10
   },

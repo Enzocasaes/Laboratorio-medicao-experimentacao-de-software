@@ -76,6 +76,12 @@ export function commit(sha, data, { mensagem = "mudanca", ...extra } = {}) {
   return { sha, commit: { author: { date: data }, message: mensagem }, ...extra };
 }
 
+// Tag da API: nome e o commit apontado. NAO traz data - e' por isso que a
+// coleta precisa buscar o commit (secao 4 do enunciado).
+export function tag(nome, sha) {
+  return { name: nome, commit: { sha, url: `${BASE}/repos/exemplo/commits/${sha}` }, zipball_url: "", tarball_url: "" };
+}
+
 // Workflow run da API. Por padrao e' um run do default branch disparado por
 // push e concluido com sucesso. `updated_at` e' o fim do run (usado no tempo
 // de recuperacao) e `run_started_at`, o inicio.
@@ -135,6 +141,8 @@ function filtrarPorEstrelas(repos, q) {
 //   comparacoes      { full_name: { "base...head": [commit()] | { commits, total_commits } | Response } }
 //                    (chave ausente -> 404, como uma tag apagada)
 //   runs             { full_name: [workflowRun()] | Response }  (padrao: lista vazia)
+//   tags             { full_name: [tag()] | Response }           (padrao: lista vazia)
+//   commits          { sha: "AAAA-MM-DDTHH:MM:SSZ" | Response }  (sha desconhecido -> 404)
 //   limiteDeRuns     maximo de resultados por consulta de runs (na API real: 1000)
 //   antes(url)       gancho chamado em toda requisicao; se devolver Response, ela e' usada
 export function criarApiFalsa({
@@ -145,6 +153,8 @@ export function criarApiFalsa({
   releases = {},
   comparacoes = {},
   runs = {},
+  tags = {},
+  commits = {},
   limiteDeRuns = 1000,
   antes,
 } = {}) {
@@ -221,6 +231,26 @@ export function criarApiFalsa({
       );
       const { fatia, cabecalhos } = paginarLista(url, lista, 30);
       return respostaJSON(200, fatia, cabecalhos);
+    }
+
+    // GET /repos/{o}/{r}/tags - paginado por Link, sem data nenhuma.
+    const listaDeTags = url.pathname.match(/^\/repos\/([^/]+)\/([^/]+)\/tags$/);
+    if (listaDeTags) {
+      const nome = `${decodeURIComponent(listaDeTags[1])}/${decodeURIComponent(listaDeTags[2])}`;
+      const valor = tags[nome];
+      if (valor instanceof Response) return valor;
+      const { fatia, cabecalhos } = paginarLista(url, valor ?? [], 30);
+      return respostaJSON(200, fatia, cabecalhos);
+    }
+
+    // GET /repos/{o}/{r}/commits/{sha} - a data do commit apontado pela tag.
+    const commit1 = url.pathname.match(/^\/repos\/([^/]+)\/([^/]+)\/commits\/([^/]+)$/);
+    if (commit1) {
+      const sha = decodeURIComponent(commit1[3]);
+      const valor = commits[sha];
+      if (valor === undefined) return respostaJSON(404, { message: "Not Found" });
+      if (valor instanceof Response) return valor;
+      return respostaJSON(200, { sha, commit: { committer: { date: valor }, author: { date: valor } } });
     }
 
     // GET /repos/{o}/{r}/actions/runs?branch=&event=&created=AAAA-MM-DD..AAAA-MM-DD

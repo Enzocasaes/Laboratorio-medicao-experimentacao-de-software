@@ -63,6 +63,9 @@ export const COLETA_PADRAO = Object.freeze({
   maxPaginasDeReleases: 20, // 2.000 releases por repositorio
   commitsPorPagina: 100,
   maxCommitsPorRelease: 1000, // por comparacao entre duas releases
+  tagsPorPagina: 100,
+  maxPaginasDeTags: 10, // 1.000 tags por repositorio
+  maxCommitsDeTag: 150, // requisicoes de data de commit por repositorio (RQ 07, C3)
   runsPorPagina: 100,
   maxPaginasDeRunsPorMes: 10, // 10 x 100 = 1.000, o teto da API por consulta filtrada
 });
@@ -142,6 +145,9 @@ export function validarConfig(bruta, { baseDir = process.cwd() } = {}) {
     maxPaginasDeReleases: inteiroPositivo(c.maxPaginasDeReleases, "coleta.maxPaginasDeReleases"),
     commitsPorPagina: inteiroPositivo(c.commitsPorPagina, "coleta.commitsPorPagina", { maximo: MAX_POR_PAGINA }),
     maxCommitsPorRelease: inteiroPositivo(c.maxCommitsPorRelease, "coleta.maxCommitsPorRelease"),
+    tagsPorPagina: inteiroPositivo(c.tagsPorPagina, "coleta.tagsPorPagina", { maximo: MAX_POR_PAGINA }),
+    maxPaginasDeTags: inteiroPositivo(c.maxPaginasDeTags, "coleta.maxPaginasDeTags"),
+    maxCommitsDeTag: inteiroPositivo(c.maxCommitsDeTag, "coleta.maxCommitsDeTag", { permiteZero: true }),
     runsPorPagina: inteiroPositivo(c.runsPorPagina, "coleta.runsPorPagina", { maximo: MAX_POR_PAGINA }),
     maxPaginasDeRunsPorMes: inteiroPositivo(c.maxPaginasDeRunsPorMes, "coleta.maxPaginasDeRunsPorMes"),
   };
