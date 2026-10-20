@@ -1,0 +1,20 @@
+fator,metrica,grupo_a,grupo_b,n_a,n_b,mediana_a,mediana_b,u,p,p_holm,delta,magnitude,significativo_holm,favorece,esperado,hipotese
+linguagem,deployment_frequency_per_week,TypeScript,C/C++,80,20,0.8438,0.2589,1080.5,0.01581,0.2055,0.3506,medio,false,TypeScript,a > b,nao_confirmada
+linguagem,deployment_frequency_per_week,JavaScript,C/C++,29,20,0.3836,0.2589,326,0.4699,1,0.1241,desprezivel,false,JavaScript,a > b,nao_confirmada
+linguagem,deployment_frequency_per_week,Go,C/C++,32,20,0.4603,0.2589,358,0.4802,1,0.1187,desprezivel,false,Go,a > b,nao_confirmada
+linguagem,deployment_frequency_per_week,Rust,C/C++,31,20,0.4603,0.2589,353,0.4119,1,0.1387,desprezivel,false,Rust,a > b,nao_confirmada
+contribuidores,deployment_frequency_per_week,Q4,Q1,75,75,0.5178,0.4411,3160.5,0.1914,1,0.1237,desprezivel,false,Q4,a > b,nao_confirmada
+contribuidores,lead_time_release_median_days,Q4,Q1,74,75,40.8845,5.304,4581,7.14e-12,1.285e-10,0.6508,grande,true,Q1,a < b,contrariada
+contribuidores,change_failure_rate_ci,Q4,Q1,75,75,0.0523,0.0435,3042.5,0.3883,1,0.0818,desprezivel,false,Q1,a > b,nao_confirmada
+contribuidores,recovery_median_hours,Q4,Q1,74,69,2.459,1.785,2699,0.5567,1,0.0572,desprezivel,false,Q1,,
+contribuidores,dora_score,Q4,Q1,75,75,2,3,1946,0.0003365,0.005048,-0.3081,pequeno,true,Q1,,
+idade,deployment_frequency_per_week,Q4,Q1,75,75,0.3644,0.8822,1428.5,1.979e-7,0.000003166,-0.4921,grande,true,Q1,a < b,confirmada
+idade,lead_time_release_median_days,Q4,Q1,75,75,42.686,2.092,5108,6.338e-18,1.204e-16,0.8162,grande,true,Q1,,
+idade,change_failure_rate_ci,Q4,Q1,75,75,0.0394,0.0728,2241,0.03185,0.3822,-0.2032,pequeno,false,Q4,,
+idade,recovery_median_hours,Q4,Q1,70,70,3.032,1.376,3159.5,0.003129,0.0438,0.2896,pequeno,true,Q1,,
+idade,dora_score,Q4,Q1,75,75,2,3,1337,1.564e-9,2.658e-8,-0.5246,grande,true,Q1,,
+popularidade,deployment_frequency_per_week,Q4,Q1,75,75,0.7288,0.4219,3300.5,0.06683,0.7351,0.1735,pequeno,false,Q4,,
+popularidade,lead_time_release_median_days,Q4,Q1,75,75,9.17,10.35,2889,0.7751,1,0.0272,desprezivel,false,Q1,,
+popularidade,change_failure_rate_ci,Q4,Q1,75,75,0.057,0.0485,3057,0.359,1,0.0869,desprezivel,false,Q1,,
+popularidade,recovery_median_hours,Q4,Q1,71,68,2.429,2.0235,2784,0.1195,1,0.1533,pequeno,false,Q1,,
+popularidade,dora_score,Q4,Q1,75,75,3,3,2732.5,0.7438,1,-0.0284,desprezivel,false,Q1,,

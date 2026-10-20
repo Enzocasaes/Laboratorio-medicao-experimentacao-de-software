@@ -14,6 +14,8 @@ prontas de acesso à API). Este README cobre, por enquanto, as etapas:
 | `runs` | workflow runs do default branch, **change failure rate (RQ 03 a)** e **tempo de recuperação (RQ 04)** | Pessoa C, Issue #68 |
 | `dataset` | consolida tudo num CSV único e **gera o dicionário de dados** (etapa offline) | Pessoa C, S02 |
 | `analise` | descritiva das **RQ 01 a 04** e **classificação DORA** de referência (etapa offline) | S03, Issue #83 |
+| `rq05` | **RQ 05**: frequência de deploy × taxa de falha, Spearman com Holm (etapa offline) | S03, Pessoa B |
+| `rq06` | **RQ 06**: características do repositório × desempenho DORA, Kruskal–Wallis e contrastes com Holm (etapa offline) | S03, Pessoa B |
 
 As cinco rodam no mesmo comando (`npm run pipeline`), nessa ordem. A última
 não vai à rede: só lê o que as outras coletaram.
@@ -729,6 +731,66 @@ Três leituras para a discussão do artigo:
   que reforça que as medianas de tempo de recuperação não estão sendo
   distorcidas por falhas abandonadas.
 
+## RQ 05 e RQ 06: correlação e fatores (S03, Pessoa B)
+
+```bash
+npm run analise:rq05    # offline: dataset.csv + release_corretiva.csv
+npm run analise:rq06    # offline: dataset.csv + consenso.csv (se existir)
+python scripts/conferir_rq05_rq06.py   # opcional: refaz tudo no scipy/statsmodels
+```
+
+Os testes são **por postos** (Spearman, Kruskal–Wallis, Mann–Whitney), pela
+mesma razão de usar mediana e IQR: as métricas são muito assimétricas. Estão
+implementados sem dependências em
+[src/analise/estatistica.js](src/analise/estatistica.js), com as mesmas
+definições do `scipy.stats` (p do Spearman pela t, Kruskal–Wallis com correção
+de empates, Mann–Whitney assintótico com correção de continuidade). O script
+Python confere os 190 valores com o scipy e o statsmodels e sai com código 1 se
+algum divergir.
+
+**RQ 05.** Correlação de Spearman da frequência de deploy com o CFR (a), o
+CFR (b), o CFR (b) só com ≥ 10 releases avaliadas, e o tempo de recuperação,
+com IC de 95% (Fisher, erro-padrão de Bonett e Wright). Para testar o
+mecanismo da H5 (b), o CFR (b) de cada repositório é decomposto em
+*oportunidade* (fração das releases avaliadas com a seguinte em até 7 dias) ×
+*condicional* (dessas, a fração em que a seguinte foi corretiva). Os seis pares
+são uma família corrigida por Holm.
+
+**RQ 06.** Fatores: linguagem (C e C++ juntas, linguagens com menos de 10
+repositórios em "Outras"), contribuidores, idade e estrelas (quartis) e o tipo
+do projeto do consenso da amostra-ouro, que só entra depois de
+`npm run validacao` e fica marcado como **pendente** até lá. Métricas: as
+quatro da C1 e a pontuação DORA geral. Duas famílias de Holm separadas:
+
+- **omnibus**: Kruskal–Wallis de cada fator × métrica, com efeito ε²;
+- **contrastes planejados** pela H6: Mann–Whitney Q4 × Q1 e TypeScript,
+  JavaScript, Go e Rust × C/C++ na frequência, com delta de Cliff. As colunas
+  `favorece` (que grupo vai melhor, já levando em conta se a métrica é melhor
+  quando maior ou menor) e `hipotese` (`confirmada`, `contrariada` ou
+  `nao_confirmada`) servem para a discussão.
+
+Como **contribuidores e idade são correlacionados** (ρ = 0,60), uma análise
+exploratória (fora das famílias) calcula o Spearman parcial de cada um com as
+métricas, controlando o outro.
+
+### Resultado (n = 300)
+
+- **RQ 05:** frequência × CFR (a) ρ = 0,16 (fraca); × CFR (b) ρ = 0,52
+  (forte), mas toda pela *oportunidade* (ρ = 0,74). Na *condicional*,
+  ρ = −0,04 (IC −0,16 a 0,08): a correlação com o CFR (b) é um efeito da
+  janela de 7 dias, e não sinal de que publicar mais leva a mais correções.
+  Frequência × recuperação ρ = −0,20.
+- **RQ 06:** a idade é o fator dominante (repositórios mais novos publicam
+  mais, têm lead time menor e pontuação DORA maior; efeitos grandes). O lead
+  time maior de quem tem mais contribuidores desaparece controlando a idade
+  (ρ parcial de 0,07), e surge uma associação entre contribuidores e frequência
+  (ρ parcial de 0,34). A linguagem só se associa ao lead time; as estrelas, a
+  nada.
+
+Detalhes em [docs/analise-rq05.md](docs/analise-rq05.md),
+[docs/analise-rq06.md](docs/analise-rq06.md) e no texto do artigo
+([../Docs/Artigo/04-Resultados-Discussao-RQ05-RQ06.md](../Docs/Artigo/04-Resultados-Discussao-RQ05-RQ06.md)).
+
 ## Arquivos gerados
 
 | Arquivo | Etapa | Conteúdo |
@@ -749,6 +811,15 @@ Três leituras para a discussão do artigo:
 | `data/processed/dora_classificacao.csv` | `analise` | Uma linha por repositório: as quatro métricas, a categoria em cada uma e a categoria geral. |
 | `data/processed/analise_rq01_rq04.csv` | `analise` | Uma linha por métrica: n, mediana, IQR, extremos e distribuição das categorias. |
 | `docs/analise-rq01-rq04.md` | `analise` | O mesmo resumo em texto, para a seção de Resultados do artigo. |
+| `data/processed/analise_rq05.csv` | `rq05` | Uma linha por par: n, ρ, IC 95%, p, p (Holm), magnitude. |
+| `data/processed/analise_rq05_quartis.csv` | `rq05` | Mediana e IQR do CFR (a) e (b) por quartil de frequência. |
+| `data/processed/rq05_decomposicao.csv` | `rq05` | Por repositório: releases avaliadas, com a seguinte no prazo, falhas, oportunidade e condicional. |
+| `docs/analise-rq05.md` | `rq05` | O mesmo resumo em texto (gerado). |
+| `data/processed/analise_rq06_testes.csv` | `rq06` | Kruskal–Wallis por fator × métrica: H, gl, p, p (Holm), ε², melhor e pior grupo. |
+| `data/processed/analise_rq06_contrastes.csv` | `rq06` | Contrastes planejados: U, p, p (Holm), delta de Cliff, `favorece`, `hipotese`. |
+| `data/processed/analise_rq06_grupos.csv` | `rq06` | Mediana e IQR de cada métrica em cada grupo de cada fator. |
+| `data/processed/analise_rq06_confusao.csv` | `rq06` | Exploratória: ρ entre fatores e Spearman simples/parcial de contribuidores e idade. |
+| `docs/analise-rq06.md` | `rq06` | O mesmo resumo em texto (gerado). |
 | `data/processed/dataset.csv` | `dataset` | **Uma linha por repositório da amostra final, com todas as métricas das RQ 01 a 04.** É o dataset entregue na S02. |
 | `data/processed/dataset_dicionario.csv` | `dataset` | O dicionário de dados em CSV (para anexar ao artigo ou abrir em planilha). |
 | `docs/dicionario-de-dados.md` | `dataset` | O mesmo dicionário em Markdown, gerado junto. |
@@ -1010,6 +1081,12 @@ Lab3/Sprint01/
 │   ├── dataset/
 │   │   ├── index.js          # etapa "dataset": junção + dicionário de dados
 │   │   └── colunas.js        # fonte única das colunas (gera CSV e dicionário)
+│   ├── analise/              # etapas offline da S03
+│   │   ├── dora.js           # cortes DORA e categoria geral (C1)
+│   │   ├── rq01a04.js        # etapa "analise": descritiva das RQ 01 a 04
+│   │   ├── estatistica.js    # Spearman, Kruskal–Wallis, Mann–Whitney, Cliff, Holm (sem dependências)
+│   │   ├── rq05.js           # etapa "rq05": frequência × CFR e decomposição do CFR (b)
+│   │   └── rq06.js           # etapa "rq06": fatores × métricas DORA
 │   └── validacao/            # validação manual (S02, Pessoa A)
 │       ├── amostra-ouro.js   # sorteio semeado da amostra-ouro + registro do sorteio
 │       ├── index.js          # etapa "validacao": orquestra e gera os relatórios
@@ -1018,7 +1095,8 @@ Lab3/Sprint01/
 │       ├── consenso.js       # protocolo de desempate e decisões de reunião
 │       └── heuristica.js     # interface com a heurística de B: precisão, recall, F1
 ├── scripts/
-│   └── conferir_kappa.py     # (opcional) refaz o kappa no statsmodels a partir de consenso.csv
+│   ├── conferir_kappa.py     # (opcional) refaz o kappa no statsmodels a partir de consenso.csv
+│   └── conferir_rq05_rq06.py # (opcional) refaz a RQ 05 e a RQ 06 no scipy/statsmodels
 └── test/                     # node:test, API falsa em memória
 ```
 
