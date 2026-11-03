@@ -1,0 +1,11 @@
+sessao,modo,par,tentativa,posicao_no_par,ordem_execucao,condicao,nome_condicao,inicio,fim,tempo_s,codigo_saida,status,tarefas_acionaveis,tarefas_executadas,tarefas_from_cache,tarefas_up_to_date,log
+piloto_20261103_101807,piloto,1,1,1,BA,B,com_cache,2026-11-03T10:20:47.196,2026-11-03T10:20:51.789,4.594,0,ok,22,8,14,0,logs/par01_t1_1B.log
+piloto_20261103_101807,piloto,1,1,2,BA,A,sem_cache,2026-11-03T10:20:51.791,2026-11-03T10:21:23.716,31.925,0,ok,22,22,0,0,logs/par01_t1_2A.log
+piloto_20261103_101807,piloto,2,1,1,BA,B,com_cache,2026-11-03T10:21:23.724,2026-11-03T10:21:28.139,4.415,0,ok,22,8,14,0,logs/par02_t1_1B.log
+piloto_20261103_101807,piloto,2,1,2,BA,A,sem_cache,2026-11-03T10:21:28.141,2026-11-03T10:21:59.921,31.780,0,ok,22,22,0,0,logs/par02_t1_2A.log
+piloto_20261103_101807,piloto,3,1,1,AB,A,sem_cache,2026-11-03T10:21:59.929,2026-11-03T10:22:31.673,31.744,0,ok,22,22,0,0,logs/par03_t1_1A.log
+piloto_20261103_101807,piloto,3,1,2,AB,B,com_cache,2026-11-03T10:22:31.681,2026-11-03T10:22:35.932,4.251,0,ok,22,8,14,0,logs/par03_t1_2B.log
+piloto_20261103_101807,piloto,4,1,1,AB,A,sem_cache,2026-11-03T10:22:35.934,2026-11-03T10:23:07.676,31.742,0,ok,22,22,0,0,logs/par04_t1_1A.log
+piloto_20261103_101807,piloto,4,1,2,AB,B,com_cache,2026-11-03T10:23:07.683,2026-11-03T10:23:11.758,4.075,0,ok,22,8,14,0,logs/par04_t1_2B.log
+piloto_20261103_101807,piloto,5,1,1,AB,A,sem_cache,2026-11-03T10:23:11.765,2026-11-03T10:23:43.263,31.498,0,ok,22,22,0,0,logs/par05_t1_1A.log
+piloto_20261103_101807,piloto,5,1,2,AB,B,com_cache,2026-11-03T10:23:43.271,2026-11-03T10:23:47.557,4.286,0,ok,22,8,14,0,logs/par05_t1_2B.log
