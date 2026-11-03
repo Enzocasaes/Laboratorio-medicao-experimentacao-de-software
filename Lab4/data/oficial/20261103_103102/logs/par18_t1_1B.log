@@ -1,0 +1,38 @@
+$ C:\Users\Enzo\lab4-coleta\spring-petclinic\gradlew.bat clean build --build-cache --no-configuration-cache --console=plain --offline
+
+> Task :clean
+> Task :compileJava FROM-CACHE
+> Task :cyclonedxDirectBom FROM-CACHE
+> Task :cyclonedxBom FROM-CACHE
+> Task :processResources
+> Task :classes
+> Task :resolveMainClassName
+> Task :processAot FROM-CACHE
+> Task :compileAotJava FROM-CACHE
+> Task :processAotResources
+> Task :aotClasses
+> Task :collectReachabilityMetadata
+> Task :bootJar
+> Task :jar
+> Task :assemble
+> Task :checkFormatMain FROM-CACHE
+> Task :checkFormatTest FROM-CACHE
+> Task :checkFormat
+> Task :checkstyleAot SKIPPED
+> Task :compileTestJava FROM-CACHE
+> Task :processTestResources NO-SOURCE
+> Task :testClasses UP-TO-DATE
+> Task :processTestAot FROM-CACHE
+> Task :compileAotTestJava FROM-CACHE
+> Task :processAotTestResources
+> Task :aotTestClasses
+> Task :checkstyleAotTest SKIPPED
+> Task :checkstyleMain FROM-CACHE
+> Task :checkstyleNohttp FROM-CACHE
+> Task :checkstyleTest FROM-CACHE
+> Task :test FROM-CACHE
+> Task :check
+> Task :build
+
+BUILD SUCCESSFUL in 4s
+22 actionable tasks: 8 executed, 14 from cache

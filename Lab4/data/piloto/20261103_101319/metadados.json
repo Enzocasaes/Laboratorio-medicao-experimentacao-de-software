@@ -1,0 +1,50 @@
+{
+  "sessao": "piloto_20261103_101319",
+  "modo": "piloto",
+  "projeto": "C:\\Users\\Enzo\\lab4-coleta\\spring-petclinic",
+  "pares_planejados": 5,
+  "semente": 20261103,
+  "ordens_sorteadas": [
+    "BA",
+    "BA",
+    "AB",
+    "AB",
+    "AB"
+  ],
+  "aquecimentos": 2,
+  "max_tentativas_por_par": 3,
+  "comandos": {
+    "A": [
+      "gradlew.bat",
+      "clean",
+      "build",
+      "--no-build-cache",
+      "--no-configuration-cache",
+      "--console=plain"
+    ],
+    "B": [
+      "gradlew.bat",
+      "clean",
+      "build",
+      "--build-cache",
+      "--no-configuration-cache",
+      "--console=plain"
+    ]
+  },
+  "inicio": "2026-11-03T10:13:19",
+  "ambiente": {
+    "sistema": "Windows-11-10.0.26200-SP0",
+    "windows": "Microsoft Windows 11 Pro 10.0.26200",
+    "processador": "AMD Ryzen 5 7600X 6-Core Processor",
+    "nucleos_logicos": "12",
+    "ram_gb": "15,2",
+    "discos": "KINGSTON SNV2S1000G (SSD)",
+    "plano_energia": "GUID do Esquema de Energia: 381b4222-f694-41f0-9685-ff5bb260df2e  (Equilibrado)",
+    "python": "3.14.0 (tags/v3.14.0:ebf955d, Oct  7 2025, 10:15:03) [MSC v.1944 64 bit (AMD64)]",
+    "java": "java version \"21.0.7\" 2025-04-15 LTS\nJava(TM) SE Runtime Environment (build 21.0.7+8-LTS-245)\nJava HotSpot(TM) 64-Bit Server VM (build 21.0.7+8-LTS-245, mixed mode, sharing)",
+    "gradle": "------------------------------------------------------------\nGradle 9.5.1\n------------------------------------------------------------\n\nBuild time:    2026-05-12 13:19:42 UTC\nRevision:      fd78213f09782e62ca4957f9cfd3d90c6c3f1767\n\nKotlin:        2.3.20\nGroovy:        4.0.29\nAnt:           Apache Ant(TM) version 1.10.15 compiled on August 25 2024\nLauncher JVM:  21.0.7 (Oracle Corporation 21.0.7+8-LTS-245)\nDaemon JVM:    C:\\Program Files\\Java\\jdk-21 (no Daemon JVM specified, using current Java home)\nOS:            Windows 11 10.0 amd64",
+    "projeto_commit": "500158f732419217507c7656904b8e6aa1bcc0d6",
+    "projeto_remoto": "https://github.com/spring-projects/spring-petclinic.git",
+    "projeto_alterado": "não"
+  }
+}
