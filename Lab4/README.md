@@ -25,6 +25,7 @@ cd Lab4
 python src/descritiva.py     # médias, medianas, assimetria e extremos
 python src/testes.py         # os dois testes nos 30 pares reais
 python src/simulacao.py      # cenários simulados, erro tipo I e poder (~20 s)
+python src/dashboard.py --abrir   # gera dashboard/index.html e abre no navegador
 ```
 
 A coleta (`src/coleta.py`) só roda no Windows, com o projeto Java em disco; os
@@ -39,6 +40,8 @@ dados que ela produziu já estão versionados.
 | [src/distribuicoes.py](src/distribuicoes.py) | **Integrante 2** | t de Student, normal e a distribuição exata do Wilcoxon |
 | [src/testes.py](src/testes.py) | **Integrante 2** | os dois testes, com p-valor, IC e tamanho de efeito |
 | [src/simulacao.py](src/simulacao.py) | **Integrante 2** | gera os cenários e compara erro tipo I e poder |
+| [src/graficos.py](src/graficos.py) | **Integrante 3** | G1 e G2 em SVG, desenhados sem dependências |
+| [src/dashboard.py](src/dashboard.py) | **Integrante 3** | monta o HTML único do dashboard a partir dos CSVs |
 
 ### Por que as distribuições são implementadas aqui
 
@@ -84,13 +87,56 @@ de erro do Wilcoxon despenca abaixo do nominal e ele perde poder. Com valores
 extremos acontece o contrário: o desvio-padrão infla, o t perde poder e o
 Wilcoxon passa na frente.
 
+## Dashboard
+
+```bash
+python src/dashboard.py --abrir
+```
+
+Gera **[dashboard/index.html](dashboard/index.html)**: um arquivo único, que abre
+com dois cliques, sem servidor e sem instalar nada. É a entrega final do
+laboratório, e por isso cada gráfico vem com um texto curto dizendo o que
+mostra e o que se conclui dele.
+
+As sete seções seguem a ordem pedida no enunciado. **Na Sprint 01 estão
+prontas** a 1 (cenário), a 2 (G1), a 3 (G2) e a 6 (tabela dos dados reais); a 4
+e a 5 (G3 e G4) e a conclusão aparecem marcadas como pendentes, para a página
+não dar a impressão de que já existem.
+
+| Gráfico | O que responde | Como |
+|---|---|---|
+| **G1** | com que dados estamos lidando? | seis histogramas: os dois grupos reais, as diferenças reais e os três cenários simulados |
+| **G2** | como um teste decide? | a distribuição da estatística sob H0, a região de rejeição e o p-valor desenhado como **área** |
+
+### Por que SVG escrito à mão
+
+O resto do Lab04 roda só com a biblioteca padrão. Trazer Matplotlib apenas para
+desenhar faria o dashboard exigir instalação, e o enunciado pede que ele abra
+com um único comando. SVG é texto, o navegador já sabe desenhá-lo, e o
+resultado é um HTML que funciona offline.
+
+### De onde vêm os números
+
+O dashboard **não recalcula teste nenhum**: lê `data/dados_reais.csv`,
+`data/resultados_reais.csv`, `data/simulacao/cenarios.csv` e
+`data/simulacao/resultados_exemplo.csv`. As duas únicas contas feitas ali são
+os valores críticos de G2 — o t de 95% e o menor W⁺ que cai na região de
+rejeição —, e mesmo essas saem de `src/distribuicoes.py`, para o gráfico não
+discordar do teste.
+
+### Antes de entregar
+
+O link do **GitHub Projects** precisa ser colado na constante `PROJECTS`, no
+topo de [src/dashboard.py](src/dashboard.py). Enquanto estiver vazio, o
+dashboard mostra o aviso no cabeçalho e o comando avisa no terminal.
+
 ## Testes automatizados
 
 ```bash
 python -m unittest discover -s tests -v
 ```
 
-72 testes, sem instalar nada. Cobrem as distribuições contra valores de tabela
+100 testes, sem instalar nada. Cobrem as distribuições contra valores de tabela
 (`t_cdf(2,262; 9) = 0,975`), os dois testes em casos montados à mão com o
 resultado conferido no papel, e a reprodutibilidade da simulação.
 
@@ -121,6 +167,7 @@ se pulam e a suíte continua passando (é o que acontece na CI).
 | `data/simulacao/resultados_exemplo.csv` | os dois testes em cada cenário do exemplo |
 | `data/simulacao/poder_erro.csv` | erro tipo I e poder por cenário × n × efeito |
 | `docs/simulacao.md` | relatório gerado, com parâmetros, tabelas e interpretação |
+| `dashboard/index.html` | o dashboard completo, em arquivo único |
 
 Os CSVs são a interface para o dashboard: ele lê arquivo, não importa função.
 
