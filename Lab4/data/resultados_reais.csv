@@ -1,0 +1,3 @@
+teste,n,estatistica,p_valor,significativo,efeito_nome,efeito_valor,centro_nome,centro_valor,observacao
+t pareado,30,379.175226,1.9193362916544256e-55,True,d_z,69.227608,media,27.235967,IC 95% unilateral: [27.1139; +inf)
+Wilcoxon pareado,30,465.0,9.313225746154785e-10,True,rank-biserial,1.0,Hodges-Lehmann,27.285,p exato; 0 zeros; empates: nao

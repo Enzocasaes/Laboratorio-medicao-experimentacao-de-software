@@ -1,0 +1,7 @@
+cenario,n,efeito,semente,teste,estatistica,p_valor,significativo,centro_nome,centro_valor,efeito_nome,efeito_valor,observacao
+normal,30,0.3,542,t pareado,2.579303,0.007618562854269571,True,media,0.21164,d_z,0.470914,IC 95% unilateral: [0.0722; +inf)
+normal,30,0.3,542,Wilcoxon pareado,348.0,0.008215606212615967,True,Hodges-Lehmann,0.218777,rank-biserial,0.496774,p exato; assimetria da amostra: -0.175
+lognormal_deslocada,30,0.3,543,t pareado,2.073008,0.023581041970519693,True,media,0.17289,d_z,0.378478,IC 95% unilateral: [0.0312; +inf)
+lognormal_deslocada,30,0.3,543,Wilcoxon pareado,309.0,0.059538284316658974,False,Hodges-Lehmann,0.093615,rank-biserial,0.329032,p exato; assimetria da amostra: 1.998
+contaminada,30,0.3,544,t pareado,0.822247,0.20882308438934283,False,media,0.061414,d_z,0.150121,IC 95% unilateral: [-0.0655; +inf)
+contaminada,30,0.3,544,Wilcoxon pareado,328.0,0.024855060502886772,True,Hodges-Lehmann,0.091408,rank-biserial,0.410753,p exato; assimetria da amostra: -2.493

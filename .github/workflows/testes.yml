@@ -39,3 +39,26 @@ jobs:
 
       - name: Testes com cobertura (minimo de 80% das linhas)
         run: npm run test:cobertura
+
+  lab04:
+    name: Lab04 - simulacao e testes de hipotese
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: Lab4
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      # Sem "pip install": o Lab04 usa so' a biblioteca padrao. A conferencia
+      # contra o SciPy (tests/test_conferencia_scipy.py) se pula sozinha
+      # quando ele nao esta presente.
+      - name: Versao do Python
+        run: python --version
+
+      - name: Testes
+        run: python -m unittest discover -s tests -v
