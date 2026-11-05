@@ -52,7 +52,7 @@ CENARIO_EXEMPLO = "normal"  # o exemplo de G2: é onde os dois testes concordam
 REPOSITORIO = "https://github.com/Enzocasaes/Laboratorio-medicao-experimentacao-de-software"
 # O board é um projeto do GitHub Projects (v2); o link precisa ser colado aqui
 # pelo grupo — o enunciado exige que ele apareça no topo do dashboard.
-PROJECTS = ""
+PROJECTS = "https://github.com/users/Enzocasaes/projects/2"
 
 
 # ---------------------------------------------------------------- leitura
