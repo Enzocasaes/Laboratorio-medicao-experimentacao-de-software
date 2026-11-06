@@ -1,0 +1,5 @@
+# Só a Q1 (src/erro_tipo_i.py) usa pacotes de terceiros. O resto do Lab04
+# continua rodando só com a biblioteca padrão.
+numpy>=1.26
+pandas>=2.0
+scipy>=1.11
