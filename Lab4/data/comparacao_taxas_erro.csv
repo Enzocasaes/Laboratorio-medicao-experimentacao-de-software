@@ -1,0 +1,5 @@
+cenario,teste,h0_verdadeira,natureza,repeticoes,alfa,rejeicoes,nao_rejeicoes,taxa,ic_wilson_inf,ic_wilson_sup,distancia_alfa_pp,razao_alfa,classificacao
+bootstrap_simetrizado,t pareado,True,erro tipo I,10000,0.05,502,9498,0.0502,0.046090332946713386,0.05465511198754727,0.01999999999999988,1.004,compatível com α
+bootstrap_simetrizado,Wilcoxon pareado,True,erro tipo I,10000,0.05,518,9482,0.0518,0.04762580193687199,0.05631841420260249,0.1799999999999996,1.0359999999999998,compatível com α
+bootstrap_centralizado,t pareado,True,erro tipo I,10000,0.05,1139,8861,0.1139,0.1078210870929174,0.12027543644891905,6.39,2.278,liberal
+bootstrap_centralizado,Wilcoxon pareado,False,rejeição com a H0 do teste falsa (não é erro tipo I),10000,0.05,2794,7206,0.2794,0.2706915460190086,0.2882778740621338,,,não se aplica (H0 do teste falsa)
