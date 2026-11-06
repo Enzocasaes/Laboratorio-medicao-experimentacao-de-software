@@ -1,4 +1,4 @@
-"""Gráficos G1 e G2 do dashboard, em SVG (Lab04 — Issues #100 e #101).
+"""Gráficos G1, G2 e G3 do dashboard, em SVG (Lab04 — Issues #100, #101 e #108).
 
 POR QUE SVG ESCRITO À MÃO, E NÃO MATPLOTLIB
 
@@ -19,6 +19,14 @@ G2 — "como um teste decide?" A distribuição da estatística sob H0, a regiã
      de rejeição e o p-valor de um exemplo desenhado como ÁREA. É a figura
      que transforma "p = 0,0076" de um número solto em um pedaço de área sob
      a curva.
+
+G3 — "com que frequência cada teste acusa um efeito que não existe?" A taxa
+     de rejeição dos dois testes nos 10.000 conjuntos de cada cenário da Q1,
+     com o IC de Wilson, a linha de α = 5% e a faixa que o acaso da simulação
+     explica. Um painel por cenário, cada um com o seu eixo, porque a
+     comparação válida é entre os dois testes NOS MESMOS conjuntos. Uma taxa
+     cuja H0 do teste é falsa no cenário não é erro tipo I: a barra sai
+     listrada e o rodapé diz isso, em vez da distância para 5%.
 
 CORES
 
@@ -494,3 +502,243 @@ def grafico_g2(*, gl: int, t_critico: float, t_observado: float, t_p: float,
                               observado=w_observado, p_valor=w_p)
     return svg(largura, altura_painel + 22, esquerda + direita,
                titulo="G2 — distribuição da estatística sob H0, região de rejeição e p-valor")
+
+
+# ---------------------------------------------------------------- G3
+
+REFERENCIA = "#b42318"   # linha de α: a única marca vermelha do dashboard
+FAIXA_ACASO = "#e8ecf1"  # faixa de ruído de Monte Carlo em torno de α
+
+
+@dataclass(frozen=True)
+class BarraErro:
+    """Uma barra do G3: a taxa de rejeição de um teste em um cenário.
+
+    `h0_verdadeira` diz se a H0 DESTE teste vale no cenário. Só então a taxa
+    é um erro tipo I e faz sentido medi-la contra α; caso contrário a barra
+    sai listrada e o rodapé avisa que ela não é erro tipo I.
+    """
+
+    teste: str
+    taxa: float          # proporção, em [0, 1]
+    ic_inf: float
+    ic_sup: float
+    rejeicoes: int
+    repeticoes: int
+    h0_verdadeira: bool = True
+
+
+@dataclass(frozen=True)
+class PainelErro:
+    titulo: str
+    subtitulo: str
+    barras: tuple[BarraErro, ...]
+
+
+def barra_arredondada(x: float, topo: float, largura: float, base: float,
+                      *, cor: str, raio: float = 4) -> str:
+    """Barra com só as quinas de cima arredondadas: a base fica rente ao eixo."""
+    altura = base - topo
+    if altura <= 0:
+        return ""
+    r = min(raio, largura / 2, altura)
+    return (
+        f'<path d="M{x:.1f},{base:.1f} L{x:.1f},{topo + r:.1f} '
+        f'Q{x:.1f},{topo:.1f} {x + r:.1f},{topo:.1f} '
+        f'L{x + largura - r:.1f},{topo:.1f} '
+        f'Q{x + largura:.1f},{topo:.1f} {x + largura:.1f},{topo + r:.1f} '
+        f'L{x + largura:.1f},{base:.1f} Z" fill="{cor}"/>'
+    )
+
+
+def _cor_do_teste(teste: str) -> str:
+    return AZUL if teste.startswith("t") else LARANJA
+
+
+def _id_listras(cor: str) -> str:
+    return "g3-listras-" + cor.lstrip("#")
+
+
+def padroes_listrados() -> str:
+    """Textura a 45° nas cores dos dois testes: marca a taxa que não é erro tipo I.
+
+    A cor continua dizendo QUAL teste é; a textura diz que a barra mede outra
+    coisa. Assim a distinção não depende só de cor.
+    """
+    padroes = []
+    for cor in (AZUL, LARANJA):
+        padroes.append(
+            f'<pattern id="{_id_listras(cor)}" patternUnits="userSpaceOnUse" width="7" '
+            f'height="7" patternTransform="rotate(45)">'
+            f'<rect width="7" height="7" fill="{cor}" fill-opacity="0.28"/>'
+            f'<line x1="0" y1="0" x2="0" y2="7" stroke="{cor}" stroke-width="4"/></pattern>'
+        )
+    return "<defs>" + "".join(padroes) + "</defs>"
+
+
+def _pct(proporcao: float, casas: int = 2) -> str:
+    return f"{numero(100 * proporcao, casas)}%"
+
+
+def _pp(valor: float) -> str:
+    return ("+" if valor >= 0 else "−") + f"{numero(abs(valor), 2)} p.p."
+
+
+def teto_eixo_pct(maximo_pct: float, alfa_pct: float) -> tuple[float, list[float]]:
+    """Topo do eixo vertical (em %) e as marcas, com folga para o rótulo da barra.
+
+    O topo é sempre uma marca e nunca fica abaixo de 1,5·α: num painel em que
+    as taxas estão todas perto de 5%, a linha de referência ainda precisa de
+    espaço acima dela.
+    """
+    alvo = max(maximo_pct * 1.18, alfa_pct * 1.5)
+    marcas = marcas_bonitas(0, alvo, 5)
+    passo = marcas[1] - marcas[0] if len(marcas) > 1 else alvo
+    while marcas[-1] < alvo - 1e-9:
+        marcas.append(round(marcas[-1] + passo, 10))
+    return marcas[-1], marcas
+
+
+def painel_erro(painel: PainelErro, *, x0: float, y0: float, largura: float,
+                altura: float, alfa: float, faixa: tuple[float, float]) -> str:
+    """Um cenário: as duas barras, os ICs, a faixa do acaso e a linha de α."""
+    margem_esq, margem_dir, margem_topo, margem_baixo = 52, 62, 58, 66
+    esquerda, direita = x0 + margem_esq, x0 + largura - margem_dir
+    base, topo_plot = y0 + altura - margem_baixo, y0 + margem_topo
+
+    maximo = max(b.ic_sup for b in painel.barras)
+    teto, marcas = teto_eixo_pct(100 * maximo, 100 * alfa)
+    escala_y = Escala(0, teto, base, topo_plot)
+
+    partes = [
+        texto(x0, y0 + 14, painel.titulo, tamanho=12, negrito=True),
+        texto(x0, y0 + 31, painel.subtitulo, tamanho=9.5, cor=TINTA_FRACA),
+    ]
+
+    # grade e eixo vertical em %
+    for marca in marcas:
+        y = escala_y.px(marca)
+        partes.append(linha(esquerda, y, direita, y, cor=GRADE))
+        casas = 0 if float(marca).is_integer() else 1
+        partes.append(texto(esquerda - 7, y + 3.5, f"{numero(marca, casas)}%",
+                            tamanho=9.5, cor=TINTA_FRACA, ancora="end"))
+    meio_y = (base + topo_plot) / 2
+    partes.append(texto(x0 + 12, meio_y, "taxa de rejeição de H₀ (%)", tamanho=9.5,
+                        cor=TINTA_FRACA, ancora="middle", angulo=-90))
+
+    # faixa do acaso: onde um teste com taxa real de 5% cairia em 95% das simulações
+    y_sup, y_inf = escala_y.px(100 * faixa[1]), escala_y.px(100 * faixa[0])
+    partes.append(retangulo(esquerda, y_sup, direita - esquerda, max(y_inf - y_sup, 1.5),
+                            cor=FAIXA_ACASO))
+
+    slot = (direita - esquerda) / len(painel.barras)
+    largura_barra = min(92.0, slot * 0.42)
+    for i, b in enumerate(painel.barras):
+        centro = esquerda + slot * (i + 0.5)
+        cor = _cor_do_teste(b.teste)
+        y_taxa = escala_y.px(100 * b.taxa)
+        y_ic_inf, y_ic_sup = escala_y.px(100 * b.ic_inf), escala_y.px(100 * b.ic_sup)
+        if b.h0_verdadeira:
+            leitura = f"erro tipo I, {_pp(100 * (b.taxa - alfa))} em relação a 5%"
+            rodape = f"{_pp(100 * (b.taxa - alfa))} em relação a 5%"
+            preenchimento = cor
+        else:
+            leitura = "a H0 deste teste é falsa neste cenário: não é erro tipo I"
+            rodape = "não é erro tipo I (H₀ do teste falsa)"
+            preenchimento = f"url(#{_id_listras(cor)})"
+        dica = (f"{b.teste}: {numero(b.rejeicoes, 0)} rejeições em {numero(b.repeticoes, 0)} "
+                f"conjuntos = {_pct(b.taxa)} (IC 95% de Wilson {_pct(b.ic_inf)} a "
+                f"{_pct(b.ic_sup)}; {leitura})")
+        partes += [
+            f"<g><title>{escapar(dica)}</title>",
+            # alvo de hover maior que a barra, invisível
+            retangulo(centro - slot * 0.45, topo_plot, slot * 0.9, base - topo_plot,
+                      cor="#ffffff", opacidade=0.0),
+            barra_arredondada(centro - largura_barra / 2, y_taxa, largura_barra, base,
+                              cor=preenchimento),
+            # IC de Wilson: bigode com tampas
+            linha(centro, y_ic_sup, centro, y_ic_inf, cor=TINTA, largura=1.4),
+            linha(centro - 7, y_ic_sup, centro + 7, y_ic_sup, cor=TINTA, largura=1.4),
+            linha(centro - 7, y_ic_inf, centro + 7, y_ic_inf, cor=TINTA, largura=1.4),
+            texto(centro, min(y_ic_sup, y_taxa) - 8, _pct(b.taxa), tamanho=12.5,
+                  negrito=True, ancora="middle"),
+            "</g>",
+        ]
+        # rótulos diretos sob o eixo: nome, contagem e distância para α
+        partes.append(retangulo(centro - 50, base + 10, 9, 9, cor=cor))
+        partes.append(texto(centro - 37, base + 18.5, b.teste, tamanho=10.5, negrito=True))
+        partes.append(texto(centro, base + 34,
+                            f"{numero(b.rejeicoes, 0)} de {numero(b.repeticoes, 0)} rejeições",
+                            tamanho=9.5, cor=TINTA_FRACA, ancora="middle"))
+        partes.append(texto(centro, base + 48, rodape, tamanho=9.5,
+                            cor=TINTA if not b.h0_verdadeira else TINTA_FRACA,
+                            negrito=not b.h0_verdadeira, ancora="middle"))
+
+    # a linha de α vai por cima das barras: tem de aparecer mesmo atrás delas
+    y_alfa = escala_y.px(100 * alfa)
+    partes.append(linha(esquerda - 2, y_alfa, direita + 4, y_alfa, cor=REFERENCIA,
+                        largura=2, tracejado="7 4"))
+    partes.append(texto(direita + 8, y_alfa + 4, f"α = {numero(100 * alfa, 0)}%",
+                        tamanho=10.5, cor=REFERENCIA, negrito=True))
+    partes.append(linha(esquerda, base, direita, base, cor=EIXO))
+    return "".join(partes)
+
+
+def legenda_g3(x: float, y: float, *, com_listras: bool) -> str:
+    """Legenda em duas linhas: séries, α e IC; depois a faixa do acaso e a textura."""
+    itens = []
+    cursor = x
+    for nome, cor in (("teste t pareado", AZUL), ("Wilcoxon pareado", LARANJA)):
+        itens.append(retangulo(cursor, y - 9, 11, 11, cor=cor))
+        itens.append(texto(cursor + 17, y, nome, tamanho=10.5))
+        cursor += 17 + 6.2 * len(nome) + 24
+    itens.append(linha(cursor, y - 3.5, cursor + 26, y - 3.5, cor=REFERENCIA,
+                       largura=2, tracejado="7 4"))
+    itens.append(texto(cursor + 32, y, "nível nominal α = 5%", tamanho=10.5))
+    cursor += 32 + 6.2 * 20 + 24
+    itens.append(linha(cursor + 6, y - 10, cursor + 6, y + 2, cor=TINTA, largura=1.4))
+    itens.append(linha(cursor + 1, y - 10, cursor + 11, y - 10, cor=TINTA, largura=1.4))
+    itens.append(linha(cursor + 1, y + 2, cursor + 11, y + 2, cor=TINTA, largura=1.4))
+    itens.append(texto(cursor + 18, y, "IC 95% (Wilson)", tamanho=10.5))
+
+    y2, cursor = y + 20, x
+    itens.append(retangulo(cursor, y2 - 9, 22, 11, cor=FAIXA_ACASO, borda=EIXO))
+    itens.append(texto(cursor + 28, y2, "variação de 5% esperada só pelo acaso da simulação",
+                       tamanho=10.5))
+    if com_listras:
+        cursor += 28 + 6.2 * 50 + 24
+        itens.append(retangulo(cursor, y2 - 9, 22, 11, cor=f"url(#{_id_listras(LARANJA)})",
+                               borda=EIXO))
+        itens.append(texto(cursor + 28, y2, "listrada: a H₀ do teste é falsa no cenário, "
+                                            "a taxa não é erro tipo I", tamanho=10.5))
+    return "".join(itens)
+
+
+def grafico_g3(paineis: list[PainelErro], *, alfa: float,
+               faixa: tuple[float, float]) -> str:
+    """G3 — taxa de rejeição de cada teste, um painel por cenário simulado.
+
+    `faixa` é o intervalo em que a taxa estimada cairia, em 95% das
+    simulações, se a taxa verdadeira fosse α (com o mesmo R). Para uma barra
+    cuja H0 vale (erro tipo I), um IC que cruza a linha de α é compatível com
+    o nível nominal, e um IC inteiro acima dela indica um teste liberal. Uma
+    barra cuja H0 é falsa sai listrada e não é comparada com α.
+
+    Cada painel tem o próprio eixo vertical (são pequenos múltiplos, não um
+    gráfico de dois eixos): as duas barras de um painel dividem o eixo, e a
+    comparação que vale é a de dentro do painel, entre os dois testes
+    aplicados aos mesmos conjuntos.
+    """
+    if not paineis:
+        raise ValueError("G3 precisa de pelo menos um painel")
+    largura, altura_painel, topo = 1040, 350, 54
+    coluna = largura / len(paineis)
+    com_listras = any(not b.h0_verdadeira for p in paineis for b in p.barras)
+    partes = [padroes_listrados(), legenda_g3(20, 18, com_listras=com_listras)]
+    for i, painel in enumerate(paineis):
+        partes.append(painel_erro(painel, x0=16 + i * coluna, y0=topo,
+                                  largura=coluna - 28, altura=altura_painel,
+                                  alfa=alfa, faixa=faixa))
+    return svg(largura, topo + altura_painel + 6, "".join(partes),
+               titulo="G3 — taxa de rejeição de H0 do teste t pareado e do Wilcoxon pareado "
+                      "nos conjuntos simulados da Q1, com a referência de 5%")

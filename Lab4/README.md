@@ -25,6 +25,8 @@ cd Lab4
 python src/descritiva.py     # médias, medianas, assimetria e extremos
 python src/testes.py         # os dois testes nos 30 pares reais
 python src/simulacao.py      # cenários simulados, erro tipo I e poder (~20 s)
+python src/erro_tipo_i.py      # Q1: 10.000 conjuntos sob H0 (precisa de requirements-q1.txt)
+python src/comparacao_erro.py   # compara o erro tipo I dos dois testes na Q1 (G3)
 python src/dashboard.py --abrir   # gera dashboard/index.html e abre no navegador
 ```
 
@@ -40,7 +42,9 @@ dados que ela produziu já estão versionados.
 | [src/distribuicoes.py](src/distribuicoes.py) | **Integrante 2** | t de Student, normal e a distribuição exata do Wilcoxon |
 | [src/testes.py](src/testes.py) | **Integrante 2** | os dois testes, com p-valor, IC e tamanho de efeito |
 | [src/simulacao.py](src/simulacao.py) | **Integrante 2** | gera os cenários e compara erro tipo I e poder |
-| [src/graficos.py](src/graficos.py) | **Integrante 3** | G1 e G2 em SVG, desenhados sem dependências |
+| [src/erro_tipo_i.py](src/erro_tipo_i.py) | Sprint 2 | Q1: simula 10.000 conjuntos em dois cenários e registra qual H0 vale em cada um |
+| [src/comparacao_erro.py](src/comparacao_erro.py) | Sprint 2 | compara as taxas da Q1: Wilson, diferença pareada e McNemar; só chama de erro tipo I a taxa de um teste cuja H0 vale |
+| [src/graficos.py](src/graficos.py) | **Integrante 3** | G1, G2 e G3 em SVG, desenhados sem dependências |
 | [src/dashboard.py](src/dashboard.py) | **Integrante 3** | monta o HTML único do dashboard a partir dos CSVs |
 
 ### Por que as distribuições são implementadas aqui
@@ -98,15 +102,16 @@ com dois cliques, sem servidor e sem instalar nada. É a entrega final do
 laboratório, e por isso cada gráfico vem com um texto curto dizendo o que
 mostra e o que se conclui dele.
 
-As sete seções seguem a ordem pedida no enunciado. **Na Sprint 01 estão
-prontas** a 1 (cenário), a 2 (G1), a 3 (G2) e a 6 (tabela dos dados reais); a 4
-e a 5 (G3 e G4) e a conclusão aparecem marcadas como pendentes, para a página
+As sete seções seguem a ordem pedida no enunciado. **Estão prontas** a 1
+(cenário), a 2 (G1), a 3 (G2), a 4 (G3, Sprint 02) e a 6 (tabela dos dados
+reais); a 5 (G4) e a conclusão aparecem marcadas como pendentes, para a página
 não dar a impressão de que já existem.
 
 | Gráfico | O que responde | Como |
 |---|---|---|
 | **G1** | com que dados estamos lidando? | seis histogramas: os dois grupos reais, as diferenças reais e os três cenários simulados |
 | **G2** | como um teste decide? | a distribuição da estatística sob H0, a região de rejeição e o p-valor desenhado como **área** |
+| **G3** | com que frequência cada teste acusa efeito que não existe? | taxa de rejeição dos dois testes nos 10.000 conjuntos de cada cenário da Q1, com IC de Wilson, a linha de 5% e a faixa do acaso. O painel simétrico compara o erro tipo I; o assimétrico é análise de sensibilidade, e a barra listrada (Wilcoxon, H0 falsa) não é erro tipo I — ver [docs/comparacao_taxas_erro.md](docs/comparacao_taxas_erro.md) |
 
 ### Por que SVG escrito à mão
 
@@ -119,7 +124,8 @@ resultado é um HTML que funciona offline.
 
 O dashboard **não recalcula teste nenhum**: lê `data/dados_reais.csv`,
 `data/resultados_reais.csv`, `data/simulacao/cenarios.csv` e
-`data/simulacao/resultados_exemplo.csv`. As duas únicas contas feitas ali são
+`data/simulacao/resultados_exemplo.csv` e, para o G3, os p-valores da Q1
+(`data/pvalores_q1*.csv`, conferidos contra `data/resultados_q1.csv`). As duas únicas contas feitas ali são
 os valores críticos de G2 — o t de 95% e o menor W⁺ que cai na região de
 rejeição —, e mesmo essas saem de `src/distribuicoes.py`, para o gráfico não
 discordar do teste.
@@ -136,7 +142,7 @@ dashboard mostra o aviso no cabeçalho e o comando avisa no terminal.
 python -m unittest discover -s tests -v
 ```
 
-100 testes, sem instalar nada. Cobrem as distribuições contra valores de tabela
+136 testes, sem instalar nada (os 5 de `tests/test_erro_tipo_i.py` se pulam sem NumPy). Cobrem as distribuições contra valores de tabela
 (`t_cdf(2,262; 9) = 0,975`), os dois testes em casos montados à mão com o
 resultado conferido no papel, e a reprodutibilidade da simulação.
 
@@ -167,6 +173,11 @@ se pulam e a suíte continua passando (é o que acontece na CI).
 | `data/simulacao/resultados_exemplo.csv` | os dois testes em cada cenário do exemplo |
 | `data/simulacao/poder_erro.csv` | erro tipo I e poder por cenário × n × efeito |
 | `docs/simulacao.md` | relatório gerado, com parâmetros, tabelas e interpretação |
+| `data/resultados_q1.csv`, `data/pvalores_q1*.csv` | Q1: agregado por cenário × teste e os p-valores das 10.000 repetições |
+| `docs/resultados_q1.md` | relatório gerado da Q1 (Issue #107) |
+| `data/comparacao_taxas_erro.csv` | taxas da Q1 por cenário × teste, com IC de Wilson e se a H0 do teste vale |
+| `data/mcnemar_q1.csv` | tabela 2×2 das decisões, diferença pareada e McNemar |
+| `docs/comparacao_taxas_erro.md` | relatório gerado da comparação (Issue #108) |
 | `dashboard/index.html` | o dashboard completo, em arquivo único |
 
 Os CSVs são a interface para o dashboard: ele lê arquivo, não importa função.

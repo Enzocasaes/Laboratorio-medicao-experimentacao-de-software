@@ -1,36 +1,48 @@
-"""Q1 da Sprint 2 — taxa de erro tipo I sob H0 (Lab04, par P2).
+"""Q1 da Sprint 2 — 10.000 conjuntos simulados sob H0 (Lab04, par P2, Issue #107).
 
-Simula R = 10.000 conjuntos de n = 30 diferenças pareadas com H0 verdadeira
-e conta quantas vezes o teste t pareado e o Wilcoxon pareado rejeitam H0 a
-α = 0,05 (unilateral, `greater`). Como H0 é verdadeira, toda rejeição é um
-erro tipo I:
+Simula R = 10.000 conjuntos de n = 30 diferenças pareadas e conta quantas vezes
+o teste t pareado e o Wilcoxon pareado rejeitam H0 a α = 0,05 (unilateral,
+`greater`). Quando a H0 *do teste* é verdadeira na distribuição simulada, toda
+rejeição é um erro tipo I:
 
     taxa de erro tipo I = rejeições / R
 
-## Como H0 é representada
+## As duas hipóteses nulas não são a mesma
 
-A distribuição nula é **empírica**: as 30 diferenças reais
-`d = tempo_sem_cache - tempo_com_cache` são centralizadas, subtraindo-se a
-média amostral (27,24 s), e cada conjunto simulado é uma reamostragem com
-reposição de 30 desses resíduos. A média da distribuição geradora passa a
-ser exatamente 0, enquanto a dispersão (desvio de 0,39 s), a assimetria
-(−2,17) e os valores extremos (pares 14, 21 e 10) dos dados reais são
-mantidos. Isso é o *bootstrap sob a hipótese nula*.
+- teste t: H0 μ_d ≤ 0 (a **média** das diferenças);
+- Wilcoxon: H0 "a distribuição das diferenças é simétrica em torno de 0 (ou
+  deslocada para valores negativos)". O teste é sensível a P(X₁ + X₂ > 0),
+  isto é, à **pseudomediana**, e não à média.
 
-Além do cenário principal, roda um **controle simetrizado**: os mesmos
-resíduos, cada um com sinal ± sorteado. A escala e as caudas são as mesmas,
-mas a assimetria vai embora. É o único formato em que as duas H0 coincidem: a
-do teste t (média = 0) e a do Wilcoxon (distribuição simétrica em torno de 0).
-Comparar os dois cenários separa "o teste está mal calibrado" de "a H0 que o
-teste avalia não é a que foi simulada". Veja docs/resultados_q1.md.
+Uma distribuição assimétrica pode ter média 0 e pseudomediana positiva. Nela,
+a H0 do t é verdadeira e a do Wilcoxon é falsa. Por isso o script verifica,
+na distribuição geradora de cada cenário, qual H0 vale (`hipoteses_nulas`), e
+só chama de erro tipo I a taxa de um teste cuja H0 é verdadeira.
+
+## Os dois cenários
+
+- `bootstrap_simetrizado` — **referência do erro tipo I.** Os 30 resíduos
+  reais (d − d̄) são reamostrados com reposição e cada valor recebe um sinal
+  ± sorteado de forma independente. A distribuição geradora é simétrica em
+  torno de 0, então as duas H0 valem. É aqui que as taxas dos dois testes
+  podem ser comparadas como erro tipo I.
+- `bootstrap_centralizado` — **sensibilidade à assimetria.** Os mesmos
+  resíduos, reamostrados sem trocar o sinal. Média 0, mas com a assimetria e
+  os extremos dos dados reais. A H0 do t vale; a do Wilcoxon não (a
+  pseudomediana é positiva). A taxa do t é erro tipo I; a do Wilcoxon é uma
+  taxa de rejeição com a H0 dele falsa.
+
+As sementes são 42 (centralizado) e 43 (simetrizado): a ordem de `CENARIOS`
+define a semente e não pode mudar sem mudar os resultados.
 
 ## O que é reutilizado
 
 Os testes NÃO são reimplementados: as decisões e os p-valores vêm de
-`teste_t_pareado` e `wilcoxon_pareado` (src/testes.py, Sprint 1). O NumPy só
-gera os dados (`numpy.random.default_rng`). O SciPy só confere, repetição a
-repetição, que os p-valores do projeto coincidem com
-`scipy.stats.ttest_1samp` e `scipy.stats.wilcoxon` nos mesmos dados.
+`teste_t_pareado` e `wilcoxon_pareado` (src/testes.py, Sprint 1). O IC de
+Wilson vem de src/comparacao_erro.py (Issue #108). O NumPy só gera os dados
+(`numpy.random.default_rng`). O SciPy só confere, repetição a repetição, que
+os p-valores do projeto coincidem com `scipy.stats.ttest_1samp` e
+`scipy.stats.wilcoxon` nos mesmos dados.
 
 Uso (a partir de Lab4/):
 
@@ -52,7 +64,8 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
-from distribuicoes import normal_cdf, t_quantil
+from comparacao_erro import classificar, wilson
+from distribuicoes import normal_cdf
 from testes import ALFA, TOLERANCIA_ZERO, carregar_diferencas, teste_t_pareado, wilcoxon_pareado
 
 LAB4_DIR = Path(__file__).resolve().parent.parent
@@ -60,18 +73,28 @@ LAB4_DIR = Path(__file__).resolve().parent.parent
 SEMENTE_PADRAO = 42
 REPETICOES_PADRAO = 10_000
 N_PADRAO = 30
-# z de 97,5% para o IC de Monte Carlo da taxa de rejeição
-Z_975 = 1.959963984540054
 # Tolerância da conferência contra o SciPy. As duas implementações usam a
 # mesma fórmula; o que sobra é arredondamento de ponto flutuante.
 TOLERANCIA_SCIPY = 1e-9
+# Tolerância relativa (ao desvio) para "média = 0" e "simétrica": a média dos
+# resíduos centralizados é 0 só a menos de arredondamento (~1e-16).
+TOLERANCIA_RELATIVA = 1e-9
 
-PRINCIPAL = "bootstrap_centralizado"
-CONTROLE = "bootstrap_simetrizado"
-CENARIOS = (PRINCIPAL, CONTROLE)
+CENTRALIZADO = "bootstrap_centralizado"
+SIMETRIZADO = "bootstrap_simetrizado"
+# A ORDEM define as sementes (semente + posição): não reordenar.
+CENARIOS = (CENTRALIZADO, SIMETRIZADO)
+PAPEL_CENARIO = {
+    SIMETRIZADO: "referência do erro tipo I (as duas H0 valem)",
+    CENTRALIZADO: "sensibilidade à assimetria (só a H0 do t vale)",
+}
 
 TESTE_T = "t pareado"
 TESTE_W = "Wilcoxon pareado"
+
+NATUREZA_ERRO = "erro tipo I"
+NATUREZA_REJEICAO = "rejeição com a H0 do teste falsa (não é erro tipo I)"
+NAO_SE_APLICA = "não se aplica (H0 do teste falsa)"
 
 
 # ------------------------------------------------------- distribuição nula ----
@@ -84,19 +107,77 @@ def residuos_centralizados(diferencas: list[float] | np.ndarray) -> np.ndarray:
 
 def gerar_conjuntos(residuos: np.ndarray, cenario: str, repeticoes: int, n: int,
                     rng: np.random.Generator) -> np.ndarray:
-    """Matriz R x n; cada linha é um conjunto de diferenças sob H0.
+    """Matriz R x n; cada linha é um conjunto simulado de diferenças.
 
     Tudo é sorteado de uma vez, antes de qualquer teste. Assim os dois testes
     leem a mesma linha da mesma matriz, e os dados não dependem da ordem em
     que os testes rodam.
+
+    No simetrizado, cada valor é X = S·E, com E sorteado dos resíduos e S = ±1
+    sorteado com probabilidade 1/2, independentemente de E e das outras
+    posições. Então X e −X têm a mesma distribuição: simetria exata em 0.
     """
     amostras = rng.choice(residuos, size=(repeticoes, n), replace=True)
-    if cenario == PRINCIPAL:
+    if cenario == CENTRALIZADO:
         return amostras
-    if cenario == CONTROLE:
+    if cenario == SIMETRIZADO:
         sinais = rng.choice(np.array([-1.0, 1.0]), size=(repeticoes, n), replace=True)
         return amostras * sinais
     raise ValueError(f"cenário desconhecido: {cenario} (use um de {CENARIOS})")
+
+
+def distribuicao_geradora(residuos: np.ndarray, cenario: str) -> np.ndarray:
+    """Suporte da distribuição de onde cada valor é sorteado, com pesos iguais.
+
+    Centralizado: os 30 resíduos, 1/30 cada. Simetrizado: os 60 valores ±eᵢ,
+    1/60 cada (sortear eᵢ e depois o sinal dá exatamente isso).
+    """
+    if cenario == CENTRALIZADO:
+        return residuos.copy()
+    if cenario == SIMETRIZADO:
+        return np.concatenate([residuos, -residuos])
+    raise ValueError(f"cenário desconhecido: {cenario}")
+
+
+def hipoteses_nulas(suporte: np.ndarray) -> dict:
+    """Qual H0 é verdadeira na distribuição geradora (pesos iguais no suporte).
+
+    - t: H0 μ ≤ 0. Verdadeira se a média da geradora é ≤ 0 (a menos de
+      arredondamento).
+    - Wilcoxon: H0 "simétrica em torno de 0". W⁺ conta as médias de Walsh
+      positivas, e E[W⁺] = n·P(X > 0) + C(n,2)·P(X₁ + X₂ > 0); sob simetria,
+      P(X₁ + X₂ > 0) = P(X₁ + X₂ < 0) e E[W⁺] = n(n+1)/4. Se a geradora não é
+      simétrica e P(X₁ + X₂ > 0) > P(X₁ + X₂ < 0), a pseudomediana é positiva e
+      vale a H1 do teste: as rejeições dele não são erro tipo I.
+    """
+    s = np.asarray(suporte, dtype=float)
+    escala = float(np.std(s)) or 1.0
+    tol = TOLERANCIA_RELATIVA * escala
+    media = float(s.mean())
+    somas = s[:, None] + s[None, :]          # pares i.i.d. (inclui i = j)
+    p_soma_pos = float(np.mean(somas > tol))
+    p_soma_neg = float(np.mean(somas < -tol))
+    simetrica = bool(np.allclose(np.sort(s), np.sort(-s), rtol=0.0, atol=tol))
+    pseudomediana = float(np.median(somas / 2))
+
+    h0_t = media <= tol
+    if simetrica:
+        h0_w = True
+    elif p_soma_pos > p_soma_neg:
+        h0_w = False
+    else:
+        # assimétrica, mas puxada para baixo: fora do escopo desta Q1
+        raise ValueError("distribuição geradora assimétrica com pseudomediana ≤ 0: "
+                         "a H0 do Wilcoxon não fica bem definida")
+    return {
+        "media": media,
+        "simetrica": simetrica,
+        "p_soma_positiva": p_soma_pos,
+        "p_soma_negativa": p_soma_neg,
+        "pseudomediana": pseudomediana,
+        TESTE_T: h0_t,
+        TESTE_W: h0_w,
+    }
 
 
 # ------------------------------------------------------------ Monte Carlo ----
@@ -135,11 +216,25 @@ class ResultadoCenario:
             h.update(np.ascontiguousarray(vetor, dtype=np.float64).tobytes())
         return h.hexdigest()
 
+    def diagnostico_dados(self) -> dict:
+        """O que os dados efetivamente sorteados mostram (não a geradora)."""
+        x = self.dados
+        positivos = x > 0
+        magnitude_alta = np.abs(x) > np.median(np.abs(x))
+        return {
+            "prop_positivos": float(positivos.mean()),
+            # P(+) entre os valores de |x| acima e abaixo da mediana: se o sinal
+            # independe da magnitude, as duas proporções são iguais
+            "prop_positivos_magnitude_alta": float(positivos[magnitude_alta].mean()),
+            "prop_positivos_magnitude_baixa": float(positivos[~magnitude_alta].mean()),
+            "media_global": float(x.mean()),
+        }
+
 
 def rodar_cenario(residuos: np.ndarray, cenario: str, repeticoes: int = REPETICOES_PADRAO,
                   n: int = N_PADRAO, alfa: float = ALFA,
                   semente: int = SEMENTE_PADRAO) -> ResultadoCenario:
-    """R conjuntos sob H0; os dois testes do projeto em cada um.
+    """R conjuntos; os dois testes do projeto em cada um.
 
     Nenhuma repetição é descartada. Casos degenerados são contados e mantidos
     com o tratamento das funções de src/testes.py:
@@ -155,6 +250,8 @@ def rodar_cenario(residuos: np.ndarray, cenario: str, repeticoes: int = REPETICO
     inicio = time.perf_counter()
     rng = np.random.default_rng(semente)
     dados = gerar_conjuntos(residuos, cenario, repeticoes, n, rng)
+    if dados.shape != (repeticoes, n) or not np.isfinite(dados).all():
+        raise ValueError(f"{cenario}: matriz de dados com forma {dados.shape} ou valores não finitos")
 
     p_t = np.empty(repeticoes)
     p_w = np.empty(repeticoes)
@@ -233,33 +330,26 @@ def conferir_com_scipy(resultado: ResultadoCenario) -> dict:
 
 # ------------------------------------------------------------ agregação ----
 
-def intervalo_monte_carlo(rejeicoes: int, repeticoes: int) -> tuple[float, float, float]:
-    """Erro padrão e IC de 95% (Wald) da taxa de rejeição estimada."""
+def erro_padrao_monte_carlo(rejeicoes: int, repeticoes: int) -> float:
+    """√(p̂(1 − p̂)/R): o erro padrão da taxa estimada."""
     taxa = rejeicoes / repeticoes
-    ep = math.sqrt(taxa * (1 - taxa) / repeticoes)
-    return ep, max(0.0, taxa - Z_975 * ep), min(1.0, taxa + Z_975 * ep)
+    return math.sqrt(taxa * (1 - taxa) / repeticoes)
 
 
-def classificar(ic_inf: float, ic_sup: float, alfa: float) -> str:
-    """Calibração do teste a partir do IC de Monte Carlo da taxa.
+def resumo(resultado: ResultadoCenario, hipoteses: dict) -> list[dict]:
+    """Uma linha por teste, no formato de data/resultados_q1.csv.
 
-    A comparação é com o IC, não com a taxa pontual: com R = 10.000, uma taxa
-    de 5,3% pode ser só ruído de simulação.
+    `taxa_rejeicao` é sempre rejeições/R. Ela só é uma taxa de erro tipo I
+    quando `h0_do_teste_verdadeira` é True (coluna `natureza_da_taxa`), e só
+    nesse caso o teste é classificado como liberal, conservador ou compatível
+    com α. O IC é o de Wilson.
     """
-    if ic_inf > alfa:
-        return "liberal"
-    if ic_sup < alfa:
-        return "conservador"
-    return "calibrado"
-
-
-def resumo(resultado: ResultadoCenario) -> list[dict]:
-    """Uma linha por teste, no formato de data/resultados_q1.csv."""
     linhas = []
     for teste, p, rejeitou in ((TESTE_T, resultado.p_t, resultado.rejeitou_t),
                                (TESTE_W, resultado.p_w, resultado.rejeitou_w)):
         rejeicoes = int(rejeitou.sum())
-        ep, inf, sup = intervalo_monte_carlo(rejeicoes, resultado.repeticoes)
+        inf, sup = wilson(rejeicoes, resultado.repeticoes)
+        h0 = bool(hipoteses[teste])
         if teste == TESTE_T:
             degenerados = resultado.desvio_zero
             observacao = "degenerados = conjuntos com desvio 0 (t indefinido)"
@@ -270,21 +360,24 @@ def resumo(resultado: ResultadoCenario) -> list[dict]:
                           + f"; zeros descartados no total: {int(resultado.zeros_w.sum())}")
         linhas.append({
             "cenario": resultado.cenario,
+            "papel_do_cenario": PAPEL_CENARIO[resultado.cenario],
             "teste": teste,
+            "h0_do_teste_verdadeira": h0,
+            "natureza_da_taxa": NATUREZA_ERRO if h0 else NATUREZA_REJEICAO,
             "repeticoes": resultado.repeticoes,
             "n": resultado.n,
             "alfa": resultado.alfa,
             "semente": resultado.semente,
             "rejeicoes": rejeicoes,
             "nao_rejeicoes": resultado.repeticoes - rejeicoes,
-            "taxa_erro_tipo_i": rejeicoes / resultado.repeticoes,
-            "erro_padrao_mc": ep,
-            "ic95_inferior": inf,
-            "ic95_superior": sup,
+            "taxa_rejeicao": rejeicoes / resultado.repeticoes,
+            "erro_padrao_mc": erro_padrao_monte_carlo(rejeicoes, resultado.repeticoes),
+            "ic95_wilson_inferior": inf,
+            "ic95_wilson_superior": sup,
             "p_valor_medio": float(np.mean(p)),
             "p_valor_mediana": float(np.median(p)),
             "p_valor_desvio": float(np.std(p, ddof=1)),
-            "classificacao": classificar(inf, sup, resultado.alfa),
+            "classificacao": classificar(inf, sup, resultado.alfa) if h0 else NAO_SE_APLICA,
             "degenerados": degenerados,
             "observacao": observacao,
         })
@@ -292,7 +385,7 @@ def resumo(resultado: ResultadoCenario) -> list[dict]:
 
 
 def tabela_pvalores(resultado: ResultadoCenario) -> pd.DataFrame:
-    """Uma linha por repetição: o formato de data/pvalores_q1.csv."""
+    """Uma linha por repetição: o formato de data/pvalores_q1*.csv."""
     return pd.DataFrame({
         "repeticao": np.arange(1, resultado.repeticoes + 1),
         "p_valor_t": resultado.p_t,
@@ -322,16 +415,15 @@ def curtose_excesso(valores: np.ndarray) -> float:
 
 
 def diagnostico_nula(residuos: np.ndarray, n: int, alfa: float) -> dict:
-    """O que a distribuição geradora implica para cada teste, antes de simular.
+    """O que a distribuição geradora do centralizado implica, antes de simular.
 
-    - Teste t: com uma população assimétrica, a estatística t deixa de seguir
-      a t de Student. A correção de Edgeworth de 1ª ordem dá
-      P(T > z) ≈ 1 − Φ(z) − γ/(6√n)·(2z² + 1)·φ(z), em que γ é a assimetria da
-      população. Com γ < 0, a cauda superior engorda e o teste fica liberal.
-    - Wilcoxon: sob a distribuição geradora,
-      E[W+] = n·P(X > 0) + C(n,2)·P(X₁ + X₂ > 0); sob a H0 do Wilcoxon
-      (simetria em torno de 0) esse valor é n(n+1)/4. A diferença mostra o
-      quanto a distribuição gerada viola a H0 do Wilcoxon.
+    Teste t: com uma população assimétrica, a estatística t deixa de seguir a
+    t de Student. A expansão de Edgeworth de 1ª ordem (Hall, 1987) dá
+    P(T > z) ≈ 1 − Φ(z) − γ/(6√n)·(2z² + 1)·φ(z), com γ a assimetria da
+    população e z o quantil normal de 1 − α. Com γ < 0, a cauda superior
+    engorda e o teste fica liberal. (A versão anterior misturava o quantil da
+    t com a cauda da normal; aqui as duas partes são da normal, e a distância
+    entre a t de Student e a normal é de ordem 1/n.)
     """
     # Momentos da distribuição GERADORA (a empírica, com pesos 1/30), e não a
     # estimativa amostral: é dessa população que as amostras saem.
@@ -339,7 +431,7 @@ def diagnostico_nula(residuos: np.ndarray, n: int, alfa: float) -> dict:
     sigma_pop = float(np.sqrt(np.mean(centro**2)))
     gama_pop = float(np.mean(centro**3) / sigma_pop**3)
 
-    z = t_quantil(1 - alfa, n - 1)
+    z = statistics.NormalDist().inv_cdf(1 - alfa)
     phi = math.exp(-z * z / 2) / math.sqrt(2 * math.pi)
     edgeworth = (1 - normal_cdf(z)) - gama_pop / (6 * math.sqrt(n)) * (2 * z * z + 1) * phi
 
@@ -375,23 +467,24 @@ def _pct(x: float, casas: int = 2) -> str:
 
 
 def _num(x: float, casas: int = 4) -> str:
-    return f"{x:.{casas}f}".replace(".", ",")
+    return f"{x:.{casas}f}".replace(".", ",").replace("-", "−")
 
 
-TEXTO_CLASSIFICACAO = {
-    "calibrado": "calibrado (5% dentro do IC de Monte Carlo)",
-    "liberal": "**liberal** (IC inteiro acima de 5%)",
-    "conservador": "**conservador** (IC inteiro abaixo de 5%)",
-}
+def _sim_nao(valor: bool) -> str:
+    return "sim" if valor else "**não**"
 
 
 def escrever_relatorio(caminho: Path, linhas: list[dict], resultados: dict[str, ResultadoCenario],
-                       diag: dict, args: argparse.Namespace, csv_entrada: Path) -> None:
+                       hipoteses: dict[str, dict], diag: dict, args: argparse.Namespace,
+                       csv_entrada: Path) -> None:
     """docs/resultados_q1.md — gerado a partir dos números, não escrito à mão."""
     por = {(l["cenario"], l["teste"]): l for l in linhas}
-    tp, wp = por[(PRINCIPAL, TESTE_T)], por[(PRINCIPAL, TESTE_W)]
-    tc, wc = por[(CONTROLE, TESTE_T)], por[(CONTROLE, TESTE_W)]
-    meia_largura = Z_975 * math.sqrt(args.alfa * (1 - args.alfa) / args.repeticoes)
+    st, sw = por[(SIMETRIZADO, TESTE_T)], por[(SIMETRIZADO, TESTE_W)]
+    ct, cw = por[(CENTRALIZADO, TESTE_T)], por[(CENTRALIZADO, TESTE_W)]
+    hs, hc = hipoteses[SIMETRIZADO], hipoteses[CENTRALIZADO]
+    ds = resultados[SIMETRIZADO].diagnostico_dados()
+    dc = resultados[CENTRALIZADO].diagnostico_dados()
+    meia_largura = 1.959963984540054 * math.sqrt(args.alfa * (1 - args.alfa) / args.repeticoes)
     import platform
     versoes = f"Python {platform.python_version()}, NumPy {np.__version__}, pandas {pd.__version__}"
     try:
@@ -400,249 +493,301 @@ def escrever_relatorio(caminho: Path, linhas: list[dict], resultados: dict[str, 
     except ImportError:  # pragma: no cover
         pass
 
+    def tabela(cenario: str) -> list[str]:
+        saida = ["| Teste | H0 do teste vale? | Rejeições | Não rejeições | Taxa de rejeição | "
+                 "IC 95% (Wilson) | O que a taxa mede | Classificação |",
+                 "|---|:---:|---:|---:|---:|---|---|---|"]
+        for teste in (TESTE_T, TESTE_W):
+            l = por[(cenario, teste)]
+            saida.append(
+                f"| {teste} | {_sim_nao(l['h0_do_teste_verdadeira'])} | {l['rejeicoes']} | "
+                f"{l['nao_rejeicoes']} | **{_pct(l['taxa_rejeicao'])}** | "
+                f"[{_pct(l['ic95_wilson_inferior'])}; {_pct(l['ic95_wilson_superior'])}] | "
+                f"{l['natureza_da_taxa']} | {l['classificacao']} |")
+        return saida
+
     l: list[str] = [
-        "# Q1 — Taxa de erro tipo I sob H0 (10.000 simulações)",
+        "# Q1 — 10.000 conjuntos simulados sob H0",
         "",
         "**Lab04 — Sprint 2, Issue #107**",
         "",
         "> Arquivo **gerado** por `python src/erro_tipo_i.py`. Não edite à mão:",
-        "> rode o comando de novo. Os números vêm de `data/resultados_q1.csv`.",
+        "> rode o comando de novo. Os números vêm de `data/resultados_q1.csv`. A comparação",
+        "> entre os dois testes (Wilson, McNemar, conclusão) está em",
+        "> [`comparacao_taxas_erro.md`](comparacao_taxas_erro.md) (Issue #108).",
         "",
-        "## Pergunta",
+        "## 1. Objetivo",
         "",
-        f"Com H0 verdadeira, com que frequência o teste t pareado e o Wilcoxon pareado",
-        f"(unilaterais, `alternative='greater'`) rejeitam H0 a α = {_num(args.alfa, 2)}?",
-        "Toda rejeição aqui é um **erro tipo I**, e um teste bem calibrado deveria errar",
-        f"em cerca de {_pct(args.alfa, 0)} das vezes:",
+        "Medir com que frequência o teste t pareado e o Wilcoxon pareado (unilaterais,",
+        f"`alternative='greater'`, α = {_num(args.alfa, 2)}) rejeitam a hipótese nula quando ela é",
+        "verdadeira. Toda rejeição de uma H0 verdadeira é um **erro tipo I**, e um teste bem",
+        f"calibrado deveria cometê-lo em cerca de {_pct(args.alfa, 0)} das vezes:",
         "",
         f"    taxa de erro tipo I = rejeições / {args.repeticoes}",
         "",
-        "## Parâmetros",
+        "O ponto delicado é a expressão \"H0 verdadeira\". Os dois testes não têm a mesma H0,",
+        "e uma distribuição pode satisfazer a de um sem satisfazer a do outro. A seção 3",
+        "trata disso antes de qualquer número.",
+        "",
+        "## 2. Parâmetros",
         "",
         "| Item | Valor |",
         "|---|---|",
         f"| Repetições por cenário | {args.repeticoes} |",
         f"| Pares por conjunto (n) | {args.n} |",
         f"| α | {_num(args.alfa, 2)} (unilateral, `greater`) |",
-        f"| Semente | `numpy.random.default_rng({args.semente})` no cenário principal; "
-        f"`default_rng({args.semente + 1})` no controle |",
+        f"| Semente | `numpy.random.default_rng({args.semente})` no centralizado; "
+        f"`default_rng({args.semente + 1})` no simetrizado |",
         f"| Dados de origem | `{csv_entrada.relative_to(LAB4_DIR).as_posix()}` "
         f"({diag['n_residuos']} pares reais) |",
-        f"| Diferença | d = tempo_sem_cache − tempo_com_cache |",
-        f"| Implementação dos testes | `teste_t_pareado` e `wilcoxon_pareado` de `src/testes.py` (Sprint 1) |",
+        "| Diferença | d = tempo_sem_cache − tempo_com_cache (positiva = o cache reduziu o tempo) |",
+        "| Implementação dos testes | `teste_t_pareado` e `wilcoxon_pareado` de `src/testes.py` (Sprint 1) |",
         f"| Ambiente | {versoes} |",
         "",
-        "## Como H0 foi representada",
+        "## 3. As hipóteses nulas dos dois testes",
         "",
-        "Os dados reais **não** representam H0: neles a diferença média é de 27,24 s,",
-        "e as 30 diferenças são positivas. Simular a partir deles mediria o poder do",
-        "teste, e não o erro tipo I. Também não basta sortear números de uma normal com",
-        "média 0, porque isso descartaria justamente o que os dados reais têm de",
-        "particular: um desvio pequeno, uma forte assimetria à esquerda e três valores",
-        "extremos (pares 14, 21 e 10).",
+        "Com d = sem cache − com cache e a alternativa `greater` (seção 4.1 de",
+        "`docs/cenario_experimental.md`):",
         "",
-        "A distribuição nula usada é a **empírica centralizada** (bootstrap sob H0):",
+        "| Teste | H0 | H1 | Parâmetro de que o teste depende |",
+        "|---|---|---|---|",
+        "| t pareado | μ_d ≤ 0 | μ_d > 0 | a **média** das diferenças |",
+        "| Wilcoxon pareado | distribuição de d simétrica em torno de 0 (ou deslocada para valores negativos) | "
+        "deslocamento para valores positivos | P(X₁ + X₂ > 0), ou seja, a **pseudomediana** |",
         "",
-        "1. calcular as 30 diferenças reais dᵢ;",
-        f"2. subtrair a média amostral: eᵢ = dᵢ − d̄. A média de e é exatamente 0, e o "
-        f"desvio ({_num(diag['desvio'])} s), a assimetria e os extremos continuam os dos dados;",
-        f"3. em cada repetição, sortear {args.n} valores de {{e₁, …, e₃₀}} **com reposição**;",
-        "4. aplicar os dois testes ao **mesmo** conjunto de 30 valores.",
+        "A estatística W⁺ é igual ao número de médias de Walsh (Xᵢ + Xⱼ)/2, i ≤ j, que são",
+        "positivas. Por isso:",
         "",
-        "Como os resíduos já são diferenças pareadas, os testes comparam essas",
-        "diferenças com 0. É exatamente o que `teste_t_pareado` e `wilcoxon_pareado` fazem",
-        "(eles recebem o vetor d), e é equivalente a `ttest_rel(sem, com)` /",
-        "`wilcoxon(sem, com)` com `com` = sem − d.",
+        "    E[W⁺] = n·P(X > 0) + C(n,2)·P(X₁ + X₂ > 0)",
         "",
-        "### A distribuição geradora",
+        "Sob simetria em torno de 0, P(X₁ + X₂ > 0) = 1/2 e E[W⁺] = n(n+1)/4. Uma",
+        "distribuição com P(X₁ + X₂ > 0) > 1/2 tem pseudomediana positiva, e o Wilcoxon",
+        "tende a rejeitar, **mesmo que a média seja 0**. Média zero não implica simetria:",
+        "numa distribuição assimétrica à esquerda, um valor muito negativo compensa vários",
+        "valores pequenos positivos. A média fica em 0, mas a maioria dos valores, e das",
+        "médias de Walsh, fica acima de 0.",
         "",
-        "| Estatística dos resíduos eᵢ | Valor |",
+        "Consequência: só é erro tipo I a rejeição de um teste cuja **própria** H0 é",
+        "verdadeira na distribuição simulada. O script verifica isso na distribuição geradora",
+        "de cada cenário (`hipoteses_nulas` em `src/erro_tipo_i.py`) e grava o resultado na",
+        "coluna `h0_do_teste_verdadeira` de `data/resultados_q1.csv`.",
+        "",
+        "## 4. Como os dados foram gerados",
+        "",
+        "Os dados reais **não** servem diretamente: neles a diferença média é de 27,24 s, e as",
+        "30 diferenças são positivas. Simular a partir deles mediria poder, não erro tipo I.",
+        "Sortear de uma normal com média 0 também não basta, porque descartaria o que os",
+        "dados reais têm de particular: um desvio pequeno, forte assimetria à esquerda e três",
+        "valores extremos (pares 14, 21 e 10). Os dois cenários partem dos **resíduos**",
+        f"eᵢ = dᵢ − d̄ das 30 diferenças reais (desvio de {_num(diag['desvio'])} s). A média deles é 0 a",
+        f"menos de arredondamento ({diag['media']:.1e} s).",
+        "",
+        "### 4.1 Cenário simetrizado — referência do erro tipo I",
+        "",
+        f"Em cada repetição, sortear {args.n} resíduos com reposição e multiplicar cada um por",
+        "um sinal S = ±1 sorteado com probabilidade 1/2, de forma independente do resíduo e",
+        "das outras posições. Cada valor é X = S·E, e como S é independente de E e simétrico,",
+        "X e −X têm a mesma distribuição. A geradora é a distribuição uniforme sobre os 60",
+        "valores ±eᵢ: **simétrica em torno de 0 por construção**, com a mesma escala e as",
+        "mesmas caudas dos dados reais. As duas H0 valem ao mesmo tempo.",
+        "",
+        "O que os dados sorteados mostram:",
+        "",
+        "| Verificação | Esperado | Observado nos 10.000 × 30 valores |",
+        "|---|---:|---:|",
+        f"| Proporção de valores positivos | 50% | {_pct(ds['prop_positivos'])} |",
+        f"| Proporção de positivos entre os 50% maiores \\|x\\| | 50% | {_pct(ds['prop_positivos_magnitude_alta'])} |",
+        f"| Proporção de positivos entre os 50% menores \\|x\\| | 50% | {_pct(ds['prop_positivos_magnitude_baixa'])} |",
+        f"| P(X₁ + X₂ > 0) na geradora | = P(X₁ + X₂ < 0) | {_pct(hs['p_soma_positiva'])} = {_pct(hs['p_soma_negativa'])} |",
+        "",
+        "O sinal não depende da magnitude, e a proporção de positivos fica dentro do ruído",
+        "de amostragem. Os dois testes recebem a mesma linha da matriz de dados.",
+        "",
+        "### 4.2 Cenário centralizado — sensibilidade à assimetria",
+        "",
+        f"Em cada repetição, sortear {args.n} resíduos com reposição, **sem** trocar o sinal. É o",
+        "*bootstrap sob a hipótese nula* da média: preserva a forma dos dados reais.",
+        "",
+        "| Estatística da geradora (os 30 resíduos) | Valor |",
         "|---|---:|",
         f"| Média | {_num(diag['media'], 6)} s |",
-        f"| Desvio-padrão | {_num(diag['desvio'])} s |",
         f"| Mediana | {_num(diag['mediana'])} s |",
+        f"| Pseudomediana (mediana de (X₁ + X₂)/2) | {_num(hc['pseudomediana'])} s |",
+        f"| Desvio-padrão | {_num(diag['desvio'])} s |",
         f"| Assimetria (G1 ajustado) | {_num(diag['assimetria_amostral'], 2)} |",
         f"| Excesso de curtose (G2) | {_num(diag['curtose_excesso'], 2)} |",
         f"| Mínimo / máximo | {_num(diag['minimo'], 3)} s / {_num(diag['maximo'], 3)} s |",
-        f"| Proporção de resíduos positivos | {_pct(diag['prop_positivos'], 1)} |",
+        f"| P(X > 0) | {_pct(diag['prop_positivos'], 1)} |",
+        f"| P(X₁ + X₂ > 0) | {_pct(hc['p_soma_positiva'], 1)} (contra {_pct(hc['p_soma_negativa'], 1)} de P(X₁ + X₂ < 0)) |",
+        f"| E[W⁺] com n = {args.n} | {_num(diag['esperanca_w_mais'], 1)} (sob a H0 do Wilcoxon: {_num(diag['esperanca_w_mais_h0'], 1)}) |",
         "",
-        "A **média** é 0, mas a **mediana** não. Na assimetria à esquerda, um único",
-        f"resíduo muito negativo ({_num(diag['minimo'], 3)} s, o par 14) puxa a média para",
-        f"baixo, e {_pct(diag['prop_positivos'], 0)} dos resíduos ficam acima de zero.",
-        "Isso é decisivo para entender os resultados.",
+        "A média é 0, mas a distribuição está longe de ser simétrica. Um único resíduo",
+        f"muito negativo ({_num(diag['minimo'], 3)} s, o par 14) puxa a média para baixo, e",
+        f"{_pct(diag['prop_positivos'], 0)} dos resíduos ficam acima de 0. Nos dados sorteados, "
+        f"{_pct(dc['prop_positivos'], 1)} dos valores são positivos.",
         "",
-        "### Controle: bootstrap simetrizado",
+        "### 4.3 Qual H0 vale em cada cenário",
         "",
-        "As duas hipóteses nulas **não são a mesma** (seção 4.2 do cenário experimental):",
+        "| Cenário | Papel | H0 do t (μ ≤ 0) | H0 do Wilcoxon (simetria em 0) |",
+        "|---|---|:---:|:---:|",
+        f"| `{SIMETRIZADO}` | {PAPEL_CENARIO[SIMETRIZADO]} | {_sim_nao(hs[TESTE_T])} | {_sim_nao(hs[TESTE_W])} |",
+        f"| `{CENTRALIZADO}` | {PAPEL_CENARIO[CENTRALIZADO]} | {_sim_nao(hc[TESTE_T])} | {_sim_nao(hc[TESTE_W])} |",
         "",
-        "- teste t: H0 é μ_d = 0 (a **média** das diferenças é zero);",
-        "- Wilcoxon: H0 é que a distribuição das diferenças é **simétrica em torno de 0**.",
+        "No centralizado, a taxa do Wilcoxon **não é uma taxa de erro tipo I**. A H0 dele é",
+        "falsa (a pseudomediana é positiva), e as rejeições são decisões corretas do ponto de",
+        "vista do próprio teste. O cenário continua útil como **análise de sensibilidade**:",
+        "mostra o quanto o t perde o controle do erro tipo I com a assimetria dos dados reais,",
+        "e o que acontece quando se usa o Wilcoxon para uma pergunta que é sobre a média.",
         "",
-        "O bootstrap centralizado satisfaz a primeira e viola a segunda. Para separar",
-        "\"o teste está mal calibrado\" de \"a H0 simulada não é a do teste\", a mesma",
-        "simulação roda num segundo cenário: cada resíduo sorteado recebe um sinal ±",
-        "aleatório. A escala e as caudas continuam as mesmas, a assimetria desaparece, e",
-        "**as duas H0 passam a valer ao mesmo tempo**. Nesse cenário os dois testes",
-        "*têm* de errar perto de 5%. Se não errassem, haveria um defeito na implementação.",
-        "",
-        "Este controle não é um cenário de violação de pressupostos (isso é a Q3). Ele",
-        "é a referência que permite interpretar o cenário principal.",
-        "",
-        "## Como os testes foram aplicados",
+        "## 5. Como os testes foram aplicados",
         "",
         "- **Mesmos dados**: os 10.000 × 30 valores são sorteados numa matriz antes de",
         "  qualquer teste, e a linha r vai, como o mesmo objeto, para os dois testes. A",
-        "  conferência contra o SciPy recalcula os dois p-valores a partir dessa mesma",
-        "  matriz.",
+        "  conferência contra o SciPy recalcula os dois p-valores a partir dessa mesma matriz.",
         "- **Teste t**: `teste_t_pareado(d)`, unilateral, com gl = n − 1.",
         "- **Wilcoxon**: `wilcoxon_pareado(d)`. Zeros (|d| ≤ 0,5 ms) são descartados",
         "  (`zero_method='wilcox'`), e os empates recebem o posto médio. Sem zeros nem",
-        "  empates, o p é exato; com eles, a aproximação normal é feita com correção de",
+        "  empates, o p é exato; com eles, usa-se a aproximação normal com correção de",
         "  empates e de continuidade.",
-        "- **Empates**: reamostrar com reposição quase sempre repete algum resíduo, o que",
-        "  gera empates em |d|. Por isso o Wilcoxon usou a aproximação normal em",
-        f"  {resultados[PRINCIPAL].metodo_w.count('normal')} das {args.repeticoes} repetições "
-        f"do cenário principal e em {resultados[CONTROLE].metodo_w.count('normal')} do controle.",
+        "- **Empates**: reamostrar com reposição quase sempre repete algum resíduo, e no",
+        "  simetrizado eᵢ e −eᵢ têm o mesmo |d|. Por isso o Wilcoxon usou a aproximação",
+        f"  normal em {resultados[CENTRALIZADO].metodo_w.count('normal')} das {args.repeticoes} repetições "
+        f"do centralizado e em {resultados[SIMETRIZADO].metodo_w.count('normal')} do simetrizado.",
         f"  **Zeros** não ocorrem: o menor |eᵢ| é {_num(diag['menor_abs'], 4)} s, bem acima da",
         "  tolerância de 0,5 ms.",
         "- **Casos degenerados**: nenhuma repetição é descartada. Um conjunto com desvio 0",
         "  (as 30 retiradas iguais) ou sem nenhuma diferença não nula seria mantido com o",
-        "  tratamento já definido em `src/testes.py` e contado na coluna `degenerados`.",
-        "  P-valores NaN ou fora de [0, 1] interrompem a execução com erro.",
+        "  tratamento de `src/testes.py` (t: p = 0 se a média for positiva, senão p = 1;",
+        "  Wilcoxon: p = 1) e contado na coluna `degenerados`. Nenhum ocorreu. P-valores",
+        "  NaN ou fora de [0, 1] interrompem a execução com erro.",
         "",
-        "## Resultados",
+        "## 6. Resultados",
         "",
-        "### Cenário principal: bootstrap centralizado",
+        f"### 6.1 `{SIMETRIZADO}` — referência do erro tipo I",
         "",
-        "| Teste | Rejeições | Não rejeições | Taxa de erro tipo I | IC 95% (Monte Carlo) | Classificação |",
-        "|---|---:|---:|---:|---|---|",
+        *tabela(SIMETRIZADO),
+        "",
+        f"### 6.2 `{CENTRALIZADO}` — sensibilidade à assimetria",
+        "",
+        *tabela(CENTRALIZADO),
+        "",
+        "### 6.3 Distribuição dos p-valores",
+        "",
+        "| Cenário | Teste | p médio | p mediano | Desvio-padrão do p | Degenerados | Observação |",
+        "|---|---|---:|---:|---:|---:|---|",
     ]
-    for linha in (tp, wp):
-        l.append(f"| {linha['teste']} | {linha['rejeicoes']} | {linha['nao_rejeicoes']} | "
-                 f"**{_pct(linha['taxa_erro_tipo_i'])}** | "
-                 f"[{_pct(linha['ic95_inferior'])}; {_pct(linha['ic95_superior'])}] | "
-                 f"{TEXTO_CLASSIFICACAO[linha['classificacao']]} |")
-    l += [
-        "",
-        "| Teste | p-valor médio | Mediana | Desvio-padrão | Degenerados | Observação |",
-        "|---|---:|---:|---:|---:|---|",
-    ]
-    for linha in (tp, wp):
-        l.append(f"| {linha['teste']} | {_num(linha['p_valor_medio'])} | "
+    for linha in (st, sw, ct, cw):
+        l.append(f"| `{linha['cenario']}` | {linha['teste']} | {_num(linha['p_valor_medio'])} | "
                  f"{_num(linha['p_valor_mediana'])} | {_num(linha['p_valor_desvio'])} | "
                  f"{linha['degenerados']} | {linha['observacao']} |")
     l += [
         "",
-        "### Controle: bootstrap simetrizado",
+        "Sob uma H0 verdadeira e com o teste bem calibrado, o p-valor tem distribuição",
+        "aproximadamente uniforme em [0, 1]: média e mediana 0,5, desvio 1/√12 ≈ 0,2887.",
         "",
-        "| Teste | Rejeições | Taxa de erro tipo I | IC 95% (Monte Carlo) | p médio | p mediana | Classificação |",
-        "|---|---:|---:|---|---:|---:|---|",
-    ]
-    for linha in (tc, wc):
-        l.append(f"| {linha['teste']} | {linha['rejeicoes']} | **{_pct(linha['taxa_erro_tipo_i'])}** | "
-                 f"[{_pct(linha['ic95_inferior'])}; {_pct(linha['ic95_superior'])}] | "
-                 f"{_num(linha['p_valor_medio'])} | {_num(linha['p_valor_mediana'])} | "
-                 f"{TEXTO_CLASSIFICACAO[linha['classificacao']]} |")
-
-    l += [
+        "### 6.4 Comparação com 5%",
         "",
-        "Sob H0, um p-valor bem calibrado tem distribuição uniforme em [0, 1]: média 0,5,",
-        "mediana 0,5 e desvio-padrão 1/√12 ≈ 0,2887. Os valores das tabelas podem ser",
-        "comparados com essa referência.",
+        f"Com R = {args.repeticoes} e uma taxa verdadeira de {_pct(args.alfa, 0)}, a taxa estimada varia",
+        f"±{_num(100 * meia_largura, 2)} ponto percentual (95%) só pelo acaso da simulação, ou seja,",
+        f"de {_pct(args.alfa - meia_largura)} a {_pct(args.alfa + meia_largura)}. A classificação usa o IC de Wilson",
+        "de cada taxa, e só se aplica quando a H0 do teste é verdadeira:",
         "",
-        "## Comparação com 5%",
-        "",
-        f"Com R = {args.repeticoes} e uma taxa verdadeira de {_pct(args.alfa, 0)}, a taxa estimada",
-        f"varia ±{_num(100 * meia_largura, 2)} ponto percentual (IC de 95%) só pelo acaso da",
-        f"simulação, ou seja, de {_pct(args.alfa - meia_largura)} a {_pct(args.alfa + meia_largura)}.",
-        "A classificação usa o IC de Monte Carlo de cada taxa:",
-        "",
-        "- **calibrado**: 5% está dentro do IC;",
-        "- **liberal**: o IC inteiro está acima de 5%, ou seja, o teste rejeita H0",
-        "  verdadeira mais do que promete;",
+        "- **compatível com α**: 5% está dentro do IC;",
+        "- **liberal**: o IC inteiro está acima de 5%, ou seja, o teste rejeita H0 verdadeira",
+        "  mais do que promete;",
         "- **conservador**: o IC inteiro está abaixo de 5%.",
         "",
         "| Cenário | Teste | Taxa | Diferença para 5% | Classificação |",
         "|---|---|---:|---:|---|",
     ]
-    for linha in (tp, wp, tc, wc):
-        dif = 100 * (linha["taxa_erro_tipo_i"] - args.alfa)
-        l.append(f"| {linha['cenario']} | {linha['teste']} | {_pct(linha['taxa_erro_tipo_i'])} | "
-                 f"{'+' if dif >= 0 else '−'}{_num(abs(dif), 2)} p.p. | {linha['classificacao']} |")
+    for linha in (st, sw, ct, cw):
+        if linha["h0_do_teste_verdadeira"]:
+            dif = 100 * (linha["taxa_rejeicao"] - args.alfa)
+            distancia = f"{'+' if dif >= 0 else '−'}{_num(abs(dif), 2)} p.p."
+        else:
+            distancia = "— (não é erro tipo I)"
+        l.append(f"| `{linha['cenario']}` | {linha['teste']} | {_pct(linha['taxa_rejeicao'])} | "
+                 f"{distancia} | {linha['classificacao']} |")
 
-    l += ["", "## Interpretação", ""]
-    l += _interpretar(tp, wp, tc, wc, diag, args)
+    l += ["", "## 7. Interpretação", ""]
+    l += _interpretar(st, sw, ct, cw, hc, diag, args)
 
     conf = {c: resultados[c].conferencia_scipy for c in CENARIOS}
     l += [
         "",
-        "## Validação",
+        "## 8. Validação",
         "",
-        "| Verificação | Bootstrap centralizado | Bootstrap simetrizado |",
+        f"| Verificação | `{SIMETRIZADO}` | `{CENTRALIZADO}` |",
         "|---|---|---|",
-        f"| Repetições válidas | {resultados[PRINCIPAL].repeticoes} | {resultados[CONTROLE].repeticoes} |",
-        f"| P-valores NaN ou fora de [0, 1] | 0 | 0 |",
-        f"| Conjuntos degenerados (t / Wilcoxon) | {resultados[PRINCIPAL].desvio_zero} / "
-        f"{resultados[PRINCIPAL].wilcoxon_indefinido} | {resultados[CONTROLE].desvio_zero} / "
-        f"{resultados[CONTROLE].wilcoxon_indefinido} |",
+        f"| Repetições válidas × valores por conjunto | {resultados[SIMETRIZADO].repeticoes} × "
+        f"{resultados[SIMETRIZADO].n} | {resultados[CENTRALIZADO].repeticoes} × {resultados[CENTRALIZADO].n} |",
+        "| P-valores NaN ou fora de [0, 1] | 0 | 0 |",
+        f"| Conjuntos degenerados (t / Wilcoxon) | {resultados[SIMETRIZADO].desvio_zero} / "
+        f"{resultados[SIMETRIZADO].wilcoxon_indefinido} | {resultados[CENTRALIZADO].desvio_zero} / "
+        f"{resultados[CENTRALIZADO].wilcoxon_indefinido} |",
     ]
     if all(conf.values()):
         l += [
-            f"| Maior diferença de p para o SciPy (t) | {conf[PRINCIPAL]['max_dif_t']:.1e} | "
-            f"{conf[CONTROLE]['max_dif_t']:.1e} |",
-            f"| Maior diferença de p para o SciPy (Wilcoxon) | {conf[PRINCIPAL]['max_dif_w']:.1e} | "
-            f"{conf[CONTROLE]['max_dif_w']:.1e} |",
+            f"| Maior diferença de p para o SciPy (t) | {conf[SIMETRIZADO]['max_dif_t']:.1e} | "
+            f"{conf[CENTRALIZADO]['max_dif_t']:.1e} |",
+            f"| Maior diferença de p para o SciPy (Wilcoxon) | {conf[SIMETRIZADO]['max_dif_w']:.1e} | "
+            f"{conf[CENTRALIZADO]['max_dif_w']:.1e} |",
             f"| Decisões diferentes das do SciPy (t / Wilcoxon) | "
-            f"{conf[PRINCIPAL]['decisoes_divergentes_t']} / {conf[PRINCIPAL]['decisoes_divergentes_w']} | "
-            f"{conf[CONTROLE]['decisoes_divergentes_t']} / {conf[CONTROLE]['decisoes_divergentes_w']} |",
+            f"{conf[SIMETRIZADO]['decisoes_divergentes_t']} / {conf[SIMETRIZADO]['decisoes_divergentes_w']} | "
+            f"{conf[CENTRALIZADO]['decisoes_divergentes_t']} / {conf[CENTRALIZADO]['decisoes_divergentes_w']} |",
         ]
     l += [
-        f"| Impressão digital (SHA-256 de dados + p-valores) | `{resultados[PRINCIPAL].impressao_digital()[:16]}…` | "
-        f"`{resultados[CONTROLE].impressao_digital()[:16]}…` |",
+        f"| Impressão digital (SHA-256 de dados + p-valores) | `{resultados[SIMETRIZADO].impressao_digital()[:16]}…` | "
+        f"`{resultados[CENTRALIZADO].impressao_digital()[:16]}…` |",
         "",
         "A conferência usa `scipy.stats.ttest_1samp(d, 0, alternative='greater')` e",
         "`scipy.stats.wilcoxon(d, alternative='greater', zero_method='wilcox',",
         "correction=True, method='approx')` (ou `method='exact'` nas repetições em que o",
         "projeto usou o p exato), calculados sobre a mesma matriz de dados. Como os dois",
-        "p-valores de cada linha batem com os do SciPy calculados a partir da mesma",
-        "linha, os dois testes do projeto receberam exatamente os mesmos dados. A",
-        "impressão digital permite conferir a reprodutibilidade: rodar de novo com a",
-        "mesma semente tem de dar o mesmo hash.",
+        "p-valores de cada linha batem com os do SciPy calculados a partir da mesma linha,",
+        "os dois testes do projeto receberam exatamente os mesmos dados. Rodar de novo com a",
+        "mesma semente tem de reproduzir a mesma impressão digital.",
         "",
-        "## Limitações",
+        "## 9. Limitações",
         "",
-        "- **A distribuição nula tem só 30 pontos de apoio.** O bootstrap trata a amostra",
-        "  observada como se fosse a população. Valores que não apareceram na coleta",
-        "  nunca são sorteados, e cada valor observado, inclusive os extremos, tem peso",
-        f"  exato de 1/30. Em {_pct(diag['prob_sem_extremo'], 0)} dos conjuntos o",
-        "  resíduo mais negativo (par 14) nem é sorteado, e a forma da cauda esquerda",
-        "  depende quase toda de 1 a 3 observações.",
-        "- **Centralizar pela média é uma escolha.** Ela define H0 como \"média = 0\",",
-        "  que é a H0 do teste t. Centralizar pela mediana ou pelo estimador de",
-        "  Hodges-Lehmann geraria a H0 do Wilcoxon e inverteria a vantagem. Não existe",
-        "  uma única distribuição nula correta quando a distribuição é assimétrica, e por",
-        "  isso o controle simetrizado foi incluído.",
-        "- **Só a forma das diferenças é preservada**, e não a estrutura temporal da",
-        "  coleta (ordem AB/BA, aquecimento da JVM, deriva térmica). Os conjuntos",
-        "  simulados são i.i.d.; os dados reais podem não ser.",
+        "- **Uma única fonte para a forma da distribuição.** Os dois cenários reamostram 30",
+        "  resíduos de um único projeto, numa única máquina. Valores que não apareceram na",
+        "  coleta nunca são sorteados, e cada valor observado, inclusive os extremos, tem",
+        f"  peso exato de 1/30. Em {_pct(diag['prob_sem_extremo'], 0)} dos conjuntos o resíduo mais negativo",
+        "  (par 14) nem é sorteado, e a forma da cauda depende de 1 a 3 observações.",
+        "- **O simetrizado não é a distribuição real.** Ele mantém a escala e as caudas, mas",
+        "  remove justamente a assimetria que caracteriza os dados. É uma referência para",
+        "  medir o erro tipo I quando as duas H0 valem, não um retrato do experimento.",
+        "- **Não existe um cenário com a forma real em que as duas H0 valham.** A H0 do",
+        "  Wilcoxon exige simetria, e a forma real é assimétrica. Centralizar pela",
+        "  pseudomediana em vez da média faria P(X₁ + X₂ > 0) ≈ 1/2, mas não tornaria a",
+        "  distribuição simétrica (a distribuição nula de W⁺ continuaria não valendo) e",
+        "  tornaria falsa a H0 do t. Por isso o erro tipo I do Wilcoxon só é medido no",
+        "  simetrizado.",
+        "- **Só a forma das diferenças é preservada**, e não a estrutura temporal da coleta",
+        "  (ordem AB/BA, aquecimento da JVM, deriva térmica). Os conjuntos simulados são",
+        "  i.i.d.; os dados reais podem não ser.",
         "- **Empates artificiais.** A reamostragem repete valores, e isso leva o Wilcoxon",
-        "  para a aproximação normal com correção de empates, mesmo que os tempos reais",
-        "  sejam contínuos. A conferência contra o SciPy mostra que a aproximação está",
-        "  correta, mas o p exato não é avaliado neste cenário.",
-        "- **n fixo em 30.** A taxa de erro do t numa população assimétrica converge para",
-        "  α à medida que n cresce (o termo de Edgeworth cai com 1/√n). Os números acima",
-        "  valem para o n do experimento, não para qualquer n.",
-        "- **Erro de Monte Carlo.** Cada taxa tem incerteza de ≈ ±0,4 p.p. (IC de 95%).",
-        "  Diferenças menores que isso entre os testes não devem ser interpretadas.",
+        "  para a aproximação normal com correção de empates em todas as repetições, mesmo",
+        "  que os tempos reais sejam contínuos. O comportamento do p exato não é avaliado.",
+        "- **n fixo em 30.** A taxa de erro do t numa população assimétrica converge para α",
+        "  à medida que n cresce (o termo de Edgeworth cai com 1/√n). Os números valem para",
+        "  o n do experimento.",
+        f"- **Erro de Monte Carlo.** Cada taxa perto de 5% tem incerteza de ±{_num(100 * meia_largura, 2)} p.p. (IC de",
+        "  95%). Diferenças menores que isso não devem ser interpretadas.",
         "",
-        "## Arquivos",
+        "## 10. Arquivos",
         "",
         "| Arquivo | Conteúdo |",
         "|---|---|",
         "| `src/erro_tipo_i.py` | a simulação |",
-        "| `data/resultados_q1.csv` | resultados agregados, uma linha por cenário × teste |",
-        "| `data/pvalores_q1.csv` | os 10.000 p-valores do cenário principal (para o G3) |",
-        "| `data/pvalores_q1_controle.csv` | os 10.000 p-valores do controle simetrizado |",
+        "| `data/resultados_q1.csv` | uma linha por cenário × teste: contagens, taxa, IC de Wilson, se a H0 do teste vale e o que a taxa mede |",
+        f"| `data/pvalores_q1.csv` | os 10.000 pares de p-valores do `{CENTRALIZADO}` |",
+        f"| `data/pvalores_q1_controle.csv` | os 10.000 pares de p-valores do `{SIMETRIZADO}` |",
+        "",
+        "Os nomes dos dois arquivos de p-valores foram mantidos por compatibilidade com a",
+        "Issue #107: `pvalores_q1.csv` é o centralizado, e `pvalores_q1_controle.csv`, o",
+        "simetrizado.",
         "",
         "## Como refazer",
         "",
@@ -651,58 +796,57 @@ def escrever_relatorio(caminho: Path, linhas: list[dict], resultados: dict[str, 
         "pip install -r requirements-q1.txt",
         f"python src/erro_tipo_i.py --repeticoes {args.repeticoes} --n {args.n} "
         f"--alfa {args.alfa} --semente {args.semente}",
+        "python src/comparacao_erro.py   # a comparação da Issue #108",
         "```",
         "",
-        "A execução leva da ordem de 10 s. Com a mesma semente, os CSVs e este",
-        "relatório saem idênticos byte a byte, inclusive as impressões digitais acima.",
+        "A execução leva da ordem de 10 s. Com a mesma semente, os CSVs e este relatório",
+        "saem idênticos, inclusive as impressões digitais acima.",
         "",
     ]
     caminho.parent.mkdir(parents=True, exist_ok=True)
     caminho.write_text("\n".join(l), encoding="utf-8")
 
 
-def _interpretar(tp: dict, wp: dict, tc: dict, wc: dict, diag: dict,
+def _interpretar(st: dict, sw: dict, ct: dict, cw: dict, hc: dict, diag: dict,
                  args: argparse.Namespace) -> list[str]:
     """Texto de interpretação montado a partir das classificações obtidas."""
     texto = []
-
-    controle_ok = tc["classificacao"] == wc["classificacao"] == "calibrado"
-    if controle_ok:
+    if st["classificacao"] == sw["classificacao"] == "compatível com α":
         texto += [
-            f"**1. As implementações estão calibradas.** No controle simetrizado, em que as",
-            f"duas H0 valem, o t erra {_pct(tc['taxa_erro_tipo_i'])} e o Wilcoxon",
-            f"{_pct(wc['taxa_erro_tipo_i'])}. As duas taxas são compatíveis com 5%. Os",
-            "desvios do cenário principal, portanto, não vêm de erro de código: vêm da",
-            "forma da distribuição.",
+            f"**Simetrizado: os dois testes ficam no nível nominal.** Com as duas H0",
+            f"verdadeiras, o t rejeitou em {_pct(st['taxa_rejeicao'])} e o Wilcoxon em "
+            f"{_pct(sw['taxa_rejeicao'])}. Os dois ICs de Wilson",
+            "contêm 5%. Isso é o esperado de implementações corretas nessas condições e, junto",
+            "com a conferência contra o SciPy (seção 8), dá confiança nos p-valores. Não prova",
+            "que os testes controlem o erro tipo I em qualquer distribuição.",
             "",
         ]
     else:
         texto += [
-            f"**1. Atenção: o controle simetrizado não ficou calibrado** (t = "
-            f"{_pct(tc['taxa_erro_tipo_i'])}, {tc['classificacao']}; Wilcoxon = "
-            f"{_pct(wc['taxa_erro_tipo_i'])}, {wc['classificacao']}). Nesse cenário as duas H0",
-            "valem, então isso merece investigação antes de interpretar o cenário principal.",
+            "**Atenção: no simetrizado, ao menos um teste ficou fora da faixa compatível com",
+            f"5%** (t = {_pct(st['taxa_rejeicao'])}, {st['classificacao']}; Wilcoxon = "
+            f"{_pct(sw['taxa_rejeicao'])}, {sw['classificacao']}). Como as duas H0 valem ali,",
+            "isso pede investigação antes de interpretar o outro cenário.",
             "",
         ]
 
-    texto += [
-        f"**2. Teste t no cenário principal: {_pct(tp['taxa_erro_tipo_i'])} ({tp['classificacao']}).**",
-    ]
-    if tp["classificacao"] == "liberal":
+    texto += [f"**Centralizado, teste t: {_pct(ct['taxa_rejeicao'])} ({ct['classificacao']}).**"]
+    if ct["classificacao"] == "liberal":
         texto += [
-            "A H0 do t (média 0) é verdadeira aqui. Mesmo assim, com n = "
-            f"{args.n} e uma população de assimetria {_num(diag['assimetria_populacional'], 2)}, a",
-            "estatística t não segue a distribuição t de Student. Nas amostras que não",
-            "sorteiam o resíduo extremo negativo, a média sai levemente positiva e o desvio",
-            "sai pequeno, e o t resultante é grande. Nas que sorteiam, a média cai, mas o",
+            "A H0 do t (média 0) é verdadeira aqui, então essa é uma taxa de erro tipo I, e ela",
+            f"chega a {_num(ct['taxa_rejeicao'] / args.alfa, 1)} vezes o nominal. "
+            f"Com n = {args.n} e uma população de assimetria",
+            f"{_num(diag['assimetria_populacional'], 2)}, a estatística t não segue a t de Student. Nas amostras",
+            "que não sorteiam o resíduo extremo negativo, a média sai levemente positiva e o",
+            "desvio sai pequeno, e o t resultante é grande. Nas que sorteiam, a média cai, mas o",
             "desvio infla junto, e o t fica contido. Com assimetria negativa, a cauda",
-            "**superior** de T engorda, e é exatamente essa a cauda que o teste `greater` usa.",
-            f"A correção de Edgeworth de 1ª ordem prevê ≈ {_pct(diag['edgeworth_taxa_t'], 1)},",
-            "na mesma direção e na mesma ordem de grandeza do valor simulado. O que sobra",
-            f"vem dos termos de ordem 1/n, que pesam com uma curtose de {_num(diag['curtose_excesso'], 1)}.",
+            "**superior** de T engorda, e é exatamente essa a cauda que o teste `greater` usa. A",
+            f"expansão de Edgeworth de 1ª ordem prevê ≈ {_pct(diag['edgeworth_taxa_t'], 1)}, na mesma direção do",
+            "valor simulado. O que sobra vem de termos de ordem 1/n, que pesam com um excesso",
+            f"de curtose de {_num(diag['curtose_excesso'], 1)}.",
             "",
         ]
-    elif tp["classificacao"] == "conservador":
+    elif ct["classificacao"] == "conservador":
         texto += ["O t rejeitou menos do que o nominal: com esta forma de distribuição, ele",
                   "protege contra o erro tipo I mais do que α promete, e paga em poder.", ""]
     else:
@@ -710,28 +854,24 @@ def _interpretar(tp: dict, wp: dict, tc: dict, wc: dict, diag: dict,
                   "compromete a sua calibração com n = 30.", ""]
 
     texto += [
-        f"**3. Wilcoxon no cenário principal: {_pct(wp['taxa_erro_tipo_i'])} ({wp['classificacao']}).**",
-        "Aqui a \"rejeição incorreta\" precisa ser lida com cuidado. A distribuição",
-        "gerada tem média 0, mas **não é simétrica em torno de 0**:",
-        f"{_pct(diag['prop_positivos'], 0)} dos resíduos são positivos, e a mediana é de",
-        f"{_num(diag['mediana'], 3)} s. Sob essa distribuição, E[W+] = "
-        f"{_num(diag['esperanca_w_mais'], 1)}, contra {_num(diag['esperanca_w_mais_h0'], 1)} sob a",
-        "H0 do Wilcoxon. O teste está detectando, corretamente, que a distribuição",
-        "fica \"mais à direita\" de zero no sentido dos postos. Ou seja: a H0 *do",
-        "Wilcoxon* (simetria em torno de 0) é falsa nesta distribuição, então, em relação",
-        "a ela, essas rejeições não são erro tipo I. Em relação à H0 *do experimento* (o",
-        "cache não muda o tempo **médio**), são. A taxa alta mostra que os dois testes",
-        "respondem a perguntas diferentes quando as diferenças são assimétricas, e que,",
-        "com diferenças assimétricas, um p < 0,05 do Wilcoxon não autoriza concluir",
-        "nada sobre a média.",
+        f"**Centralizado, Wilcoxon: {_pct(cw['taxa_rejeicao'])} — não é erro tipo I.** A H0 do Wilcoxon",
+        f"é falsa nessa distribuição: P(X₁ + X₂ > 0) = {_pct(hc['p_soma_positiva'], 1)} e a pseudomediana é",
+        f"{_num(hc['pseudomediana'], 3)} s. O teste está detectando, corretamente, que as diferenças estão",
+        "deslocadas para a direita no sentido dos postos. A taxa funciona como o **poder**",
+        f"do Wilcoxon contra um deslocamento de pseudomediana de {_num(hc['pseudomediana'], 3)} s "
+        f"(≈ {_num(hc['pseudomediana'] / diag['desvio'], 2)} desvio).",
         "",
-        "**4. Consequência para o experimento.** Nos dados reais, os dois testes rejeitam",
-        "H0 com p-valores minúsculos (t ≈ 2·10⁻⁵⁵; W+ no máximo possível). Uma inflação",
-        "do erro tipo I de 5% para os valores acima não ameaça essa conclusão, porque o",
-        "efeito observado (27 s, com desvio de 0,4 s) está ordens de grandeza além de",
-        "qualquer região de decisão. Em estudos com efeito pequeno e diferenças",
-        "igualmente assimétricas, porém, aplicar o t ou o Wilcoxon sem olhar a forma da",
-        "distribuição levaria a muito mais falsos positivos do que α sugere.",
+        "O que o cenário mostra para o experimento é outra coisa: se a pergunta é sobre o",
+        "tempo **médio** de build, um p < 0,05 do Wilcoxon não basta para concluir que a",
+        f"média caiu. Aqui a média não muda, e ainda assim ele rejeita em {_pct(cw['taxa_rejeicao'], 1)} dos",
+        "conjuntos. Com diferenças assimétricas, os dois testes respondem a perguntas",
+        "diferentes, e a escolha entre eles depende de qual parâmetro interessa.",
+        "",
+        "**Para os dados reais**, nada disso ameaça a conclusão. Os dois testes rejeitam H0",
+        "com p-valores minúsculos (t ≈ 2·10⁻⁵⁵; W⁺ no máximo possível), e o efeito",
+        "observado (27 s, com desvio de 0,4 s) está muito além de qualquer região de",
+        "decisão. A inflação do erro tipo I pesaria num estudo com efeito pequeno e",
+        "diferenças igualmente assimétricas.",
     ]
     return texto
 
@@ -759,14 +899,16 @@ def main() -> None:
 
     residuos = residuos_centralizados(carregar_diferencas(args.csv))
     diag = diagnostico_nula(residuos, args.n, args.alfa)
-    print(f"Distribuição nula: {diag['n_residuos']} resíduos de {args.csv.name} "
+    print(f"Resíduos: {diag['n_residuos']} de {args.csv.name} "
           f"(média {diag['media']:.2e}, desvio {diag['desvio']:.4f} s, "
           f"assimetria {diag['assimetria_amostral']:.2f})")
     print(f"R = {args.repeticoes}, n = {args.n}, alfa = {args.alfa}, semente = {args.semente}\n")
 
     resultados: dict[str, ResultadoCenario] = {}
+    hipoteses: dict[str, dict] = {}
     linhas: list[dict] = []
     for deslocamento, cenario in enumerate(CENARIOS):
+        hipoteses[cenario] = hipoteses_nulas(distribuicao_geradora(residuos, cenario))
         r = rodar_cenario(residuos, cenario, args.repeticoes, args.n, args.alfa,
                           args.semente + deslocamento)
         if not args.sem_conferencia_scipy:
@@ -774,13 +916,16 @@ def main() -> None:
             if not conf["ok"]:
                 raise RuntimeError(f"{cenario}: p-valores divergem do SciPy: {conf}")
         resultados[cenario] = r
-        linhas += resumo(r)
-        print(f"{cenario}  ({r.segundos:.1f} s, {r.repeticoes} repetições válidas)")
+        linhas += resumo(r, hipoteses[cenario])
+        h = hipoteses[cenario]
+        print(f"{cenario}  ({r.segundos:.1f} s, {r.repeticoes} repetições válidas) — "
+              f"H0 do t: {h[TESTE_T]}, H0 do Wilcoxon: {h[TESTE_W]} "
+              f"(pseudomediana {h['pseudomediana']:+.4f} s)")
         for linha in linhas[-2:]:
             print(f"  {linha['teste']:17} rejeições {linha['rejeicoes']:5}  "
-                  f"taxa {100 * linha['taxa_erro_tipo_i']:6.2f}%  "
-                  f"IC95 [{100 * linha['ic95_inferior']:.2f}; {100 * linha['ic95_superior']:.2f}]  "
-                  f"-> {linha['classificacao']}")
+                  f"taxa {100 * linha['taxa_rejeicao']:6.2f}%  "
+                  f"Wilson [{100 * linha['ic95_wilson_inferior']:.2f}; "
+                  f"{100 * linha['ic95_wilson_superior']:.2f}]  -> {linha['classificacao']}")
         if r.conferencia_scipy:
             c = r.conferencia_scipy
             print(f"  SciPy: max |dp| t = {c['max_dif_t']:.1e}, Wilcoxon = {c['max_dif_w']:.1e}, "
@@ -789,12 +934,13 @@ def main() -> None:
 
     args.saida.mkdir(parents=True, exist_ok=True)
     pd.DataFrame(linhas).to_csv(args.saida / "resultados_q1.csv", index=False)
-    tabela_pvalores(resultados[PRINCIPAL]).to_csv(args.saida / "pvalores_q1.csv", index=False)
-    tabela_pvalores(resultados[CONTROLE]).to_csv(args.saida / "pvalores_q1_controle.csv", index=False)
+    tabela_pvalores(resultados[CENTRALIZADO]).to_csv(args.saida / "pvalores_q1.csv", index=False)
+    tabela_pvalores(resultados[SIMETRIZADO]).to_csv(args.saida / "pvalores_q1_controle.csv", index=False)
     if args.sem_conferencia_scipy:
         for r in resultados.values():
             r.conferencia_scipy = {}
-    escrever_relatorio(args.relatorio, linhas, resultados, diag, args, args.csv.resolve())
+    escrever_relatorio(args.relatorio, linhas, resultados, hipoteses, diag, args,
+                       args.csv.resolve())
 
     print(f"Saídas: {args.saida / 'resultados_q1.csv'}, pvalores_q1.csv, "
           f"pvalores_q1_controle.csv e {args.relatorio}")

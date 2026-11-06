@@ -8,10 +8,9 @@ cada gráfico vem com um texto curto dizendo o que mostra e o que se conclui
 dele. As seções seguem a ordem pedida no enunciado.
 
 NA SPRINT 01 ele traz as seções 1, 2, 3 e 6 — cenário, G1, G2 e a tabela dos
-dados reais. As seções 4 e 5 (G3 e G4, erro tipo I e poder) e a conclusão
-entram na Sprint 02, quando a simulação completa virar gráfico; por enquanto
-aparecem marcadas como pendentes, para o dashboard não mentir sobre o que já
-tem.
+dados reais. Na Sprint 02 entra a seção 4 (G3, erro tipo I, Issue #108). A
+seção 5 (G4, poder) e a conclusão continuam marcadas como pendentes, para o
+dashboard não mentir sobre o que já tem.
 
 DE ONDE VEM CADA NÚMERO
 
@@ -22,6 +21,9 @@ não recalcula teste nenhum:
     data/resultados_reais.csv          Integrante 2: os dois testes nos reais
     data/simulacao/cenarios.csv        Integrante 2: o exemplo simulado
     data/simulacao/resultados_exemplo.csv   Integrante 2: os testes no exemplo
+    data/pvalores_q1.csv, data/pvalores_q1_controle.csv, data/resultados_q1.csv
+                                       Q1: as decisões dos 10.000 conjuntos sob H0,
+                                       lidas e conferidas por src/comparacao_erro.py
 
 A única coisa calculada aqui são os dois valores críticos de G2 (o t de 95% e
 o menor W⁺ que cai na região de rejeição), e mesmo esses vêm das funções de
@@ -39,8 +41,25 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
+from comparacao_erro import (  # noqa: E402
+    CENTRALIZADO,
+    SIMETRIZADO,
+    Comparacao,
+    carregar_comparacoes,
+    faixa_acaso,
+    formatar_p,
+)
 from distribuicoes import distribuicao_wilcoxon, t_quantil, wilcoxon_p_exato  # noqa: E402
-from graficos import escapar, grafico_g1, grafico_g2, mediana, numero  # noqa: E402
+from graficos import (  # noqa: E402
+    BarraErro,
+    PainelErro,
+    escapar,
+    grafico_g1,
+    grafico_g2,
+    grafico_g3,
+    mediana,
+    numero,
+)
 
 LAB4 = Path(__file__).resolve().parent.parent
 DADOS = LAB4 / "data"
@@ -173,9 +192,84 @@ def pendente(texto_pendencia: str) -> str:
     return f'<div class="pendencia"><b>Sprint 02.</b> {texto_pendencia}</div>'
 
 
+def _barras(comp: Comparacao) -> tuple[BarraErro, ...]:
+    return tuple(BarraErro(x.teste, x.taxa, x.ic_wilson_inf, x.ic_wilson_sup,
+                           x.rejeicoes, x.repeticoes, x.h0_verdadeira) for x in (comp.t, comp.w))
+
+
+def secao_erro_tipo_i(comparacoes: dict[str, Comparacao], alfa: float) -> str:
+    """Seção 4: o G3, os cartões com as taxas e a leitura (Issues #107 e #108).
+
+    O simetrizado vem primeiro: é o único cenário em que as duas H0 valem, e
+    portanto a comparação do erro tipo I. O centralizado é a análise de
+    sensibilidade à assimetria, em que só a taxa do t é erro tipo I.
+    """
+    s, c = comparacoes[SIMETRIZADO], comparacoes[CENTRALIZADO]
+    r = s.t.repeticoes
+    faixa = faixa_acaso(alfa, r)
+    g3 = grafico_g3(
+        [
+            PainelErro("Erro tipo I · distribuição simétrica",
+                       f"{numero(r, 0)} conjuntos · bootstrap simetrizado · as duas H₀ valem",
+                       _barras(s)),
+            PainelErro("Sensibilidade à assimetria · forma dos dados reais",
+                       f"{numero(c.t.repeticoes, 0)} conjuntos · bootstrap centralizado (média 0) "
+                       "· só a H₀ do t vale",
+                       _barras(c)),
+        ],
+        alfa=alfa, faixa=faixa,
+    )
+
+    def pct(x: float) -> str:
+        return f"{numero(100 * x, 2)}%"
+
+    sem_diferenca = s.mcnemar.p_exato >= alfa
+    cartoes = (
+        '<div class="grade2">'
+        + cartao("t pareado · simétrico", pct(s.t.taxa),
+                 f"IC {pct(s.t.ic_wilson_inf)}–{pct(s.t.ic_wilson_sup)} · {s.t.classificacao}")
+        + cartao("Wilcoxon · simétrico", pct(s.w.taxa),
+                 f"IC {pct(s.w.ic_wilson_inf)}–{pct(s.w.ic_wilson_sup)} · {s.w.classificacao}")
+        + cartao("Diferença W − t · simétrico", f"{numero(s.diferenca_pp, 2)} p.p.",
+                 f"IC {numero(s.diferenca_ic_inf_pp, 2)} a {numero(s.diferenca_ic_sup_pp, 2)} p.p. · "
+                 f"McNemar p = {formatar_p(s.mcnemar)}"
+                 + (" · sem diferença detectável" if sem_diferenca else " · diferença detectada"))
+        + cartao("t pareado · assimétrico", pct(c.t.taxa),
+                 f"erro tipo I {c.t.classificacao} · Wilcoxon: {pct(c.w.taxa)} de rejeição, "
+                 "que não é erro tipo I")
+        + "</div>"
+    )
+    leitura = (
+        '<div class="leitura">A linha vermelha é o nível nominal: um teste bem calibrado '
+        "rejeita uma H₀ verdadeira em 5% das vezes, e a faixa cinza em volta dela "
+        f"({numero(100 * faixa[0], 2)}% a {numero(100 * faixa[1], 2)}%) é o que o acaso de "
+        f"{numero(r, 0)} simulações explica. Os dois testes não têm a mesma H₀: a do t é "
+        "sobre a <b>média</b> das diferenças, e a do Wilcoxon é que a distribuição é "
+        "<b>simétrica</b> em torno de 0. "
+        f"<b>Na distribuição simétrica</b>, em que as duas valem, os dois testes ficam no nível "
+        f"nominal ({pct(s.t.taxa)} e {pct(s.w.taxa)}), sem diferença detectável entre eles. Nessa "
+        "condição, nenhum controla o erro tipo I melhor que o outro. "
+        "<b>Com a forma assimétrica dos dados reais</b>, a média continua 0, mas a distribuição "
+        f"deixa de ser simétrica. O t passa a errar em {pct(c.t.taxa)} "
+        f"({numero(c.t.razao_alfa, 1)} vezes o prometido), porque a assimetria engorda a "
+        "cauda superior da estatística t com n = 30. A barra listrada do Wilcoxon "
+        f"({pct(c.w.taxa)}) <b>não é erro tipo I</b>: ali a H₀ dele é falsa (a pseudomediana é "
+        "positiva), e ele está detectando isso. O cenário mostra que, com diferenças "
+        "assimétricas, um p &lt; 0,05 do Wilcoxon não basta para concluir algo sobre o tempo médio. "
+        "Nos dados reais nada disso muda a conclusão, porque os p-valores observados estão "
+        "ordens de grandeza abaixo dessas taxas. Os resultados valem para estas duas "
+        "distribuições e n = 30. Detalhes e limitações em "
+        "<code>docs/resultados_q1.md</code> e <code>docs/comparacao_taxas_erro.md</code>.</div>"
+    )
+    return f"<figure>{g3}</figure>{cartoes}{leitura}"
+
+
 def montar(reais: dict[str, list[float]], simulados: dict[str, list[float]],
            reais_resultados: list[dict[str, str]],
-           exemplo: list[dict[str, str]]) -> str:
+           exemplo: list[dict[str, str]],
+           erro_tipo_i: tuple[dict[str, Comparacao], float] | None = None) -> str:
+    """Monta a página. `erro_tipo_i` = (comparações, α) de `carregar_comparacoes`;
+    sem ele, a seção 4 aparece como pendente."""
     n = len(reais["diferenças"])
     t_real = resultado(reais_resultados, "t pareado")
     w_real = resultado(reais_resultados, "Wilcoxon")
@@ -253,11 +347,13 @@ def montar(reais: dict[str, list[float]], simulados: dict[str, list[float]],
     )
 
     # ---- seção 4 e 5
-    s4 = pendente(
-        "G3 — taxa de erro tipo I dos dois testes em cada cenário, com uma linha em "
-        "5%. Os números já existem em <code>data/simulacao/poder_erro.csv</code>; "
-        "falta o gráfico."
-    )
+    if erro_tipo_i is not None:
+        s4 = secao_erro_tipo_i(*erro_tipo_i)
+    else:
+        s4 = pendente(
+            "G3 — taxa de erro tipo I dos dois testes sob H0, com uma linha em 5%. "
+            "Rode <code>python src/erro_tipo_i.py</code> para gerar os p-valores da Q1."
+        )
     s5 = pendente(
         "G4 — curvas de poder dos dois testes: proporção de rejeições × tamanho do "
         "efeito, para n = 10, 30 e 50. Mesma fonte de dados."
@@ -318,7 +414,7 @@ def montar(reais: dict[str, list[float]], simulados: dict[str, list[float]],
   <div class="links">
     <a href="{REPOSITORIO}" target="_blank" rel="noopener">Repositório</a>
     {link_projects}
-    <span>Sprint 01 · seções 1, 2, 3 e 6</span>
+    <span>{"Sprint 02 · seções 1 a 4 e 6" if erro_tipo_i is not None else "Sprint 01 · seções 1, 2, 3 e 6"}</span>
   </div>
 </header>
 <main>{corpo}</main>
@@ -340,11 +436,19 @@ def main() -> None:
                             help="abre o arquivo no navegador depois de gerar")
     argumentos = analisador.parse_args()
 
+    try:
+        erro_tipo_i = carregar_comparacoes(DADOS)
+    except FileNotFoundError as erro:
+        # sem os p-valores da Q1, o G3 fica pendente em vez de derrubar o dashboard
+        print(f"atencao: G3 nao gerado ({erro})")
+        erro_tipo_i = None
+
     pagina = montar(
         reais=dados_reais(),
         simulados=diferencas_simuladas(),
         reais_resultados=ler_csv(DADOS / "resultados_reais.csv"),
         exemplo=ler_csv(DADOS / "simulacao" / "resultados_exemplo.csv"),
+        erro_tipo_i=erro_tipo_i,
     )
 
     argumentos.saida.parent.mkdir(parents=True, exist_ok=True)
