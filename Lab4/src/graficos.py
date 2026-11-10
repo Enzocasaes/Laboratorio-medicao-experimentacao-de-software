@@ -742,3 +742,134 @@ def grafico_g3(paineis: list[PainelErro], *, alfa: float,
     return svg(largura, topo + altura_painel + 6, "".join(partes),
                titulo="G3 — taxa de rejeição de H0 do teste t pareado e do Wilcoxon pareado "
                       "nos conjuntos simulados da Q1, com a referência de 5%")
+
+
+# ------------------------------------------------- G3 · violação (Q3)
+
+
+@dataclass(frozen=True)
+class CondicaoErro:
+    """Uma célula do estudo de violação: um cenário com um tamanho de amostra.
+
+    Guarda as duas taxas com os respectivos ICs porque elas vêm dos MESMOS
+    conjuntos simulados — o gráfico as põe lado a lado na mesma linha para
+    que a comparação que o olho faz seja a pareada, e não entre cenários.
+    """
+
+    grupo: str           # o cenário, usado como cabeçalho do bloco
+    rotulo: str          # "n = 5"
+    taxa_t: float
+    ic_t: tuple[float, float]
+    taxa_w: float
+    ic_w: tuple[float, float]
+
+
+def grafico_g3_violacao(condicoes: list[CondicaoErro], *, alfa: float,
+                        faixa: tuple[float, float]) -> str:
+    """Taxa de erro tipo I em cada condição, com o IC e a referência de α.
+
+    POR QUE PONTO COM INTERVALO, E NÃO BARRA. São nove condições e dezoito
+    taxas. Em barras, o leitor compararia alturas entre painéis diferentes, que
+    é justamente a comparação que não vale; e o IC — a informação que decide se
+    a distância até α é real ou ruído — ficaria espremido em cima da barra.
+    Com um ponto por teste e a linha do IC, cada condição ocupa uma linha, a
+    comparação natural vira a horizontal (os dois testes nos mesmos dados) e a
+    régua de α atravessa todas elas.
+    """
+    if not condicoes:
+        raise ValueError("o painel de violação precisa de pelo menos uma condição")
+
+    largura = 1040
+    topo, altura_linha, margem_esq = 56, 34, 188
+    espaco_grupo = 22
+    grupos = []
+    for condicao in condicoes:
+        if not grupos or grupos[-1][0] != condicao.grupo:
+            grupos.append((condicao.grupo, []))
+        grupos[-1][1].append(condicao)
+
+    altura_total = (topo + len(condicoes) * altura_linha
+                    + len(grupos) * espaco_grupo + 54)
+
+    teto = max(
+        max(c.ic_t[1], c.ic_w[1]) for c in condicoes
+    )
+    teto = max(teto, alfa * 1.25) * 1.08
+    escala = Escala(0, teto, margem_esq, largura - 96)
+
+    partes = [_legenda_violacao(20, 20)]
+
+    # faixa do acaso e a régua de α atravessam o gráfico inteiro
+    base_y = topo - 10
+    fim_y = altura_total - 40
+    partes.append(retangulo(escala.px(faixa[0]), base_y,
+                            escala.px(faixa[1]) - escala.px(faixa[0]),
+                            fim_y - base_y, cor=FAIXA_ACASO))
+    partes.append(linha(escala.px(alfa), base_y, escala.px(alfa), fim_y,
+                        cor=REFERENCIA, largura=2, tracejado="7 4"))
+
+    y = topo
+    for nome, itens in grupos:
+        partes.append(texto(20, y + 2, nome, tamanho=10.5, negrito=True))
+        y += espaco_grupo
+        for condicao in itens:
+            partes.append(texto(margem_esq - 12, y + 4, condicao.rotulo, tamanho=10,
+                                cor=TINTA_FRACA, ancora="end"))
+            partes.append(linha(margem_esq, y + 15.5, largura - 96, y + 15.5,
+                                cor=GRADE))
+            for deslocamento, cor, taxa, (inferior, superior) in (
+                (-5, AZUL, condicao.taxa_t, condicao.ic_t),
+                (5, LARANJA, condicao.taxa_w, condicao.ic_w),
+            ):
+                centro = y + 6 + deslocamento
+                partes.append(linha(escala.px(inferior), centro,
+                                    escala.px(superior), centro, cor=cor, largura=1.6))
+                for extremo in (inferior, superior):  # serifas do IC
+                    partes.append(linha(escala.px(extremo), centro - 3.5,
+                                        escala.px(extremo), centro + 3.5,
+                                        cor=cor, largura=1.4))
+                partes.append(
+                    f'<circle cx="{escala.px(taxa):.1f}" cy="{centro:.1f}" r="4.6" '
+                    f'fill="{cor}" stroke="white" stroke-width="1.4"/>'
+                )
+                partes.append(texto(largura - 90, centro + 3.5, _pct(taxa), tamanho=9.5,
+                                    cor=cor))
+            y += altura_linha
+        y += 4
+
+    # eixo embaixo, com a marca de α rotulada
+    partes.append(eixo_horizontal(
+        Escala(0, teto * 100, escala.inicio_px, escala.fim_px), fim_y + 6,
+        casas=0, rotulo="taxa de erro tipo I (% dos conjuntos simulados)", alvo=5))
+    partes.append(texto(escala.px(alfa), topo - 18, f"α = {_pct(alfa, 0)}",
+                        tamanho=9.5, cor=REFERENCIA, ancora="middle", negrito=True))
+
+    return svg(largura, altura_total + 16, "".join(partes),
+               titulo="G3 (Q3) — taxa de erro tipo I dos dois testes com os "
+                      "pressupostos violados, com a referência de 5%")
+
+
+def _legenda_violacao(x: float, y: float) -> str:
+    """Mesma linguagem visual da legenda do G3 das barras."""
+    itens = []
+    cursor = x
+    for nome, cor in (("teste t pareado", AZUL), ("Wilcoxon pareado", LARANJA)):
+        itens.append(
+            f'<circle cx="{cursor + 5:.1f}" cy="{y - 4:.1f}" r="4.6" fill="{cor}" '
+            f'stroke="white" stroke-width="1.4"/>'
+        )
+        itens.append(texto(cursor + 16, y, nome, tamanho=10.5))
+        cursor += 16 + 6.2 * len(nome) + 24
+    itens.append(linha(cursor, y - 4, cursor + 26, y - 4, cor=REFERENCIA,
+                       largura=2, tracejado="7 4"))
+    itens.append(texto(cursor + 32, y, "nível nominal α = 5%", tamanho=10.5))
+    cursor += 32 + 6.2 * 20 + 24
+    itens.append(retangulo(cursor, y - 9, 22, 11, cor=FAIXA_ACASO, borda=EIXO))
+    itens.append(texto(cursor + 28, y,
+                       "variação esperada só pelo acaso da simulação", tamanho=10.5))
+    cursor += 28 + 6.2 * 44 + 24
+    itens.append(linha(cursor + 6, y - 9, cursor + 6, y + 1, cor=TINTA, largura=1.4))
+    itens.append(linha(cursor + 1, y - 9, cursor + 11, y - 9, cor=TINTA, largura=1.4))
+    itens.append(linha(cursor + 1, y + 1, cursor + 11, y + 1, cor=TINTA, largura=1.4))
+    itens.append(texto(cursor + 18, y, "IC 95% (Wilson)", tamanho=10.5))
+    return "".join(itens)

@@ -27,6 +27,7 @@ python src/testes.py         # os dois testes nos 30 pares reais
 python src/simulacao.py      # cenários simulados, erro tipo I e poder (~20 s)
 python src/erro_tipo_i.py      # Q1: 10.000 conjuntos sob H0 (precisa de requirements-q1.txt)
 python src/comparacao_erro.py   # compara o erro tipo I dos dois testes na Q1 (G3)
+python src/violacao.py       # Q3: erro tipo I com os pressupostos violados (~2,5 min)
 python src/dashboard.py --abrir   # gera dashboard/index.html e abre no navegador
 ```
 
@@ -44,6 +45,7 @@ dados que ela produziu já estão versionados.
 | [src/simulacao.py](src/simulacao.py) | **Integrante 2** | gera os cenários e compara erro tipo I e poder |
 | [src/erro_tipo_i.py](src/erro_tipo_i.py) | Sprint 2 | Q1: simula 10.000 conjuntos em dois cenários e registra qual H0 vale em cada um |
 | [src/comparacao_erro.py](src/comparacao_erro.py) | Sprint 2 | compara as taxas da Q1: Wilson, diferença pareada e McNemar; só chama de erro tipo I a taxa de um teste cuja H0 vale |
+| [src/violacao.py](src/violacao.py) | **Integrante 3** | Q3: erro tipo I com normalidade violada e amostra pequena |
 | [src/graficos.py](src/graficos.py) | **Integrante 3** | G1, G2 e G3 em SVG, desenhados sem dependências |
 | [src/dashboard.py](src/dashboard.py) | **Integrante 3** | monta o HTML único do dashboard a partir dos CSVs |
 
@@ -136,13 +138,60 @@ O link do **GitHub Projects** precisa ser colado na constante `PROJECTS`, no
 topo de [src/dashboard.py](src/dashboard.py). Enquanto estiver vazio, o
 dashboard mostra o aviso no cabeçalho e o comando avisa no terminal.
 
+## Violação de pressupostos (Q3)
+
+```bash
+python src/violacao.py
+```
+
+A Q3 pede para repetir a Q1 e a Q2 em pelo menos uma situação que viole os
+pressupostos do teste paramétrico. Este módulo cobre **a metade que repete a
+Q1** — a taxa de erro tipo I — em nove células: três cenários × n = 5, 10 e 30,
+com 10.000 conjuntos cada.
+
+| Cenário | O que viola |
+|---|---|
+| `normal` | nada: é a referência |
+| `cauda_pesada` | normalidade — t de Student com 3 gl |
+| `contaminada` | normalidade — 10% das observações com 5× o desvio |
+
+**Os três são simétricos de propósito.** Só assim as duas H0 valem ao mesmo
+tempo, e só assim as duas taxas são erro tipo I e podem ser comparadas lado a
+lado. O caso assimétrico — em que a H0 do Wilcoxon é falsa e a taxa dele deixa
+de ser erro tipo I — já está coberto pelo bootstrap centralizado da Q1.
+
+### O que saiu
+
+Com **n = 30**, nenhuma das duas violações tira os testes do nível: o t fica
+entre 4,54% e 4,95%, o Wilcoxon entre 4,60% e 4,82%. Cauda pesada e outliers
+custam **poder**, não calibração.
+
+O que muda o quadro é a **amostra pequena**. Com n = 5 o Wilcoxon exato cai
+para 3,07%–3,32% nos três cenários, e não por acaso: existem apenas 2⁵ = 32
+somas de postos possíveis, e a cauda mais próxima de 5% por baixo vale
+1/32 ≈ 3,125%. O teste não consegue gastar o resto do α — erra menos do que
+poderia, e paga isso em poder.
+
+O número é um fato da distribuição, não da simulação, e
+[tests/test_violacao.py](tests/test_violacao.py) confere os dois lados: que
+`wilcoxon_p_exato(15, 5)` vale exatamente 1/32 e que a taxa medida não passa
+desse teto.
+
+### O que falta, e de quem é
+
+Esta é a metade da Q3 que repete a Q1. A outra metade repete a **Q2** — o
+poder nestes mesmos cenários — e pertence às Issues #109 e #110, que são do
+Integrante 2 e alimentam o G4. A função `gerar_diferencas(cenario, n, efeito,
+rng)` já recebe o efeito em unidades de desvio: rodar com efeito maior que zero
+dá as amostras do estudo de poder, sem reimplementar gerador nenhum.
+
 ## Testes automatizados
 
 ```bash
 python -m unittest discover -s tests -v
 ```
 
-136 testes, sem instalar nada (os 5 de `tests/test_erro_tipo_i.py` se pulam sem NumPy). Cobrem as distribuições contra valores de tabela
+157 testes, sem instalar nada (os 5 de `tests/test_erro_tipo_i.py` se pulam sem NumPy). Cobrem as distribuições contra valores de tabela
 (`t_cdf(2,262; 9) = 0,975`), os dois testes em casos montados à mão com o
 resultado conferido no papel, e a reprodutibilidade da simulação.
 
@@ -178,6 +227,9 @@ se pulam e a suíte continua passando (é o que acontece na CI).
 | `data/comparacao_taxas_erro.csv` | taxas da Q1 por cenário × teste, com IC de Wilson e se a H0 do teste vale |
 | `data/mcnemar_q1.csv` | tabela 2×2 das decisões, diferença pareada e McNemar |
 | `docs/comparacao_taxas_erro.md` | relatório gerado da comparação (Issue #108) |
+| `data/resultados_q3.csv` | Q3: taxa de erro tipo I por cenário × n × teste, com IC de Wilson |
+| `data/mcnemar_q3.csv` | Q3: tabela 2×2 das decisões em cada célula |
+| `docs/violacao_pressupostos.md` | relatório gerado da Q3 (Issues #111 e #112) |
 | `dashboard/index.html` | o dashboard completo, em arquivo único |
 
 Os CSVs são a interface para o dashboard: ele lê arquivo, não importa função.
