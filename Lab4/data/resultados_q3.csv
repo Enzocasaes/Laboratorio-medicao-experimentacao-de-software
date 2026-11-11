@@ -1,0 +1,19 @@
+cenario,violacao,n,teste,h0_do_teste_verdadeira,repeticoes,alfa,semente,rejeicoes,taxa_rejeicao,ic95_wilson_inferior,ic95_wilson_superior,distancia_alfa_pp,classificacao
+normal,sem violação (referência),5,t pareado,True,10000,0.05,42,509,0.0509,0.04676195595728594,0.055382951379255765,0.0899999999999998,compatível com α
+normal,sem violação (referência),5,Wilcoxon pareado,True,10000,0.05,42,329,0.0329,0.029579354960203693,0.03657937631768236,-1.7100000000000004,conservador
+normal,sem violação (referência),10,t pareado,True,10000,0.05,43,452,0.0452,0.041300001086809354,0.049449283831158056,-0.48000000000000054,conservador
+normal,sem violação (referência),10,Wilcoxon pareado,True,10000,0.05,43,374,0.0374,0.033855276482213766,0.04129999881033621,-1.26,conservador
+normal,sem violação (referência),30,t pareado,True,10000,0.05,44,487,0.0487,0.04465192097456977,0.05309467595480291,-0.13000000000000025,compatível com α
+normal,sem violação (referência),30,Wilcoxon pareado,True,10000,0.05,44,460,0.046,0.04206559125734039,0.05028307926323395,-0.40000000000000036,compatível com α
+cauda_pesada,normalidade violada: t de Student com 3 gl,5,t pareado,True,10000,0.05,142,447,0.0447,0.04082168371429806,0.04892798520204003,-0.5300000000000006,conservador
+cauda_pesada,normalidade violada: t de Student com 3 gl,5,Wilcoxon pareado,True,10000,0.05,142,307,0.0307,0.027495050002468435,0.034265370868248615,-1.9300000000000002,conservador
+cauda_pesada,normalidade violada: t de Student com 3 gl,10,t pareado,True,10000,0.05,143,466,0.0466,0.04264000749008216,0.05090820223244737,-0.34,compatível com α
+cauda_pesada,normalidade violada: t de Student com 3 gl,10,Wilcoxon pareado,True,10000,0.05,143,436,0.0436,0.03976987567795129,0.0477806380348023,-0.6400000000000003,conservador
+cauda_pesada,normalidade violada: t de Student com 3 gl,30,t pareado,True,10000,0.05,144,495,0.0495,0.04541893986540119,0.05392704266657841,-0.050000000000000044,compatível com α
+cauda_pesada,normalidade violada: t de Student com 3 gl,30,Wilcoxon pareado,True,10000,0.05,144,480,0.048,0.043981036388118365,0.05236609813897327,-0.20000000000000018,compatível com α
+contaminada,normalidade violada: 10% das observações com 5× o desvio,5,t pareado,True,10000,0.05,242,405,0.0405,0.036809508627892576,0.0445433858747592,-0.9500000000000002,conservador
+contaminada,normalidade violada: 10% das observações com 5× o desvio,5,Wilcoxon pareado,True,10000,0.05,242,332,0.0332,0.029863910020296733,0.036894590858566924,-1.6800000000000002,conservador
+contaminada,normalidade violada: 10% das observações com 5× o desvio,10,t pareado,True,10000,0.05,243,414,0.0414,0.03766836746394034,0.04548383584164423,-0.8600000000000003,conservador
+contaminada,normalidade violada: 10% das observações com 5× o desvio,10,Wilcoxon pareado,True,10000,0.05,243,436,0.0436,0.03976987567795129,0.0477806380348023,-0.6400000000000003,conservador
+contaminada,normalidade violada: 10% das observações com 5× o desvio,30,t pareado,True,10000,0.05,244,454,0.0454,0.041491366286706785,0.04965776503191237,-0.45999999999999996,conservador
+contaminada,normalidade violada: 10% das observações com 5× o desvio,30,Wilcoxon pareado,True,10000,0.05,244,482,0.0482,0.044172692916622396,0.05257428801112097,-0.1800000000000003,compatível com α

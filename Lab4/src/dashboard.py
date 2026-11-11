@@ -51,12 +51,14 @@ from comparacao_erro import (  # noqa: E402
 )
 from distribuicoes import distribuicao_wilcoxon, t_quantil, wilcoxon_p_exato  # noqa: E402
 from graficos import (  # noqa: E402
+    CondicaoErro,
     BarraErro,
     PainelErro,
     escapar,
     grafico_g1,
     grafico_g2,
     grafico_g3,
+    grafico_g3_violacao,
     mediana,
     numero,
 )
@@ -197,7 +199,105 @@ def _barras(comp: Comparacao) -> tuple[BarraErro, ...]:
                            x.rejeicoes, x.repeticoes, x.h0_verdadeira) for x in (comp.t, comp.w))
 
 
-def secao_erro_tipo_i(comparacoes: dict[str, Comparacao], alfa: float) -> str:
+
+NOMES_VIOLACAO = {
+    "normal": "Sem violação · normal",
+    "cauda_pesada": "Normalidade violada · cauda pesada (t com 3 gl)",
+    "contaminada": "Normalidade violada · outliers (10% com 5× o desvio)",
+}
+
+
+def carregar_violacao(dados: Path = DADOS):
+    """Lê o estudo da Q3 (Issues #111 e #112), se ele já tiver sido rodado.
+
+    Devolve (condições, mcnemar por célula, repetições, α) ou None quando os
+    CSVs ainda não existem — aí a parte da Q3 simplesmente não aparece, em vez
+    de quebrar a página.
+    """
+    taxas, pareado = dados / "resultados_q3.csv", dados / "mcnemar_q3.csv"
+    if not taxas.exists() or not pareado.exists():
+        return None
+
+    por_celula: dict[tuple[str, int], dict[str, dict[str, str]]] = {}
+    ordem: list[tuple[str, int]] = []
+    for linha in ler_csv(taxas):
+        chave = (linha["cenario"], int(linha["n"]))
+        if chave not in por_celula:
+            por_celula[chave] = {}
+            ordem.append(chave)
+        por_celula[chave][linha["teste"]] = linha
+
+    condicoes = []
+    for cenario, n in ordem:
+        t, w = por_celula[(cenario, n)]["t pareado"], por_celula[(cenario, n)]["Wilcoxon pareado"]
+        condicoes.append(CondicaoErro(
+            grupo=NOMES_VIOLACAO.get(cenario, cenario),
+            rotulo=f"n = {n}",
+            taxa_t=float(t["taxa_rejeicao"]),
+            ic_t=(float(t["ic95_wilson_inferior"]), float(t["ic95_wilson_superior"])),
+            taxa_w=float(w["taxa_rejeicao"]),
+            ic_w=(float(w["ic95_wilson_inferior"]), float(w["ic95_wilson_superior"])),
+        ))
+
+    mcnemar_por_celula = {(l["cenario"], int(l["n"])): l for l in ler_csv(pareado)}
+    primeira = por_celula[ordem[0]]["t pareado"]
+    return condicoes, mcnemar_por_celula, int(primeira["repeticoes"]), float(primeira["alfa"])
+
+
+def bloco_violacao(violacao, alfa: float) -> str:
+    """A parte da Q3 dentro da seção 4: o painel, três cartões e a leitura."""
+    condicoes, _, repeticoes, _ = violacao
+    faixa = faixa_acaso(alfa, repeticoes)
+    painel = grafico_g3_violacao(condicoes, alfa=alfa, faixa=faixa)
+
+    def pct(x: float) -> str:
+        return f"{numero(100 * x, 2)}%"
+
+    menores = [c for c in condicoes if c.rotulo == "n = 5"]
+    maiores = [c for c in condicoes if c.rotulo == "n = 30"]
+    w_pequeno = [c.taxa_w for c in menores]
+    t_grande = [c.taxa_t for c in maiores]
+    w_grande = [c.taxa_w for c in maiores]
+
+    cartoes = (
+        '<div class="grade2">'
+        + cartao("Wilcoxon · n = 5",
+                 f"{pct(min(w_pequeno))} a {pct(max(w_pequeno))}",
+                 "conservador nos três cenários: o teto é 1/2⁵ = 3,125%")
+        + cartao("t pareado · n = 30",
+                 f"{pct(min(t_grande))} a {pct(max(t_grande))}",
+                 "fica no nível mesmo com cauda pesada e outliers")
+        + cartao("Wilcoxon · n = 30",
+                 f"{pct(min(w_grande))} a {pct(max(w_grande))}",
+                 "o nível dele não depende da forma, só da simetria")
+        + cartao("Conjuntos por célula", numero(repeticoes, 0),
+                 f"9 células · faixa do acaso {pct(faixa[0])}–{pct(faixa[1])}")
+        + "</div>"
+    )
+
+    leitura = (
+        '<div class="leitura">Aqui a violação é <b>só da normalidade</b>: os três cenários '
+        "continuam simétricos em torno de zero, e é isso que mantém as duas H₀ verdadeiras "
+        "ao mesmo tempo — sem simetria, a taxa do Wilcoxon deixaria de ser erro tipo I, como "
+        "o painel ao lado já mostra. <b>Com n = 30, nenhuma das duas violações tira os testes "
+        f"do nível</b> ({pct(min(t_grande))} a {pct(max(t_grande))} no t e "
+        f"{pct(min(w_grande))} a {pct(max(w_grande))} no Wilcoxon): cauda pesada e outliers "
+        "custam <b>poder</b>, não calibração. <b>O que muda o quadro é a amostra pequena.</b> "
+        f"Com n = 5 o Wilcoxon exato cai para {pct(min(w_pequeno))}–{pct(max(w_pequeno))} nos "
+        "três cenários, e não por acaso: só existem 2⁵ = 32 somas de postos possíveis, a cauda "
+        "mais próxima de 5% por baixo vale 1/32 ≈ 3,1%, e o teste não consegue gastar o resto "
+        "do α. Ele erra menos do que poderia — e paga isso em poder, que é o que as curvas do "
+        "G4 vão mostrar. Detalhes em <code>docs/violacao_pressupostos.md</code>.</div>"
+    )
+    titulo = ('<h3 style="margin:30px 0 2px;font-size:1rem;color:#0f2b45">'
+              "Q3 · os mesmos testes com os pressupostos violados</h3>"
+              '<p class="sub">normalidade quebrada com simetria preservada, em três tamanhos '
+              "de amostra (Issues #111 e #112)</p>")
+    return titulo + f"<figure>{painel}</figure>" + cartoes + leitura
+
+
+def secao_erro_tipo_i(comparacoes: dict[str, Comparacao], alfa: float,
+                      violacao=None) -> str:
     """Seção 4: o G3, os cartões com as taxas e a leitura (Issues #107 e #108).
 
     O simetrizado vem primeiro: é o único cenário em que as duas H0 valem, e
@@ -261,13 +361,24 @@ def secao_erro_tipo_i(comparacoes: dict[str, Comparacao], alfa: float) -> str:
         "distribuições e n = 30. Detalhes e limitações em "
         "<code>docs/resultados_q1.md</code> e <code>docs/comparacao_taxas_erro.md</code>.</div>"
     )
-    return f"<figure>{g3}</figure>{cartoes}{leitura}"
+    q3 = bloco_violacao(violacao, alfa) if violacao else ""
+    return f"<figure>{g3}</figure>{cartoes}{leitura}{q3}"
+
+
+def _rotulo_sprint(erro_tipo_i, violacao) -> str:
+    """O que a página já mostra — para o cabeçalho não prometer mais do que tem."""
+    if erro_tipo_i is None:
+        return "Sprint 01 · seções 1, 2, 3 e 6"
+    if violacao is None:
+        return "Sprint 02 · seções 1 a 4 (Q1) e 6"
+    return "Sprint 02 · seções 1 a 4 (Q1 e Q3) e 6"
 
 
 def montar(reais: dict[str, list[float]], simulados: dict[str, list[float]],
            reais_resultados: list[dict[str, str]],
            exemplo: list[dict[str, str]],
-           erro_tipo_i: tuple[dict[str, Comparacao], float] | None = None) -> str:
+           erro_tipo_i: tuple[dict[str, Comparacao], float] | None = None,
+           violacao=None) -> str:
     """Monta a página. `erro_tipo_i` = (comparações, α) de `carregar_comparacoes`;
     sem ele, a seção 4 aparece como pendente."""
     n = len(reais["diferenças"])
@@ -348,7 +459,7 @@ def montar(reais: dict[str, list[float]], simulados: dict[str, list[float]],
 
     # ---- seção 4 e 5
     if erro_tipo_i is not None:
-        s4 = secao_erro_tipo_i(*erro_tipo_i)
+        s4 = secao_erro_tipo_i(*erro_tipo_i, violacao=violacao)
     else:
         s4 = pendente(
             "G3 — taxa de erro tipo I dos dois testes sob H0, com uma linha em 5%. "
@@ -414,7 +525,7 @@ def montar(reais: dict[str, list[float]], simulados: dict[str, list[float]],
   <div class="links">
     <a href="{REPOSITORIO}" target="_blank" rel="noopener">Repositório</a>
     {link_projects}
-    <span>{"Sprint 02 · seções 1 a 4 e 6" if erro_tipo_i is not None else "Sprint 01 · seções 1, 2, 3 e 6"}</span>
+    <span>{_rotulo_sprint(erro_tipo_i, violacao)}</span>
   </div>
 </header>
 <main>{corpo}</main>
@@ -443,12 +554,17 @@ def main() -> None:
         print(f"atencao: G3 nao gerado ({erro})")
         erro_tipo_i = None
 
+    violacao = carregar_violacao(DADOS)
+    if violacao is None:
+        print("atencao: Q3 nao incluida (rode python src/violacao.py)")
+
     pagina = montar(
         reais=dados_reais(),
         simulados=diferencas_simuladas(),
         reais_resultados=ler_csv(DADOS / "resultados_reais.csv"),
         exemplo=ler_csv(DADOS / "simulacao" / "resultados_exemplo.csv"),
         erro_tipo_i=erro_tipo_i,
+        violacao=violacao,
     )
 
     argumentos.saida.parent.mkdir(parents=True, exist_ok=True)
