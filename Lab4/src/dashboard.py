@@ -816,6 +816,9 @@ def secao_conclusao(grade: GradePoder, reais_resultados: list[dict[str, str]],
         f"{numero(100 * grade.taxa('bootstrap_centralizado', n, 0.0, TESTE_W_NOME), 1)}% "
         "das vezes sem que exista deslocamento nenhum. Se a conclusão precisa ser "
         f"sobre a média, o teste é o t.{ressalva_n}"
+        f" <b>E o escopo:</b> uma máquina, um projeto, {n} pares e cinco cenários "
+        "simulados em duas famílias — os números acima valem para estas condições, "
+        "e em outro cenário a recomendação precisa ser refeita, não reaproveitada."
         "</div>"
         f'<div class="leitura" style="border-left-color:#1a7f47">'
         "<b>E a resposta do experimento, que não dependia de nada disso:</b> ativar o "
@@ -901,6 +904,7 @@ def montar(reais: dict[str, list[float]], simulados: dict[str, list[float]],
 
     # ---- seção 2 (G1)
     positivas = sum(1 for d in reais["diferenças"] if d > 0)
+    desvio_real = statistics.stdev(reais["diferenças"])
     s2 = (
         f"<figure>{g1}</figure>"
         '<div class="leitura">Os dois grupos reais não se sobrepõem: sem cache o build '
@@ -908,7 +912,8 @@ def montar(reais: dict[str, list[float]], simulados: dict[str, list[float]],
         f"{numero(mediana(reais['com cache']), 1)} s, e {positivas} das {n} diferenças "
         "são positivas. É um efeito grande demais para distinguir os dois testes — com "
         "ele, qualquer teste rejeita H₀. <b>Por isso a simulação existe:</b> ela "
-        "mantém a média e o desvio das diferenças reais e muda só o formato. A "
+        f"mantém o desvio das diferenças reais ({numero(desvio_real, 2)} s), encolhe o "
+        "efeito para 0,3σ e muda só o formato. A "
         "lognormal deslocada reproduz a assimetria à direita típica de tempo, e a "
         "contaminada acrescenta valores extremos — os dois formatos em que os testes "
         "deixam de concordar.</div>"
