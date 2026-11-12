@@ -19,9 +19,25 @@ p-valores (veja *Conferência*).
 
 ## Como rodar
 
+Tudo de uma vez, na ordem certa e com as sementes padrão — é o que reproduz os
+números publicados nos relatórios e no dashboard:
+
 ```bash
 cd Lab4
+python src/rodar_tudo.py --abrir   # ~15 min, e abre o dashboard no fim
+```
 
+`src/rodar_tudo.py` só chama os outros módulos: não calcula nada e não tem
+número próprio. Ele existe porque o dashboard lê CSV em vez de importar função,
+e cada seção depende de um arquivo que um módulo diferente escreveu — regerar
+um deles fora de ordem deixa a página discordando de si mesma. `--listar`
+mostra o plano sem rodar nada. A única etapa que pode faltar é a Q1 (a única
+que usa NumPy e pandas): sem eles ela é pulada com aviso, e como os CSVs dela
+estão versionados, o dashboard sai completo do mesmo jeito.
+
+Cada etapa também roda sozinha, quando só uma mudou:
+
+```bash
 python src/descritiva.py     # médias, medianas, assimetria e extremos
 python src/testes.py         # os dois testes nos 30 pares reais
 python src/simulacao.py      # cenários simulados, erro tipo I e poder (~20 s)
@@ -51,6 +67,7 @@ dados que ela produziu já estão versionados.
 | [src/poder.js](src/poder.js) | **Integrante 2** | o gráfico de poder interativo do dashboard (bônus), em JS puro |
 | [src/graficos.py](src/graficos.py) | **Integrante 3** | G1, G2, G3 e G4 em SVG, desenhados sem dependências |
 | [src/dashboard.py](src/dashboard.py) | **Integrante 3** | monta o HTML único do dashboard a partir dos CSVs |
+| [src/rodar_tudo.py](src/rodar_tudo.py) | **Integrante 3** | o comando único: roda as oito etapas na ordem e regenera o dashboard |
 
 ### Por que as distribuições são implementadas aqui
 
@@ -247,7 +264,7 @@ margem para acaso.
 python -m unittest discover -s tests -v
 ```
 
-207 testes, sem instalar nada (os 5 de `tests/test_erro_tipo_i.py` se pulam sem
+216 testes, sem instalar nada (os 5 de `tests/test_erro_tipo_i.py` se pulam sem
 NumPy, e o do gráfico interativo se pula sem Node). Cobrem as distribuições contra valores de tabela
 (`t_cdf(2,262; 9) = 0,975`), os dois testes em casos montados à mão com o
 resultado conferido no papel, e a reprodutibilidade da simulação.
