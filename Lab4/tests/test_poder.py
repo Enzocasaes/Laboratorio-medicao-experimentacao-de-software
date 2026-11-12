@@ -317,7 +317,8 @@ class TestRecarregarDoCSV(unittest.TestCase):
                                tamanhos=(5, 30), efeitos=(0.0, 0.3, 1.5))
             escrever_relatorio(recarregado, carregar_celulas(caminho), [], [],
                                tamanhos=(5, 30), efeitos=(0.0, 0.3, 1.5))
-            self.assertEqual(direto.read_text(), recarregado.read_text())
+            self.assertEqual(direto.read_text(encoding="utf-8"),
+                             recarregado.read_text(encoding="utf-8"))
 
 
 class TestConferenciaCruzada(unittest.TestCase):
