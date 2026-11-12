@@ -873,3 +873,263 @@ def _legenda_violacao(x: float, y: float) -> str:
     itens.append(linha(cursor + 1, y + 1, cursor + 11, y + 1, cor=TINTA, largura=1.4))
     itens.append(texto(cursor + 18, y, "IC 95% (Wilson)", tamanho=10.5))
     return "".join(itens)
+
+
+# ------------------------------------------------- G4 · poder (Q2, #110)
+
+ALVO = "#475569"         # régua de 80% de poder: cinza, não compete com as curvas
+
+
+def faixa_entre(superiores: list[tuple[float, float]],
+                inferiores: list[tuple[float, float]], *, cor: str,
+                opacidade: float = 0.16) -> str:
+    """Polígono entre duas séries já em pixels — a banda de IC das curvas.
+
+    O `area()` só fecha contra uma linha de base horizontal, o que serve para a
+    área de p-valor do G2 mas não para um IC, cujo contorno de baixo é outra
+    curva.
+    """
+    if not superiores or len(superiores) != len(inferiores):
+        return ""
+    ida = " ".join(f"L{x:.1f},{y:.1f}" for x, y in superiores[1:])
+    volta = " ".join(f"L{x:.1f},{y:.1f}" for x, y in reversed(inferiores))
+    return (
+        f'<path d="M{superiores[0][0]:.1f},{superiores[0][1]:.1f} {ida} {volta} Z" '
+        f'fill="{cor}" fill-opacity="{opacidade}" stroke="none"/>'
+    )
+
+
+def eixo_vertical_pct(escala: Escala, x: float, *, alvo: int = 4,
+                      grade_ate_px: float | None = None,
+                      com_rotulos: bool = True) -> str:
+    """Eixo y em porcentagem, com a grade opcional atravessando o painel.
+
+    `escala` vai de 0 a 1 (proporção); os rótulos saem em %.
+    """
+    partes = []
+    for marca in marcas_bonitas(escala.minimo * 100, escala.maximo * 100, alvo):
+        y = escala.px(marca / 100)
+        if grade_ate_px is not None:
+            partes.append(linha(x, y, grade_ate_px, y, cor=GRADE))
+        partes.append(linha(x - 4, y, x, y, cor=EIXO))
+        if com_rotulos:
+            partes.append(texto(x - 8, y + 3.5, f"{numero(marca, 0)}%", tamanho=9,
+                                cor=TINTA_FRACA, ancora="end"))
+    return "".join(partes)
+
+
+@dataclass(frozen=True)
+class CurvaPoder:
+    """Um painel do G4: os dois testes na mesma condição (cenário × n).
+
+    `pontos_t` e `pontos_w` são [(efeito, taxa)]; `ic_t` e `ic_w`, os mesmos
+    efeitos com (inferior, superior). As duas curvas vêm dos MESMOS conjuntos
+    simulados, então a comparação que vale é a vertical dentro do painel.
+
+    `h0_w_falsa_em_zero` marca o caso do bootstrap centralizado: ali a H0 do
+    Wilcoxon já é falsa sem efeito nenhum, a curva dele não é poder, e por isso
+    é desenhada tracejada.
+    """
+
+    grupo: str                                   # cabeçalho da coluna (cenário)
+    rotulo: str                                  # "n = 30"
+    pontos_t: list[tuple[float, float]]
+    pontos_w: list[tuple[float, float]]
+    ic_t: list[tuple[float, float]]
+    ic_w: list[tuple[float, float]]
+    mde_t: float | None = None
+    mde_w: float | None = None
+    h0_w_falsa_em_zero: bool = False
+
+
+def _mde_rotulo(valor: float | None) -> str:
+    return "> grade" if valor is None else numero(valor, 2)
+
+
+def _indice_de_maior_separacao(curva_poder: CurvaPoder) -> int:
+    """Onde as duas curvas estão mais afastadas — o lugar dos rótulos diretos.
+
+    Empate (duas curvas coladas) cai no meio da grade, que é onde as curvas
+    estão subindo e sobra espaço vertical dos dois lados.
+    """
+    separacoes = [abs(t - w) for (_, t), (_, w)
+                  in zip(curva_poder.pontos_t, curva_poder.pontos_w)]
+    maxima = max(separacoes)
+    if maxima < 0.02:
+        return len(separacoes) // 2
+    return separacoes.index(maxima)
+
+
+def painel_poder(curva_poder: CurvaPoder, *, x0: float, y0: float,
+                 largura: float, altura: float, alfa: float, alvo_poder: float,
+                 efeito_maximo: float, com_rotulos_y: bool,
+                 com_rotulos_x: bool, com_nomes_das_curvas: bool) -> str:
+    """Um painel: duas curvas de 0 a 100%, com a banda de IC e as duas réguas.
+
+    O eixo y vai sempre de 0 a 100%. Cortar a escala num poder máximo
+    observado deixaria a curva mais íngreme do que ela é — e é justamente a
+    inclinação que o leitor usa para julgar quanto efeito faz falta.
+    """
+    esquerda, direita = x0 + 44, x0 + largura - 10
+    base, topo = y0 + altura - 30, y0 + 20
+    ex = Escala(0.0, efeito_maximo, esquerda, direita)
+    ey = Escala(0.0, 1.0, base, topo)
+
+    partes = [
+        texto(x0 + 44, y0 + 10, curva_poder.rotulo, tamanho=10, negrito=True),
+        # o MDE fica na linha do cabeçalho, fora da área de desenho: dentro do
+        # painel ele cairia em cima da curva, que sobe da esquerda para a direita
+        texto(direita, y0 + 10,
+              f"MDE₈₀  t {_mde_rotulo(curva_poder.mde_t)} · "
+              f"W {_mde_rotulo(curva_poder.mde_w)}",
+              tamanho=8.5, cor=TINTA_FRACA, ancora="end"),
+        eixo_vertical_pct(ey, esquerda, alvo=4, grade_ate_px=direita,
+                          com_rotulos=com_rotulos_y),
+    ]
+
+    # as duas réguas: o nível nominal, de onde as curvas partem, e o alvo de 80%
+    partes.append(linha(esquerda, ey.px(alvo_poder), direita, ey.px(alvo_poder),
+                        cor=ALVO, largura=1.2, tracejado="2 3"))
+    partes.append(linha(esquerda, ey.px(alfa), direita, ey.px(alfa),
+                        cor=REFERENCIA, largura=1.4, tracejado="7 4"))
+
+    for pontos, intervalos, cor, tracejada, nome, e_o_t in (
+        (curva_poder.pontos_t, curva_poder.ic_t, AZUL, False, "t", True),
+        (curva_poder.pontos_w, curva_poder.ic_w, LARANJA,
+         curva_poder.h0_w_falsa_em_zero, "Wilcoxon", False),
+    ):
+        tela = [(ex.px(e), ey.px(taxa)) for e, taxa in pontos]
+        if intervalos:
+            superiores = [(ex.px(e), ey.px(sup))
+                          for (e, _), (_, sup) in zip(pontos, intervalos)]
+            inferiores = [(ex.px(e), ey.px(inf))
+                          for (e, _), (inf, _) in zip(pontos, intervalos)]
+            partes.append(faixa_entre(superiores, inferiores, cor=cor))
+        if tracejada:
+            # a curva que não é poder entra pontilhada: a cor continua dizendo
+            # qual teste é, e o traço diz que ela não se lê como as outras
+            passos = " ".join(f"L{x:.1f},{y:.1f}" for x, y in tela[1:])
+            partes.append(
+                f'<path d="M{tela[0][0]:.1f},{tela[0][1]:.1f} {passos}" fill="none" '
+                f'stroke="{cor}" stroke-width="2" stroke-dasharray="6 3" '
+                f'stroke-linejoin="round"/>'
+            )
+        else:
+            partes.append(curva(tela, cor=cor, largura=2))
+        for x, y in tela:  # onde o dado foi realmente simulado
+            partes.append(f'<circle cx="{x:.1f}" cy="{y:.1f}" r="2.8" fill="{cor}" '
+                          f'stroke="white" stroke-width="1.2"/>')
+        if com_nomes_das_curvas:
+            # Rótulo direto, para a identidade não depender só da cor. Ele vai
+            # no ponto de MAIOR separação entre as duas curvas: é onde há
+            # espaço garantido para os dois textos sem que um cubra o outro,
+            # e é também o ponto que o leitor mais quer olhar.
+            indice = _indice_de_maior_separacao(curva_poder)
+            x, y = tela[indice]
+            t_esta_por_cima = (curva_poder.pontos_t[indice][1]
+                               >= curva_poder.pontos_w[indice][1])
+            acima = t_esta_por_cima if e_o_t else not t_esta_por_cima
+            # o de cima sai pela esquerda, o de baixo pela direita: assim os
+            # dois ficam no espaço aberto entre as curvas, e não sobre elas
+            partes.append(texto(
+                x + (-9 if acima else 9), y + (-10 if acima else 16), nome,
+                tamanho=9.5, cor=cor, ancora="end" if acima else "start",
+                negrito=True))
+
+    if com_rotulos_x:
+        partes.append(eixo_horizontal(ex, base, casas=2, alvo=4))
+    else:
+        partes.append(linha(esquerda, base, direita, base, cor=EIXO))
+    return "".join(partes)
+
+
+def _legenda_poder(x: float, y: float, *, alvo_poder: float, alfa: float,
+                   com_tracejada: bool) -> str:
+    itens = []
+    cursor = x
+    for nome, cor in (("teste t pareado", AZUL), ("Wilcoxon pareado", LARANJA)):
+        itens.append(linha(cursor, y - 4, cursor + 24, y - 4, cor=cor, largura=2))
+        itens.append(texto(cursor + 30, y, nome, tamanho=10.5))
+        cursor += 30 + 6.2 * len(nome) + 22
+    itens.append(retangulo(cursor, y - 9, 22, 11, cor=AZUL, opacidade=0.16))
+    itens.append(texto(cursor + 28, y, "IC 95% (Wilson)", tamanho=10.5))
+    cursor += 28 + 6.2 * 15 + 22
+    itens.append(linha(cursor, y - 4, cursor + 24, y - 4, cor=ALVO, largura=1.2,
+                       tracejado="2 3"))
+    itens.append(texto(cursor + 30, y, f"{_pct(alvo_poder, 0)} de poder", tamanho=10.5))
+    cursor += 30 + 6.2 * 15 + 22
+    itens.append(linha(cursor, y - 4, cursor + 24, y - 4, cor=REFERENCIA,
+                       largura=1.4, tracejado="7 4"))
+    itens.append(texto(cursor + 30, y, f"α = {_pct(alfa, 0)}", tamanho=10.5))
+    if com_tracejada:
+        cursor += 30 + 6.2 * 9 + 22
+        itens.append(linha(cursor, y - 4, cursor + 24, y - 4, cor=LARANJA,
+                           largura=2, tracejado="6 3"))
+        itens.append(texto(cursor + 30, y, "não é poder: a H₀ do teste já era falsa",
+                           tamanho=10.5))
+    return "".join(itens)
+
+
+def grafico_g4(curvas: list[CurvaPoder], *, alfa: float, alvo_poder: float = 0.80,
+               colunas: int = 3, largura: float = 1040,
+               titulo: str = "G4 — poder dos dois testes por tamanho de efeito") -> str:
+    """Curvas de poder em painéis pequenos: um painel por cenário × tamanho.
+
+    POR QUE PAINÉIS, E NÃO UM GRÁFICO SÓ. São três dimensões (teste, cenário,
+    n) e a cor já está gasta na mais importante: qual teste é qual. Empilhar n
+    em espessura ou traço no mesmo quadro daria seis curvas quase iguais e
+    esconderia a única comparação que os dados permitem — os dois testes **nos
+    mesmos conjuntos simulados**, que é a comparação vertical dentro de cada
+    painel. Com painéis, essa comparação fica a dois centímetros do olho, e as
+    outras duas dimensões viram posição na grade.
+
+    O eixo y é sempre 0–100% em todos os painéis, para as inclinações poderem
+    ser comparadas entre eles.
+    """
+    if not curvas:
+        raise ValueError("o G4 precisa de pelo menos uma curva")
+
+    efeito_maximo = max(e for c in curvas for e, _ in c.pontos_t)
+    grupos = list(dict.fromkeys(c.grupo for c in curvas))
+    colunas = min(colunas, len(grupos)) or 1
+    linhas_grade = math.ceil(len(curvas) / colunas)
+
+    margem, espaco = 20, 14
+    largura_painel = (largura - 2 * margem - (colunas - 1) * espaco) / colunas
+    altura_painel = 196
+    topo_grade = 74
+    altura_total = topo_grade + linhas_grade * (altura_painel + 22) + 24
+
+    com_tracejada = any(c.h0_w_falsa_em_zero for c in curvas)
+    # Os rótulos diretos vão no painel em que as duas curvas mais se afastam.
+    # Num painel em que elas se tocam, os dois textos se empilhariam — e é
+    # justamente o painel de maior separação que o leitor quer identificar.
+    painel_dos_rotulos = max(
+        range(len(curvas)),
+        key=lambda i: max(abs(t - w) for (_, t), (_, w)
+                          in zip(curvas[i].pontos_t, curvas[i].pontos_w)))
+    partes = [_legenda_poder(margem, 22, alvo_poder=alvo_poder, alfa=alfa,
+                             com_tracejada=com_tracejada)]
+
+    # cabeçalho de coluna: o cenário, uma vez por coluna
+    for indice, grupo in enumerate(grupos[:colunas]):
+        x = margem + indice * (largura_painel + espaco)
+        partes.append(texto(x + 44, topo_grade - 12, grupo, tamanho=10.5,
+                            negrito=True))
+
+    for indice, curva_poder in enumerate(curvas):
+        coluna, linha_grade = indice % colunas, indice // colunas
+        x = margem + coluna * (largura_painel + espaco)
+        y = topo_grade + linha_grade * (altura_painel + 22)
+        ultima_linha = linha_grade == linhas_grade - 1
+        partes.append(painel_poder(
+            curva_poder, x0=x, y0=y, largura=largura_painel, altura=altura_painel,
+            alfa=alfa, alvo_poder=alvo_poder, efeito_maximo=efeito_maximo,
+            com_rotulos_y=coluna == 0, com_rotulos_x=ultima_linha,
+            com_nomes_das_curvas=indice == painel_dos_rotulos,
+        ))
+
+    partes.append(texto(largura / 2, altura_total - 4,
+                        "tamanho do efeito δ = μ_d / σ_d (em desvios das diferenças)",
+                        tamanho=10, cor=TINTA_FRACA, ancora="middle"))
+    return svg(largura, altura_total, "".join(partes), titulo=titulo)

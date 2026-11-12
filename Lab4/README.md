@@ -28,6 +28,7 @@ python src/simulacao.py      # cenários simulados, erro tipo I e poder (~20 s)
 python src/erro_tipo_i.py      # Q1: 10.000 conjuntos sob H0 (precisa de requirements-q1.txt)
 python src/comparacao_erro.py   # compara o erro tipo I dos dois testes na Q1 (G3)
 python src/violacao.py       # Q3: erro tipo I com os pressupostos violados (~2,5 min)
+python src/poder.py          # Q2: o poder com efeitos crescentes, G4 (~10 min)
 python src/dashboard.py --abrir   # gera dashboard/index.html e abre no navegador
 ```
 
@@ -46,7 +47,9 @@ dados que ela produziu já estão versionados.
 | [src/erro_tipo_i.py](src/erro_tipo_i.py) | Sprint 2 | Q1: simula 10.000 conjuntos em dois cenários e registra qual H0 vale em cada um |
 | [src/comparacao_erro.py](src/comparacao_erro.py) | Sprint 2 | compara as taxas da Q1: Wilson, diferença pareada e McNemar; só chama de erro tipo I a taxa de um teste cuja H0 vale |
 | [src/violacao.py](src/violacao.py) | **Integrante 3** | Q3: erro tipo I com normalidade violada e amostra pequena |
-| [src/graficos.py](src/graficos.py) | **Integrante 3** | G1, G2 e G3 em SVG, desenhados sem dependências |
+| [src/poder.py](src/poder.py) | **Integrante 2** | Q2: o poder dos dois testes com efeitos crescentes, nas duas famílias de cenários |
+| [src/poder.js](src/poder.js) | **Integrante 2** | o gráfico de poder interativo do dashboard (bônus), em JS puro |
+| [src/graficos.py](src/graficos.py) | **Integrante 3** | G1, G2, G3 e G4 em SVG, desenhados sem dependências |
 | [src/dashboard.py](src/dashboard.py) | **Integrante 3** | monta o HTML único do dashboard a partir dos CSVs |
 
 ### Por que as distribuições são implementadas aqui
@@ -104,16 +107,19 @@ com dois cliques, sem servidor e sem instalar nada. É a entrega final do
 laboratório, e por isso cada gráfico vem com um texto curto dizendo o que
 mostra e o que se conclui dele.
 
-As sete seções seguem a ordem pedida no enunciado. **Estão prontas** a 1
-(cenário), a 2 (G1), a 3 (G2), a 4 (G3, Sprint 02) e a 6 (tabela dos dados
-reais); a 5 (G4) e a conclusão aparecem marcadas como pendentes, para a página
-não dar a impressão de que já existem.
+As sete seções seguem a ordem pedida no enunciado, e **todas estão prontas**:
+1 (cenário), 2 (G1), 3 (G2), 4 (G3 — Q1 e Q3), 5 (G4 — Q2), 6 (tabela dos dados
+reais) e 7 (conclusão). Cada seção depende de um CSV: se ele ainda não tiver
+sido gerado, a seção aparece marcada como pendente em vez de a página quebrar —
+foi o que permitiu o dashboard existir desde a Sprint 01, com as seções
+chegando uma a uma.
 
 | Gráfico | O que responde | Como |
 |---|---|---|
 | **G1** | com que dados estamos lidando? | seis histogramas: os dois grupos reais, as diferenças reais e os três cenários simulados |
 | **G2** | como um teste decide? | a distribuição da estatística sob H0, a região de rejeição e o p-valor desenhado como **área** |
 | **G3** | com que frequência cada teste acusa efeito que não existe? | taxa de rejeição dos dois testes nos 10.000 conjuntos de cada cenário da Q1, com IC de Wilson, a linha de 5% e a faixa do acaso. O painel simétrico compara o erro tipo I; o assimétrico é análise de sensibilidade, e a barra listrada (Wilcoxon, H0 falsa) não é erro tipo I — ver [docs/comparacao_taxas_erro.md](docs/comparacao_taxas_erro.md) |
+| **G4** | com que frequência cada teste encontra o efeito que existe? | curvas de poder em painéis pequenos — um por cenário × n, dois testes por painel, com a banda de IC, a régua de 80% e o efeito mínimo detectável. Abaixo delas, o **gráfico interativo** do bônus: seletor de cenário e de n, e leitura ponto a ponto — ver [docs/poder.md](docs/poder.md) |
 
 ### Por que SVG escrito à mão
 
@@ -127,7 +133,9 @@ resultado é um HTML que funciona offline.
 O dashboard **não recalcula teste nenhum**: lê `data/dados_reais.csv`,
 `data/resultados_reais.csv`, `data/simulacao/cenarios.csv` e
 `data/simulacao/resultados_exemplo.csv` e, para o G3, os p-valores da Q1
-(`data/pvalores_q1*.csv`, conferidos contra `data/resultados_q1.csv`). As duas únicas contas feitas ali são
+(`data/pvalores_q1*.csv`, conferidos contra `data/resultados_q1.csv`), para o
+G3 da Q3 `data/resultados_q3.csv` e, para o G4 e a conclusão,
+`data/resultados_q2.csv`. As duas únicas contas feitas ali são
 os valores críticos de G2 — o t de 95% e o menor W⁺ que cai na região de
 rejeição —, e mesmo essas saem de `src/distribuicoes.py`, para o gráfico não
 discordar do teste.
@@ -177,13 +185,61 @@ O número é um fato da distribuição, não da simulação, e
 `wilcoxon_p_exato(15, 5)` vale exatamente 1/32 e que a taxa medida não passa
 desse teto.
 
-### O que falta, e de quem é
+### A outra metade
 
-Esta é a metade da Q3 que repete a Q1. A outra metade repete a **Q2** — o
-poder nestes mesmos cenários — e pertence às Issues #109 e #110, que são do
-Integrante 2 e alimentam o G4. A função `gerar_diferencas(cenario, n, efeito,
-rng)` já recebe o efeito em unidades de desvio: rodar com efeito maior que zero
-dá as amostras do estudo de poder, sem reimplementar gerador nenhum.
+Esta é a metade da Q3 que repete a Q1. A que repete a **Q2** — o poder nestes
+mesmos cenários — está em [src/poder.py](src/poder.py) (Issues #109 e #110) e
+reaproveita `gerar_diferencas(cenario, n, efeito, rng)` exatamente como
+previsto, rodando com efeito maior que zero.
+
+## Poder (Q2)
+
+```bash
+python src/poder.py                   # 220 células × 10.000 conjuntos (~10 min)
+python src/poder.py --repeticoes 300  # rodada rápida, para conferir o formato
+python src/poder.py --so-relatorio    # regera docs/poder.md a partir dos CSVs
+```
+
+A última forma existe porque o relatório é **escrito a partir dos números**:
+corrigir uma frase não deve custar dez minutos de simulação. Um teste garante
+que o texto regerado do CSV é idêntico ao que a rodada completa produziria.
+
+A Q1 e a Q3 mediram o que os testes fazem quando **não** há efeito. A Q2 mede o
+outro lado — quantas vezes cada um encontra o efeito que existe — varrendo
+δ = μ_d/σ_d de 0 a 1,5, em n = 5, 10, 30 e 50, nas **duas** famílias de
+cenários já usadas na página: os três da violação (Q3) e os dois do bootstrap
+dos dados reais (Q1).
+
+O resultado está em [docs/poder.md](docs/poder.md) e no G4. Em resumo, com
+n = 30:
+
+| Cenário | Vantagem de poder | Efeito mínimo detectável a 80% (t / W) |
+|---|---|---|
+| `normal` | teste t, por 2,7 p.p. | δ = 0,47 / 0,48 |
+| `cauda_pesada` | **Wilcoxon**, por até 11,3 p.p. | δ = 0,43 / 0,36 |
+| `contaminada` | **Wilcoxon**, por até 20,5 p.p. | δ = 0,46 / 0,31 |
+
+A troca é assimétrica: o Wilcoxon perde pouco onde o t é ótimo e ganha muito
+onde há cauda pesada ou valores extremos. E o **bootstrap dos dados reais**
+mostra que esta coleta tem exatamente essas características — o teste mais
+poderoso para ela teria sido o Wilcoxon.
+
+### Conferência cruzada
+
+Em δ = 0 não há efeito, e cada célula mede a mesma coisa que uma taxa de erro
+tipo I já publicada pelos outros dois integrantes. Duas conferências saem a
+cada rodada:
+
+- **bit a bit com a Q3.** Nos três cenários de violação o gerador é a mesma
+  função (`violacao.gerar_diferencas`), com a mesma biblioteca de sorteio.
+  Refazendo cada célula com a semente da Q3, as nove contagens de rejeição
+  batem **exatamente** — não a menos de erro de simulação.
+- **estatística com a Q1.** Lá o sorteio é do NumPy, e nenhum fluxo de
+  `random.Random` o reproduz; a comparação só pode ser de duas proporções
+  independentes, com |z| ≤ 1,96.
+
+O script falha com código 1 se a conferência exata divergir — ali não existe
+margem para acaso.
 
 ## Testes automatizados
 
@@ -191,13 +247,18 @@ dá as amostras do estudo de poder, sem reimplementar gerador nenhum.
 python -m unittest discover -s tests -v
 ```
 
-157 testes, sem instalar nada (os 5 de `tests/test_erro_tipo_i.py` se pulam sem NumPy). Cobrem as distribuições contra valores de tabela
+207 testes, sem instalar nada (os 5 de `tests/test_erro_tipo_i.py` se pulam sem
+NumPy, e o do gráfico interativo se pula sem Node). Cobrem as distribuições contra valores de tabela
 (`t_cdf(2,262; 9) = 0,975`), os dois testes em casos montados à mão com o
 resultado conferido no papel, e a reprodutibilidade da simulação.
 
 Dois deles são conferências de calibração, e não de código: no cenário normal
 sob H0, a taxa de erro tipo I tem de cair perto de 5% — se não cair, há um
-p-valor errado em algum lugar.
+p-valor errado em algum lugar. E
+[tests/checar_poder_js.js](tests/checar_poder_js.js) roda o `src/poder.js` de
+verdade contra um DOM mínimo em Node: um erro de JavaScript não quebraria a
+página, só deixaria o bloco interativo vazio — e ninguém perceberia até a
+apresentação.
 
 ### Conferência contra o SciPy (opcional)
 
@@ -230,12 +291,18 @@ se pulam e a suíte continua passando (é o que acontece na CI).
 | `data/resultados_q3.csv` | Q3: taxa de erro tipo I por cenário × n × teste, com IC de Wilson |
 | `data/mcnemar_q3.csv` | Q3: tabela 2×2 das decisões em cada célula |
 | `docs/violacao_pressupostos.md` | relatório gerado da Q3 (Issues #111 e #112) |
+| `data/resultados_q2.csv` | Q2: poder por cenário × n × efeito × teste, com IC de Wilson e o MDE₈₀ |
+| `data/mcnemar_q2.csv` | Q2: tabela 2×2 das decisões em cada célula |
+| `docs/poder.md` | relatório gerado da Q2 (Issue #109) |
 | `dashboard/index.html` | o dashboard completo, em arquivo único |
 
 Os CSVs são a interface para o dashboard: ele lê arquivo, não importa função.
 
 ## Reprodutibilidade
 
-A simulação é determinística — a semente padrão é 42 e fica registrada no
-relatório. Rodar `python src/simulacao.py --semente 42 --repeticoes 2000`
-reproduz exatamente os números de [docs/simulacao.md](docs/simulacao.md).
+As simulações são determinísticas — a semente padrão é 42 e fica registrada em
+cada relatório. Rodar `python src/simulacao.py --semente 42 --repeticoes 2000`
+reproduz exatamente os números de [docs/simulacao.md](docs/simulacao.md), e
+`python src/poder.py` reproduz os de [docs/poder.md](docs/poder.md). Cada
+célula da Q2 e da Q3 deriva a própria semente da base, de forma determinística:
+rodar uma célula isolada dá o mesmo que rodar o estudo inteiro.

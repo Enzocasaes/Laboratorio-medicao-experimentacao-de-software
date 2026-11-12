@@ -22,19 +22,37 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "src"))
 
-from dashboard import menor_w_rejeitado, montar  # noqa: E402
+from dashboard import (  # noqa: E402
+    CENARIOS_VIOLACAO,
+    TAMANHOS_G4,
+    TESTE_T_NOME,
+    TESTE_W_NOME,
+    _curvas_do_g4,
+    carregar_poder,
+    carregar_violacao,
+    dados_para_o_interativo,
+    javascript_do_poder,
+    menor_w_rejeitado,
+    montar,
+)
+from comparacao_erro import carregar_comparacoes  # noqa: E402
 from distribuicoes import wilcoxon_p_exato  # noqa: E402
 from graficos import (  # noqa: E402
+    CurvaPoder,
     Escala,
     assimetria,
     classes_histograma,
     densidade_t,
+    eixo_vertical_pct,
     escapar,
+    faixa_entre,
     grafico_g1,
     grafico_g2,
+    grafico_g4,
     marcas_bonitas,
     mediana,
     numero,
+    _indice_de_maior_separacao,
 )
 
 LAB4_DIR = Path(__file__).resolve().parent.parent
@@ -242,6 +260,193 @@ class TestDashboard(unittest.TestCase):
 
     def test_link_do_repositorio_no_topo(self):
         self.assertIn("github.com/Enzocasaes", self.pagina)
+
+
+# ------------------------------------------------------------------- G4
+
+
+def _curva_de_teste(**ajustes) -> CurvaPoder:
+    efeitos = [0.0, 0.3, 0.6, 0.9]
+    base = dict(
+        grupo="Cenário", rotulo="n = 30",
+        pontos_t=list(zip(efeitos, [0.05, 0.40, 0.80, 0.97])),
+        pontos_w=list(zip(efeitos, [0.05, 0.55, 0.92, 0.99])),
+        ic_t=[(0.04, 0.06), (0.38, 0.42), (0.78, 0.82), (0.96, 0.98)],
+        ic_w=[(0.04, 0.06), (0.53, 0.57), (0.90, 0.94), (0.98, 1.00)],
+        mde_t=0.60, mde_w=0.47,
+    )
+    base.update(ajustes)
+    return CurvaPoder(**base)
+
+
+class TestFaixaEntre(unittest.TestCase):
+    def test_fecha_o_poligono(self):
+        caminho = faixa_entre([(0.0, 10.0), (10.0, 20.0)],
+                              [(0.0, 30.0), (10.0, 40.0)], cor="#000")
+        self.assertTrue(caminho.endswith('Z" fill="#000" fill-opacity="0.16" '
+                                         'stroke="none"/>'))
+        self.assertIn("M0.0,10.0", caminho)
+
+    def test_series_de_tamanhos_diferentes_nao_desenham(self):
+        """Melhor nada do que uma banda fechada no lugar errado."""
+        self.assertEqual(faixa_entre([(0.0, 1.0)], [], cor="#000"), "")
+
+
+class TestEixoVertical(unittest.TestCase):
+    def test_rotulos_em_porcentagem(self):
+        marcacao = eixo_vertical_pct(Escala(0.0, 1.0, 200, 50), 60)
+        self.assertIn(">0%<", marcacao)
+        self.assertIn(">100%<", marcacao)
+
+    def test_sem_rotulos_so_desenha_as_marcas(self):
+        marcacao = eixo_vertical_pct(Escala(0.0, 1.0, 200, 50), 60,
+                                     com_rotulos=False)
+        self.assertNotIn("<text", marcacao)
+
+
+class TestRotulosDiretos(unittest.TestCase):
+    def test_escolhe_o_ponto_de_maior_separacao(self):
+        curva_poder = _curva_de_teste()  # maior distância em δ = 0,3
+        self.assertEqual(_indice_de_maior_separacao(curva_poder), 1)
+
+    def test_curvas_coladas_caem_no_meio(self):
+        iguais = [(0.0, 0.1), (0.3, 0.2), (0.6, 0.3), (0.9, 0.4)]
+        curva_poder = _curva_de_teste(pontos_t=iguais, pontos_w=iguais)
+        self.assertEqual(_indice_de_maior_separacao(curva_poder), 2)
+
+
+class TestG4(unittest.TestCase):
+    def test_e_xml_valido_com_titulo_acessivel(self):
+        svg = grafico_g4([_curva_de_teste()], alfa=0.05, colunas=1)
+        raiz = ET.fromstring(svg)
+        self.assertEqual(raiz.find("{http://www.w3.org/2000/svg}title").text[:2], "G4")
+        self.assertTrue(raiz.get("aria-label"))
+
+    def test_um_painel_por_curva(self):
+        curvas = [_curva_de_teste(grupo=f"C{i}", rotulo=f"n = {i}") for i in (5, 10, 30)]
+        svg = grafico_g4(curvas, alfa=0.05, colunas=3)
+        for c in curvas:
+            self.assertIn(c.rotulo, svg)
+            self.assertIn(c.grupo, svg)
+
+    def test_a_curva_que_nao_e_poder_sai_tracejada(self):
+        """Mesma cor (é o mesmo teste), traço diferente (não se lê igual)."""
+        normal = grafico_g4([_curva_de_teste()], alfa=0.05, colunas=1)
+        marcada = grafico_g4([_curva_de_teste(h0_w_falsa_em_zero=True)],
+                             alfa=0.05, colunas=1)
+        self.assertNotIn('stroke-dasharray="6 3"', normal)
+        self.assertIn('stroke-dasharray="6 3"', marcada)
+        self.assertIn("não é poder", marcada)
+
+    def test_eixo_vai_ate_cem_por_cento(self):
+        """Cortar a escala no máximo observado deixaria a curva mais íngreme
+        do que ela é — e é a inclinação que o leitor usa para julgar."""
+        svg = grafico_g4([_curva_de_teste()], alfa=0.05, colunas=1)
+        self.assertIn(">100%<", svg)
+        self.assertIn(">0%<", svg)
+
+    def test_sem_curvas_e_erro(self):
+        with self.assertRaises(ValueError):
+            grafico_g4([], alfa=0.05)
+
+
+class TestSecoesDaSprint02(unittest.TestCase):
+    """A seção 5 e a 7 montadas com os CSVs reais da Q2."""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.grade = carregar_poder(LAB4_DIR / "data")
+        if cls.grade is None:
+            raise unittest.SkipTest("data/resultados_q2.csv ainda nao foi gerado")
+
+    def test_o_g4_cobre_as_condicoes_prometidas(self):
+        curvas = _curvas_do_g4(self.grade, CENARIOS_VIOLACAO, TAMANHOS_G4)
+        self.assertEqual(len(curvas), len(CENARIOS_VIOLACAO) * len(TAMANHOS_G4))
+        # ordem de linha: a primeira linha tem de ser um cenário por coluna
+        primeiros = [c.grupo for c in curvas[:len(CENARIOS_VIOLACAO)]]
+        self.assertEqual(len(set(primeiros)), len(CENARIOS_VIOLACAO))
+
+    def test_as_curvas_partem_do_nivel_nominal(self):
+        """Em δ = 0 não há efeito: a curva é a taxa de erro tipo I."""
+        for cenario in CENARIOS_VIOLACAO:
+            for teste in (TESTE_T_NOME, TESTE_W_NOME):
+                with self.subTest(cenario=cenario, teste=teste):
+                    taxa = self.grade.taxa(cenario, 30, 0.0, teste)
+                    self.assertLess(abs(taxa - self.grade.alfa), 0.02)
+
+    def test_o_poder_nunca_decresce_na_grade(self):
+        for cenario in self.grade.cenarios:
+            for n in self.grade.tamanhos:
+                for teste in (TESTE_T_NOME, TESTE_W_NOME):
+                    with self.subTest(cenario=cenario, n=n, teste=teste):
+                        taxas = [t for _, t in self.grade.pontos(cenario, n, teste)]
+                        # ruído de Monte Carlo pode inverter dois pontos vizinhos
+                        # por pouco; uma queda de verdade é outra coisa
+                        for antes, depois in zip(taxas, taxas[1:]):
+                            self.assertGreater(depois, antes - 0.02)
+
+    def test_o_interativo_le_os_mesmos_numeros_do_csv(self):
+        """Se o JSON do bônus e o CSV discordassem, um dos dois mentiria."""
+        import json
+        dados = json.loads(dados_para_o_interativo(self.grade))
+        indice = dados["efeitos"].index(0.5)
+        for cenario in CENARIOS_VIOLACAO:
+            with self.subTest(cenario=cenario):
+                self.assertAlmostEqual(
+                    dados["series"][f"{cenario}|30"]["t"]["taxa"][indice],
+                    self.grade.taxa(cenario, 30, 0.5, TESTE_T_NOME))
+
+    def test_o_grafico_interativo_do_bonus_funciona(self):
+        """Roda o `src/poder.js` de verdade, contra um DOM mínimo.
+
+        Um erro de JavaScript ali não quebraria a página: o bloco interativo
+        simplesmente ficaria vazio, e ninguém perceberia até a apresentação.
+        O script confere que as duas curvas são desenhadas, que a leitura
+        ponto a ponto responde ao teclado e que o número mostrado é o do CSV.
+        """
+        import shutil
+        import subprocess
+        if not shutil.which("node"):
+            self.skipTest("node nao esta instalado nesta maquina")
+        pagina = LAB4_DIR / "dashboard" / "index.html"
+        if not pagina.exists():
+            self.skipTest("rode python src/dashboard.py antes")
+        retorno = subprocess.run(
+            ["node", str(LAB4_DIR / "tests" / "checar_poder_js.js")],
+            capture_output=True, text=True)
+        self.assertEqual(retorno.returncode, 0, retorno.stdout + retorno.stderr)
+
+    def test_a_pagina_completa_nao_tem_mais_pendencia(self):
+        import csv as _csv
+
+        def ler(caminho):
+            with open(caminho, newline="", encoding="utf-8") as arquivo:
+                return list(_csv.DictReader(arquivo))
+
+        dados = LAB4_DIR / "data"
+        pares = ler(dados / "dados_reais.csv")
+        sem = [float(l["tempo_sem_cache"]) for l in pares]
+        com = [float(l["tempo_com_cache"]) for l in pares]
+        simulados: dict[str, list[float]] = {}
+        for linha in ler(dados / "simulacao" / "cenarios.csv"):
+            simulados.setdefault(linha["cenario"], []).append(float(linha["diferenca"]))
+
+        pagina = montar(
+            reais={"sem cache": sem, "com cache": com,
+                   "diferenças": [s - c for s, c in zip(sem, com)]},
+            simulados=simulados,
+            reais_resultados=ler(dados / "resultados_reais.csv"),
+            exemplo=ler(dados / "simulacao" / "resultados_exemplo.csv"),
+            erro_tipo_i=carregar_comparacoes(dados),
+            violacao=carregar_violacao(dados),
+            poder=self.grade,
+            javascript=javascript_do_poder(),
+        )
+        self.assertNotIn('class="pendencia"', pagina)
+        self.assertIn("G4 —", pagina)
+        self.assertIn('id="dados-poder"', pagina)
+        self.assertIn("O que esperávamos", pagina)
+        self.assertIn("Recomendação", pagina)
 
 
 if __name__ == "__main__":
