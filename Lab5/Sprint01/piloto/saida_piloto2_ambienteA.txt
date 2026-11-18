@@ -1,0 +1,30 @@
+dnspython 2.7.0 | httpx 0.28.1 | python 3.9.6
+
+== 1.1.1.1 ==
+  RTT TCP :853                 n=10 med=   20.8 min=   20.1 max=   26.7
+  RTT TCP :443                 n=10 med=   20.4 min=   19.1 max=   22.7
+  Do53 (UDP)                   n=10 med=   22.0 min=   21.2 max=   23.4
+  DoT frio: total              n=10 med=  100.0 min=   87.7 max=  145.7
+  DoT frio: handshake TCP      n=10 med=   20.8 min=   19.0 max=   37.0
+  DoT frio: handshake TLSv1.2  n=10 med=   49.1 min=   43.1 max=   93.1
+  DoT frio: só a consulta      n=10 med=   21.5 min=   19.5 max=   25.1
+  DoT quente (reuso)           n=10 med=   23.2 min=   19.9 max=   26.3
+  DoH frio (cliente novo)      n=10 med=  114.8 min=  101.9 max=  133.4
+  DoH versão HTTP negociada: HTTP/2
+  DoH quente (reuso)           n=10 med=   26.9 min=   23.1 max=   35.2
+
+== 8.8.8.8 ==
+  RTT TCP :853                 n=10 med=   23.5 min=   19.3 max=   74.3
+  RTT TCP :443                 n=10 med=   22.8 min=   19.3 max=   81.9
+  Do53 (UDP)                   n=10 med=   75.9 min=   22.1 max=   78.3
+  DoT frio: total              n=10 med=  158.3 min=  144.2 max=  249.1
+  DoT frio: handshake TCP      n=10 med=   22.2 min=   19.0 max=   27.9
+  DoT frio: handshake TLSv1.2  n=10 med=   99.4 min=   94.4 max=  146.2
+  DoT frio: só a consulta      n=10 med=   26.8 min=   20.5 max=   82.6
+  DoT quente (reuso)           n=10 med=   26.6 min=   20.3 max=   37.7
+  DoH frio (cliente novo)      n=10 med=  261.6 min=  147.1 max=  354.3
+  DoH versão HTTP negociada: HTTP/2
+  DoH quente (reuso)           n=10 med=   27.4 min=   20.4 max=   47.5
+
+== Sondas de identificação ==
+  1.1.1.1 id.server CH TXT: ['id.server. 0 CH TXT "gru22"']

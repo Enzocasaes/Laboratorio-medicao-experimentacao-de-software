@@ -1,0 +1,11 @@
+# Piloto 1 — 18/11/2026, dig 9.10.6 (macOS), +tries=1 +time=2, tipo A, 10 consultas por célula
+# Valores: "Query time" (ms) reportado pelo dig. "default" = resolvedor configurado na rede (encaminhador local).
+1.1.1.1 google.com: 22 22 22 20 20 21 19 20 22 26
+1.1.1.1 wikipedia.org: 22 22 22 20 21 20 20 22 21 23
+1.1.1.1 gov.br: 19 19 22 25 22 19 25 21 20 20
+8.8.8.8 google.com: 73 69 72 72 21 74 21 76 76 21
+8.8.8.8 wikipedia.org: 22 26 23 19 25 19 21 20 21 21
+8.8.8.8 gov.br: 23 188 23 21 35 36 23 25 23 22
+default google.com: 7 8 7 7 6 7 8 5 5 7
+default wikipedia.org: 21 7 4 8 7 7 6 6 7 8
+default gov.br: 6 5 5 6 8 6 6 9 6 8
