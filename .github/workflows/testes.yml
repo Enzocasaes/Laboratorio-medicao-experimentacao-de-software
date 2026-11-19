@@ -67,3 +67,39 @@ jobs:
       # nenhum teste unitario, so' na hora de abrir a pagina.
       - name: Dashboard monta sem erro
         run: python src/dashboard.py --saida /tmp/dashboard.html
+
+  lab05:
+    name: Lab05 - instrumentacao e analise
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: Lab5
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      # A ANALISE do Lab05 roda so' com a biblioteca padrao; a COLETA precisa
+      # do dnspython. Os testes da coleta se pulam sozinhos quando ele falta,
+      # entao a primeira etapa prova que a analise e' mesmo autossuficiente e
+      # a segunda exercita a suite inteira.
+      - name: Testes sem dependencia nenhuma (so' a analise)
+        run: python -m unittest discover -s Sprint01/testes -v
+
+      - name: Ambiente de coleta
+        run: pip install -r Sprint01/coleta/requirements.txt
+
+      - name: Testes com o ambiente de coleta (suite inteira)
+        run: python -m unittest discover -s Sprint01/testes -v
+
+      # O verificador de ambiente e' o que impede uma coleta com a pilha
+      # errada; se ele quebrar, ninguem descobre ate' a coleta de 7 dias.
+      - name: Verificador de ambiente roda
+        run: python Sprint01/coleta/ambiente.py
+
+      # A analise precisa continuar lendo o CSV do piloto versionado.
+      - name: Analise roda sobre os dados do piloto
+        run: python Sprint01/coleta/analise.py Sprint01/dados/piloto_c.csv --replicas 200 > /dev/null

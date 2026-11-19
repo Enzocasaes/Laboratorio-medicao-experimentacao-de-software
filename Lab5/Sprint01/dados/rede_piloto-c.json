@@ -1,0 +1,66 @@
+{
+  "rede_id": "piloto-c",
+  "ts_utc": "2026-11-19T02:48:59+00:00",
+  "repeticoes_por_sonda": 20,
+  "nameservers_configurados": [
+    "2804:14d:1::/48",
+    "2804:14d:1::/48"
+  ],
+  "alvos_sondados": {
+    "padrao-gateway": "192.168.0.1",
+    "padrao-configurado": "2804:14d:1::/48"
+  },
+  "padroes": {
+    "padrao-gateway": {
+      "upstreams": [
+        {
+          "asn": "28573",
+          "org": "AS28573 - Claro NXT Telecomunicacoes Ltda, BR",
+          "vezes": 20
+        },
+        {
+          "asn": "28573",
+          "org": "AS28573 - Claro NXT Telecomunicacoes Ltda, BR",
+          "vezes": 20
+        }
+      ],
+      "erros": {},
+      "classificacao": "resolve por conta propria (ou por um upstream do provedor)",
+      "endereco_privado": true
+    },
+    "padrao-configurado": {
+      "upstreams": [
+        {
+          "asn": "28573",
+          "org": "AS28573 - Claro NXT Telecomunicacoes Ltda, BR",
+          "vezes": 20
+        },
+        {
+          "asn": "28573",
+          "org": "AS28573 - Claro NXT Telecomunicacoes Ltda, BR",
+          "vezes": 20
+        }
+      ],
+      "erros": {},
+      "classificacao": "resolve por conta propria (ou por um upstream do provedor)",
+      "endereco_privado": false
+    }
+  },
+  "interceptacao": {
+    "id_server_1111": "cnf01",
+    "1.1.1.1": {
+      "asn_observado": "13335",
+      "org": "CLOUDFLARENET - Cloudflare, Inc., US",
+      "asn_esperado": "13335",
+      "bate": true
+    },
+    "8.8.8.8": {
+      "asn_observado": "15169",
+      "org": "GOOGLE - Google LLC, US",
+      "asn_esperado": "15169",
+      "bate": true
+    },
+    "interceptacao_detectada": false
+  },
+  "classificacao": "(a) resolvedor padrao independente: entra no experimento completo"
+}
