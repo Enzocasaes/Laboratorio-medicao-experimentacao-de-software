@@ -1,0 +1,27 @@
+# Lab05 — ambiente de coleta (Participante C, decisao D7).
+#
+# Versoes FIXADAS: todos os integrantes coletam com exatamente estas, senao a
+# pilha medida muda entre as redes e o "custo do protocolo" passa a misturar
+# diferenca de cliente com diferenca de servidor. O piloto 2 mostrou o caso
+# extremo disso: o Python do macOS (LibreSSL) negocia TLS 1.2 e gasta mais no
+# handshake que o mesmo script com OpenSSL e TLS 1.3.
+#
+# Instalacao (a partir de Lab5/):
+#   python3 -m venv .venv
+#   .venv/bin/pip install -r Sprint01/coleta/requirements.txt
+#   .venv/bin/python Sprint01/coleta/ambiente.py      # confere e registra
+#
+# A dnspython 2.9 trocou o cliente HTTP de httpx para httpx2; por isso o
+# httpx2 aparece aqui explicitamente, com a versao que veio com ela.
+
+dnspython[doh]==2.9.2
+
+# Trazidas pelo extra [doh]; fixadas para a pilha HTTP/2 do DoH nao variar.
+httpx2==2.16.2
+httpcore2==2.16.2
+h2==4.4.1
+hpack==4.2.0
+hyperframe==6.1.0
+h11==0.16.0
+anyio==4.16.0
+idna==3.20

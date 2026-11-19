@@ -1,0 +1,7 @@
+# ambiente de coleta, montado por integrante (ver Sprint01/coleta/requirements.txt)
+.venv/
+__pycache__/
+*.pyc
+
+# saidas de depuracao das sondas, que imprimem IP da rede de quem roda
+*_com_ips.txt
