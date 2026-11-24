@@ -53,7 +53,7 @@ Add-Content -Encoding utf8 $log "coletor pid=$($coletor.Id)"
 
 # ficha diaria enquanto o coletor roda (6.6)
 while (-not $coletor.HasExited) {
-    Start-Sleep -Seconds 600
+    Start-Sleep -Seconds 30
     Write-Ficha
 }
 Add-Content -Encoding utf8 $log ("=== fim {0:yyyy-MM-ddTHH:mm:ssK} codigo={1}" -f (Get-Date), $coletor.ExitCode)

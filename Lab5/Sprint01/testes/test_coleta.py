@@ -496,3 +496,29 @@ class TestAquecimentoC2(unittest.TestCase):
         resultados = col.aquecer_c2(pares, {}, medir=falha, dormir=dormir,
                                     relogio=relogio)
         self.assertEqual([m.sucesso for m in resultados], [False, False])
+
+
+@unittest.skipUnless(TEM_DNSPYTHON, "precisa do dnspython")
+class TestInterceptacao(unittest.TestCase):
+    """AS sem resposta da Team Cymru nao pode virar classificacao (c)."""
+
+    def setUp(self):
+        import validar_rede
+        self.detectar = validar_rede.interceptacao_detectada
+
+    def _ficha(self, id_server="gru23", cf=True, gg=True):
+        return {"id_server_1111": id_server,
+                "1.1.1.1": {"bate": cf}, "8.8.8.8": {"bate": gg}}
+
+    def test_tudo_bate(self):
+        self.assertFalse(self.detectar(self._ficha()))
+
+    def test_as_indeterminado_nao_acusa(self):
+        self.assertFalse(self.detectar(self._ficha(cf=None)))
+        self.assertFalse(self.detectar(self._ficha(cf=None, gg=None)))
+
+    def test_as_diferente_acusa(self):
+        self.assertTrue(self.detectar(self._ficha(cf=False)))
+
+    def test_sem_id_server_acusa(self):
+        self.assertTrue(self.detectar(self._ficha(id_server="")))

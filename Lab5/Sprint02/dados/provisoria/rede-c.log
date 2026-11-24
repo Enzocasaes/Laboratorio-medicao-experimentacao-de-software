@@ -1,0 +1,85 @@
+﻿=== inicio 2026-11-24T14:15:16-03:00 rodadas=60 intervalo=10 padrao=padrao (roteador) dominios=piloto zona=-
+rede: rede-c
+nameservers configurados no sistema: 192.168.2.1, 8.8.8.8, 1.1.1.1
+
+sondando padrao (192.168.1.1)...
+  upstream AS15169 GOOGLE - Google LLC, US — 20x
+  upstream AS15169 GOOGLE - Google LLC, US — 20x
+  classificacao: encaminha para o Google (AS15169)
+
+procurando interceptacao da porta 53...
+  id.server do 1.1.1.1: gru23
+  1.1.1.1: AS observado ? (?) — NAO BATE
+  8.8.8.8: AS observado 15169 (GOOGLE - Google LLC, US) — ok
+
+classificacao da rede: (c) rede com interceptacao da porta 53: entra apenas no E-2 (DoT e DoH)
+
+ficha gravada em Sprint02\dados\provisoria\rede-c_ficha_20261124.json
+coletor pid=19316
+Python 3.14.0 · OpenSSL 3.0.18 30 Sep 2025 · dnspython 2.9.2 · httpx2 2.16.2
+rede=rede-c interface=? semente=911652765
+AVISO: sem --zona, so' C3 e' coletada (C1 e C2 dependem da pendencia D1, dominio proprio do grupo)
+saida: Sprint02\dados\provisoria\rede-c.csv
+rodizio C3: 15 dominios em 3 subconjuntos (5, 5, 5); 0 rodadas ja' gravadas na saida
+[1/60] 20261124T171537Z subconjunto 1/3, 25 consultas, 0 falhas, 1.5 s
+[2/60] 20261124T171547Z subconjunto 2/3, 25 consultas, 0 falhas, 1.6 s
+[3/60] 20261124T171557Z subconjunto 3/3, 25 consultas, 0 falhas, 1.7 s
+[4/60] 20261124T171607Z subconjunto 1/3, 25 consultas, 0 falhas, 1.2 s
+[5/60] 20261124T171617Z subconjunto 2/3, 25 consultas, 0 falhas, 1.3 s
+[6/60] 20261124T171627Z subconjunto 3/3, 25 consultas, 0 falhas, 1.4 s
+[7/60] 20261124T171637Z subconjunto 1/3, 25 consultas, 0 falhas, 1.5 s
+[8/60] 20261124T171647Z subconjunto 2/3, 25 consultas, 0 falhas, 1.3 s
+[9/60] 20261124T171657Z subconjunto 3/3, 25 consultas, 0 falhas, 1.8 s
+[10/60] 20261124T171707Z subconjunto 1/3, 25 consultas, 0 falhas, 1.3 s
+[11/60] 20261124T171717Z subconjunto 2/3, 25 consultas, 0 falhas, 2.1 s
+[12/60] 20261124T171727Z subconjunto 3/3, 25 consultas, 0 falhas, 1.5 s
+[13/60] 20261124T171737Z subconjunto 1/3, 25 consultas, 0 falhas, 1.3 s
+[14/60] 20261124T171747Z subconjunto 2/3, 25 consultas, 0 falhas, 1.3 s
+[15/60] 20261124T171757Z subconjunto 3/3, 25 consultas, 0 falhas, 1.3 s
+[16/60] 20261124T171807Z subconjunto 1/3, 25 consultas, 0 falhas, 1.6 s
+[17/60] 20261124T171817Z subconjunto 2/3, 25 consultas, 0 falhas, 1.2 s
+[18/60] 20261124T171827Z subconjunto 3/3, 25 consultas, 0 falhas, 1.3 s
+[19/60] 20261124T171837Z subconjunto 1/3, 25 consultas, 0 falhas, 1.6 s
+[20/60] 20261124T171847Z subconjunto 2/3, 25 consultas, 0 falhas, 1.5 s
+[21/60] 20261124T171857Z subconjunto 3/3, 25 consultas, 0 falhas, 1.4 s
+[22/60] 20261124T171907Z subconjunto 1/3, 25 consultas, 0 falhas, 1.4 s
+[23/60] 20261124T171917Z subconjunto 2/3, 25 consultas, 0 falhas, 1.3 s
+[24/60] 20261124T171927Z subconjunto 3/3, 25 consultas, 0 falhas, 1.4 s
+[25/60] 20261124T171937Z subconjunto 1/3, 25 consultas, 0 falhas, 1.1 s
+[26/60] 20261124T171947Z subconjunto 2/3, 25 consultas, 0 falhas, 1.2 s
+[27/60] 20261124T171957Z subconjunto 3/3, 25 consultas, 0 falhas, 1.4 s
+[28/60] 20261124T172007Z subconjunto 1/3, 25 consultas, 0 falhas, 1.3 s
+[29/60] 20261124T172017Z subconjunto 2/3, 25 consultas, 0 falhas, 1.5 s
+[30/60] 20261124T172027Z subconjunto 3/3, 25 consultas, 0 falhas, 1.2 s
+[31/60] 20261124T172037Z subconjunto 1/3, 25 consultas, 0 falhas, 1.4 s
+[32/60] 20261124T172047Z subconjunto 2/3, 25 consultas, 0 falhas, 1.4 s
+[33/60] 20261124T172057Z subconjunto 3/3, 25 consultas, 0 falhas, 1.7 s
+[34/60] 20261124T172107Z subconjunto 1/3, 25 consultas, 0 falhas, 1.2 s
+[35/60] 20261124T172117Z subconjunto 2/3, 25 consultas, 0 falhas, 1.4 s
+[36/60] 20261124T172127Z subconjunto 3/3, 25 consultas, 0 falhas, 1.4 s
+[37/60] 20261124T172137Z subconjunto 1/3, 25 consultas, 0 falhas, 1.4 s
+[38/60] 20261124T172147Z subconjunto 2/3, 25 consultas, 0 falhas, 1.2 s
+[39/60] 20261124T172157Z subconjunto 3/3, 25 consultas, 0 falhas, 1.5 s
+[40/60] 20261124T172207Z subconjunto 1/3, 25 consultas, 0 falhas, 1.4 s
+[41/60] 20261124T172217Z subconjunto 2/3, 25 consultas, 0 falhas, 1.3 s
+[42/60] 20261124T172227Z subconjunto 3/3, 25 consultas, 0 falhas, 1.4 s
+[43/60] 20261124T172237Z subconjunto 1/3, 25 consultas, 0 falhas, 1.3 s
+[44/60] 20261124T172247Z subconjunto 2/3, 25 consultas, 0 falhas, 1.3 s
+[45/60] 20261124T172257Z subconjunto 3/3, 25 consultas, 0 falhas, 1.4 s
+[46/60] 20261124T172307Z subconjunto 1/3, 25 consultas, 0 falhas, 1.4 s
+[47/60] 20261124T172317Z subconjunto 2/3, 25 consultas, 0 falhas, 1.3 s
+[48/60] 20261124T172327Z subconjunto 3/3, 25 consultas, 0 falhas, 1.6 s
+[49/60] 20261124T172337Z subconjunto 1/3, 25 consultas, 0 falhas, 1.2 s
+[50/60] 20261124T172347Z subconjunto 2/3, 25 consultas, 0 falhas, 1.5 s
+[51/60] 20261124T172357Z subconjunto 3/3, 25 consultas, 0 falhas, 1.7 s
+[52/60] 20261124T172407Z subconjunto 1/3, 25 consultas, 0 falhas, 1.5 s
+[53/60] 20261124T172417Z subconjunto 2/3, 25 consultas, 0 falhas, 1.3 s
+[54/60] 20261124T172427Z subconjunto 3/3, 25 consultas, 0 falhas, 1.4 s
+[55/60] 20261124T172437Z subconjunto 1/3, 25 consultas, 0 falhas, 1.3 s
+[56/60] 20261124T172447Z subconjunto 2/3, 25 consultas, 0 falhas, 1.4 s
+[57/60] 20261124T172457Z subconjunto 3/3, 25 consultas, 0 falhas, 1.4 s
+[58/60] 20261124T172507Z subconjunto 1/3, 25 consultas, 0 falhas, 1.3 s
+[59/60] 20261124T172517Z subconjunto 2/3, 25 consultas, 0 falhas, 1.2 s
+[60/60] 20261124T172527Z subconjunto 3/3, 25 consultas, 0 falhas, 1.2 s
+=== fim 2026-11-24T14:25:37-03:00 codigo=0
+=== nota 2026-11-24T14:28:12-03:00: a ficha acima saiu (c) por falso positivo (AS do 1.1.1.1 sem resposta da Team Cymru); validar_rede corrigido (AS indeterminado nao acusa interceptacao) e ficha refeita apos a coleta

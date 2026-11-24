@@ -201,18 +201,28 @@ def checar_interceptacao() -> dict:
         try:
             enderecos = _consultar_texto("whoami.akamai.net", "A", resolvedor.ip)
             dados = asn_do_ip(enderecos[0]) if enderecos else {"asn": "", "org": ""}
+            # AS vazio = a Team Cymru nao respondeu, e nao "AS diferente":
+            # fica None (indeterminado) para nao virar falso (c)
             resultado[resolvedor.id] = {
                 "asn_observado": dados["asn"], "org": dados["org"],
-                "asn_esperado": esperado, "bate": dados["asn"] == esperado,
+                "asn_esperado": esperado,
+                "bate": (dados["asn"] == esperado) if dados["asn"] else None,
             }
         except Exception as excecao:  # noqa: BLE001
             resultado[resolvedor.id] = {"erro": type(excecao).__name__, "bate": False}
 
-    # Sem o id.server da Cloudflare, ou com o AS errado, ha' desvio da porta 53
-    bate_tudo = all(isinstance(v, dict) and v.get("bate")
-                    for k, v in resultado.items() if k != "id_server_1111")
-    resultado["interceptacao_detectada"] = not (bate_tudo and resultado["id_server_1111"])
+    resultado["interceptacao_detectada"] = interceptacao_detectada(resultado)
     return resultado
+
+
+def interceptacao_detectada(resultado: dict) -> bool:
+    """Ha' desvio da porta 53 se falta o id.server da Cloudflare, se a consulta
+    ao publico falhou, ou se o AS **observado** e' outro. AS indeterminado
+    (bate=None) nao acusa nada."""
+    if not resultado.get("id_server_1111"):
+        return True
+    return any(isinstance(v, dict) and v.get("bate") is False
+               for k, v in resultado.items() if k != "id_server_1111")
 
 
 def classificar_rede(padroes: dict, interceptacao: dict) -> str:
@@ -270,8 +280,9 @@ def main() -> None:
     print(f"  id.server do 1.1.1.1: {interceptacao['id_server_1111'] or '(sem resposta)'}")
     for chave in ("1.1.1.1", "8.8.8.8"):
         ficha = interceptacao[chave]
+        situacao = {True: "ok", False: "NAO BATE", None: "indeterminado (AS sem resposta)"}
         print(f"  {chave}: AS observado {ficha.get('asn_observado') or '?'} "
-              f"({ficha.get('org') or '?'}) — {'ok' if ficha.get('bate') else 'NAO BATE'}")
+              f"({ficha.get('org') or '?'}) — {situacao[ficha.get('bate')]}")
 
     classificacao = classificar_rede(padroes, interceptacao)
     print(f"\nclassificacao da rede: {classificacao}")
