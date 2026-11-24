@@ -292,7 +292,8 @@ rede no modo A e 64 mil no modo B. Pelo tamanho médio das linhas do piloto
 `dominios[0]` quando não há zona. Para as três redes usarem o mesmo nome, a
 **primeira linha** da lista de C3 versionada é reservada a ele. Ela deve ser um
 domínio do topo global que **não** pertença a Cloudflare nem a Google, por
-exemplo `wikipedia.org`. Esse domínio fica fora do sorteio dos estratos.
+exemplo `wikipedia.org`. Esse domínio é escolhido à mão, e não sorteado. Ele
+fica no estrato popular global e participa do rodízio do E-1 como os demais.
 
 ---
 
@@ -363,6 +364,7 @@ Parâmetros fixos, iguais nas três redes:
 | `--dominios` | `Sprint02/dominios/c3.txt`, a lista congelada e versionada | 9.7 — **[Pendente] B** |
 | `--zona` | a zona do grupo (modo A) ou omitido (modo B) | D1 — **[Pendente]** |
 | `--nomes-c1`, `--nomes-c2` | `10` e `10`. **Obrigatório passar**: o padrão do código é 2 (V2) | D3 |
+| `--subconjuntos` | `3` (já é o padrão do código) | D3, V1 |
 | `--saida` | `Sprint02/dados/rede-X.csv` (**caminho relativo**) | **[Decidida nesta revisão]** |
 | `--semente` | omitir: cada rede sorteia a sua e ela fica no log | Planejamento, 9.6 |
 | saída de erros | redirecionada para `Sprint02/dados/rede-X.log` | V9 |
@@ -414,7 +416,7 @@ deve começar antes da correção.
 
 | # | Divergência | Evidência | Impacto | Decisão ou ação | Resp. | Bloqueia? |
 | --- | --- | --- | --- | --- | --- | --- |
-| **V1** | **O rodízio de C3 não está implementado.** O plano (9.3, 9.6, D3) prevê 180 domínios em 3 subconjuntos de 60, alternados entre rodadas. O coletor consulta **todos** os domínios da lista em **toda** rodada | `montar_rodada` percorre `dominios` inteiro | Com 180 domínios, cada um seria consultado a cada 30 min, e não a cada 90, o que aumenta o autoaquecimento do cache em C3, justamente o que o rodízio deveria controlar | **[Ação]** implementar o rodízio (subconjunto = número da rodada mod 3, a partir de um arquivo com o estrato e o subconjunto de cada domínio). Alternativa, se B e C preferirem: 60 domínios fixos, sem rodízio, aceitando o autoaquecimento e apoiando-se na análise de sensibilidade 1 | C, com B | **Sim** |
+| **V1** | **O rodízio de C3 não estava implementado.** O plano (9.3, 9.6, D3) prevê 180 domínios em 3 subconjuntos de 60, alternados entre rodadas. O coletor consultava **todos** os domínios da lista em **toda** rodada | `montar_rodada` percorria `dominios` inteiro | Com 180 domínios, cada um seria consultado a cada 30 min, e não a cada 90, o que aumenta o autoaquecimento do cache em C3 | **Resolvido (24/11/2026).** `--subconjuntos` (padrão 3). A lista aceita o estrato na 2ª coluna; os domínios são distribuídos em rodízio estrato por estrato, então os subconjuntos diferem em no máximo um domínio, no total e por estrato. A divisão depende só do arquivo, e é a mesma nas três redes. O subconjunto da rodada é o número de rodadas já gravadas no `--saida`, mod 3: reiniciar a coleta continua o ciclo. O E-2 sem zona usa sempre a primeira linha. Há 10 testes novos, e a coleta real com reinício foi verificada (seção 7.1) | C | Não |
 | **V2** | `--nomes-c1` e `--nomes-c2` valem **2** por padrão; o plano (D3) usa **10** | `coletor.py`, argumentos | Um participante que esquecesse o parâmetro coletaria 5 vezes menos C1 e C2 | Parâmetro **obrigatório** no comando (6.5). Recomendado mudar o padrão para 10 | C | Não (resolvido pelo comando) |
 | **V3** | **O aquecimento de C2 não está implementado.** O plano (9.3) manda consultar o nome C2 uma vez e medir pelo menos 2 s depois | Só as conexões reaproveitadas têm consulta de aquecimento | Sem ele, a primeira consulta C2 de cada resolvedor (e qualquer uma depois de o TTL expirar) mede recursão e não cache, e a M6 acusa a falha só depois | **[Ação]** consultar cada nome C2 em cada resolvedor no início da rodada, antes do embaralhamento, e esperar ≥ 2 s | C | **Sim, no modo A** |
 | **V4** | Janelas de 6 h em UTC × faixas da M10 em Brasília | `analise.janela_6h` | Janelas misturam madrugada com noite (R5) | **[Ação]** cortar em UTC−3 | C | Não (só análise) |
@@ -426,6 +428,24 @@ deve começar antes da correção.
 | **V10** | `s_desde_ultima_consulta` zera quando o coletor reinicia | Estado só em memória | A análise de sensibilidade 1 perde a primeira rodada após cada queda | Declarar; as quedas ficam no log (6.7) | — | Não |
 | **V11** | Pequenas incoerências de texto: o README dos dados fala em 29 colunas (são 30); o checklist fala em "1,6 a 3,7 s" (o Plano de Instrumentação mede 2,6 a 3,7 s); a seção 9.4 ainda diz "somente IPv4" para tudo | Leitura cruzada | Nenhum na coleta | **Corrigido nesta revisão** (README e checklist); a seção 9.4 fica superada pela 5.1 deste documento | — | Não |
 | **V12** | Sem a zona, o E-2 usa um único nome real, cujo estado de cache não é controlado. Na revisão, o TTL devolvido para esse nome variou de 17 a 300 s entre tratamentos da mesma rodada | CSV da revisão | Parte do Δ do E-2 pode ser recursão, não protocolo | R7 (mesmo nome nas três redes) e declaração como ameaça à validade interna no modo B | — | Não |
+
+### 7.1 Verificação do rodízio (V1)
+
+Executado em Windows com uma lista de 9 domínios (3 por estrato): duas
+rodadas, uma interrupção e uma terceira rodada com o mesmo `--saida`.
+
+| Rodada | Subconjunto | Domínios de C3 | Nome do E-2 |
+| --- | --- | --- | --- |
+| 1 | 1/3 | `wikipedia.org`, `uol.com.br`, `sqlite.org` | `wikipedia.org` |
+| 2 | 2/3 | `github.com`, `globo.com`, `gnu.org` | `wikipedia.org` |
+| *(reinício)* | | | |
+| 3 | 3/3 | `amazon.com`, `gov.br`, `unicode.org` | `wikipedia.org` |
+
+Cada subconjunto tem um domínio de cada estrato. Depois do reinício, o ciclo
+continuou do ponto em que parou. Os testes automáticos também pegaram um
+desequilíbrio da primeira versão: com 5 domínios por estrato, recomeçar a
+contagem em cada estrato dava subconjuntos de 6, 6 e 3. Isso foi corrigido
+antes do commit.
 
 ---
 
@@ -449,14 +469,14 @@ pare a coleta nem seja resolvida de modos diferentes em cada rede.
 | --- | --- | --- | --- | --- | --- |
 | **D1** | Domínio próprio, sem DNSSEC, fora de Cloudflare e Google | Registro, Parte 4.2 | Grupo (envolve custo) | **Modo B** (5.2): Q2 e H-b exploratórias, E-2 com o nome real R7. A zona tem de estar delegada **2 dias antes** do início; senão, vale o modo B | Não (a contingência é o modo B) |
 | **D2** | Número de redes | 3, uma por participante, ao menos uma no cabo | Grupo | Coletam as redes disponíveis; com menos de 3, o relatório trata o estudo como de menos réplicas | Não |
-| **D3** | Nomes por rodada | 80 (60 C3 + 10 C1 + 10 C2) | B, com C | Depende de V1 | **Sim**, por V1 |
+| **D3** | Nomes por rodada | 80 (60 C3 + 10 C1 + 10 C2) | B, com C | 80; o rodízio que a proposta pressupõe já está implementado (V1) | Não |
 | **D4** | Intervalo | 30 min. C mediu que o tempo da rodada não limita | B e C | 30 min | Não |
 | **D5** | Duração e simultaneidade | 7 dias corridos, começando num dia útil, **nas três redes ao mesmo tempo** | Grupo | **Falta a data de início**, que precisa ser comum | **Sim** |
 | **D9** | Responsáveis pelas etapas 5–9 | Registro, Parte 7 | Grupo | A proposta da Parte 7 vale | Não |
 | **D10** | Sete categorias conforme a Aula 8 | — | B | Classificação provisória (Planejamento, 8) | Não |
 | **D11** | Verificações de fonte | — | A | Ressalvas no texto | Não |
 | **D12** | Artefato por participante em cada sprint | — | Grupo | Seguir a regra do Lab02 por precaução | Não |
-| **L1** | Lista de domínios de C3 (Tranco congelada, 3 estratos, sorteio com semente, primeira linha reservada ao E-2) | Planejamento, 9.7; R7 | B | Sem a lista, só o piloto de 15 domínios, que **não serve** para a coleta definitiva | **Sim** |
+| **L1** | Lista de domínios de C3 (Tranco congelada, 3 estratos, sorteio com semente, primeira linha reservada ao E-2), no formato `dominio estrato` por linha, com 60 por estrato | Planejamento, 9.7; R7; V1 | B | Sem a lista, só o piloto de 15 domínios, que **não serve** para a coleta definitiva | **Sim** |
 | **R2** | Margem de 5 ms para a H-c2 | 3.2 | B | Fica valendo 5 ms, desde que fixada antes do início | Não |
 | **P1** | Identificador de instância do Google (`o-o.myaddr.l.google.com` em `pop_id`) | DefinicaoDasMetricas, 2.4 | C | Sem ele; assimetria declarada como ameaça | Não |
 
@@ -468,7 +488,7 @@ A coleta definitiva **só começa** quando todos os itens abaixo estiverem
 marcados:
 
 - [ ] **L1** — lista de C3 versionada em `Sprint02/dominios/c3.txt`
-- [ ] **V1** — rodízio implementado, ou a alternativa sem rodízio aprovada por B e C
+- [x] **V1** — rodízio implementado (24/11/2026)
 - [ ] **D1** — zona funcionando 2 dias antes (modo A), ou modo B declarado
 - [ ] **V3** — aquecimento de C2 implementado (só no modo A)
 - [ ] **D5** — data de início comum às três redes
@@ -477,7 +497,7 @@ marcados:
       rodada de teste do Passo 3 sem falhas
 - [ ] Aceite dos três (seção 10)
 
-**Situação em 24/11/2026: não pronto.** Bloqueiam L1, V1, D5 e o aceite;
+**Situação em 24/11/2026: não pronto.** Bloqueiam L1, D5 e o aceite;
 D1 e V3 bloqueiam apenas o modo A.
 
 ---

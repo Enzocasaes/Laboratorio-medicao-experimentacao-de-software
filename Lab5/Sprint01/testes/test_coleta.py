@@ -338,3 +338,84 @@ class TestRodadaSemNomes(unittest.TestCase):
                                         "rede", "rod", 1, 1)
         self.assertEqual({t.condicao_cache for t in tratamentos}, {"C1", "C2"})
         self.assertTrue(any(t.experimento == "E-2" for t in tratamentos))
+
+
+@unittest.skipUnless(TEM_DNSPYTHON, "dnspython ausente")
+class TestRodizioC3(unittest.TestCase):
+    """Rodizio de C3 (secoes 9.3 e 9.6; Protocolo, V1)."""
+
+    LISTA = "\n".join(
+        [f"g{i}.com global" for i in range(6)]
+        + [f"b{i}.com.br brasil" for i in range(6)]
+        + [f"c{i}.org cauda" for i in range(6)])
+
+    def test_le_dominio_e_estrato_e_ignora_comentarios(self):
+        texto = "# lista\nWikipedia.org.  global  # topo\n\nsqlite.org\n"
+        self.assertEqual(col.ler_dominios(texto),
+                         [("wikipedia.org", "global"), ("sqlite.org", "")])
+
+    def test_dominio_repetido_e_erro(self):
+        with self.assertRaises(ValueError):
+            col.ler_dominios("a.com x\nA.com. y\n")
+
+    def test_subconjuntos_tem_a_mesma_composicao_de_estratos(self):
+        """Se um subconjunto concentrasse a cauda longa, a rodada dele seria
+        mais lenta por causa da amostra, e nao do resolvedor."""
+        subconjuntos = col.dividir_em_subconjuntos(col.ler_dominios(self.LISTA), 3)
+        for s in subconjuntos:
+            with self.subTest(subconjunto=s):
+                self.assertEqual(len(s), 6)
+                self.assertEqual(sorted(d[0] for d in s), ["b"] * 2 + ["c"] * 2 + ["g"] * 2)
+
+    def test_particao_cobre_tudo_sem_repetir(self):
+        lista = col.ler_dominios(self.LISTA)
+        subconjuntos = col.dividir_em_subconjuntos(lista, 3)
+        todos = [d for s in subconjuntos for d in s]
+        self.assertEqual(sorted(todos), sorted(d for d, _ in lista))
+
+    def test_divisao_depende_so_do_arquivo(self):
+        """As tres redes, com a mesma lista, precisam dos mesmos subconjuntos."""
+        lista = col.ler_dominios(self.LISTA)
+        self.assertEqual(col.dividir_em_subconjuntos(lista, 3),
+                         col.dividir_em_subconjuntos(lista, 3))
+
+    def test_um_subconjunto_e_a_lista_inteira(self):
+        lista = col.ler_dominios(self.LISTA)
+        self.assertEqual(col.dividir_em_subconjuntos(lista, 1),
+                         [[d for d, _ in lista]])
+
+    def test_subconjunto_vazio_e_erro(self):
+        with self.assertRaises(ValueError):
+            col.dividir_em_subconjuntos([("a.com", "")], 3)
+
+    def test_piloto_divide_em_tres_de_cinco(self):
+        """5 por estrato nao divide por 3: as sobras nao podem cair todas no
+        mesmo subconjunto (a primeira versao dava 6/6/3)."""
+        subconjuntos = col.dividir_em_subconjuntos(list(col.DOMINIOS_PILOTO), 3)
+        self.assertEqual(sorted(len(s) for s in subconjuntos), [5, 5, 5])
+        estrato = dict(col.DOMINIOS_PILOTO)
+        for s in subconjuntos:
+            for nome in ("global", "brasil", "cauda"):
+                with self.subTest(subconjunto=s, estrato=nome):
+                    self.assertIn(sum(1 for d in s if estrato[d] == nome), (1, 2))
+
+    def test_rodizio_continua_depois_de_reiniciar(self):
+        """Reiniciar com o mesmo --saida nao volta ao subconjunto 0."""
+        with tempfile.TemporaryDirectory() as pasta:
+            saida = Path(pasta) / "rede.csv"
+            self.assertEqual(col.rodadas_ja_gravadas(saida), 0)
+            with open(saida, "w", newline="", encoding="utf-8") as arquivo:
+                escritor = csv.DictWriter(arquivo, fieldnames=["rodada_id", "nome"])
+                escritor.writeheader()
+                for rodada in ("r1", "r1", "r2", "r2", "r3"):
+                    escritor.writerow({"rodada_id": rodada, "nome": "a.com"})
+            self.assertEqual(col.rodadas_ja_gravadas(saida), 3)
+
+    def test_e2_sem_zona_usa_nome_fixo_e_nao_o_do_subconjunto(self):
+        """O nome do E-2 e' o mesmo em toda a coleta (Protocolo, R7)."""
+        tratamentos = col.montar_rodada(list(md.PUBLICOS), ["x.com", "y.com"], None,
+                                        "rede", "rod", 0, 0, nome_e2="wikipedia.org")
+        e2 = {t.nome for t in tratamentos if t.experimento == "E-2"}
+        c3 = {t.nome for t in tratamentos if t.experimento == "E-1"}
+        self.assertEqual(e2, {"wikipedia.org"})
+        self.assertEqual(c3, {"x.com", "y.com"})

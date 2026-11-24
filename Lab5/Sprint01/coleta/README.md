@@ -59,7 +59,8 @@ No macOS, rode dentro de `caffeinate -i` para a máquina não hibernar.
 | `--rede-id` | identificador curto da rede; vai em toda linha do CSV |
 | `--padrao id=ip` | resolvedor padrão; **pode repetir** |
 | `--zona` | zona do grupo; sem ela, C1 e C2 não são coletadas (pendência D1) |
-| `--dominios arquivo` | lista de C3, um por linha; sem ela, usa 15 domínios de piloto |
+| `--dominios arquivo` | lista de C3, `dominio [estrato]` por linha (`#` comenta); sem ela, usa 15 domínios de piloto |
+| `--subconjuntos N` | rodízio de C3: a lista é dividida em N subconjuntos equilibrados por estrato, um por rodada (padrão 3; 1 desliga). Reiniciar com o mesmo `--saida` continua o ciclo |
 | `--semente` | ordem dos tratamentos; sem ela, sorteia e registra |
 
 O CSV é gravado **ao fim de cada rodada**, então uma coleta interrompida não

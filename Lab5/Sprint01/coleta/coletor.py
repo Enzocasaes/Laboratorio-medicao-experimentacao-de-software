@@ -9,7 +9,9 @@ O QUE UMA RODADA FAZ, NESTA ORDEM
 1. Mede as covariaveis da rodada: RTT de rede (M11) e identificador do ponto
    de presenca de cada resolvedor publico. Vem antes porque descrevem o estado
    da rede no momento, e todas as consultas da rodada herdam esses valores.
-2. Monta a lista de tratamentos da rodada (E-1 e E-2).
+2. Monta a lista de tratamentos da rodada (E-1 e E-2). Em C3 entra so' o
+   subconjunto da vez (rodizio, `--subconjuntos`): cada dominio e'
+   consultado uma rodada em cada tres.
 3. **Embaralha a lista** com semente registrada e executa. Sem isso, um
    resolvedor seria sempre o primeiro, e a posicao na fila viraria parte da
    diferenca medida.
@@ -68,13 +70,19 @@ PASTA_PADRAO = Path(__file__).resolve().parent.parent / "dados"
 # representados. A lista definitiva sai da Tranco congelada (decisao de B);
 # esta aqui serve para o coletor rodar antes dessa decisao.
 DOMINIOS_PILOTO = (
-    # popular global
-    "google.com", "wikipedia.org", "cloudflare.com", "github.com", "amazon.com",
-    # popular no Brasil
-    "globo.com", "uol.com.br", "mercadolivre.com.br", "gov.br", "ifood.com.br",
-    # cauda longa
-    "sqlite.org", "rfc-editor.org", "unicode.org", "postgresql.org", "gnu.org",
+    *((d, "global") for d in ("google.com", "wikipedia.org", "cloudflare.com",
+                              "github.com", "amazon.com")),
+    *((d, "brasil") for d in ("globo.com", "uol.com.br", "mercadolivre.com.br",
+                              "gov.br", "ifood.com.br")),
+    *((d, "cauda") for d in ("sqlite.org", "rfc-editor.org", "unicode.org",
+                             "postgresql.org", "gnu.org")),
 )
+
+# Rodizio de C3 (secoes 9.3 e 9.6, decisao D3): os dominios sao divididos em
+# subconjuntos que se alternam entre rodadas. Com 3 subconjuntos e rodadas a
+# cada 30 min, cada dominio e' consultado a cada 90 min, e nao a cada 30 — o
+# que reduz o autoaquecimento do cache pelas proprias consultas do grupo.
+SUBCONJUNTOS_PADRAO = 3
 
 PROTOCOLOS_E2 = (
     ("Do53", "unica"),
@@ -119,10 +127,91 @@ def nome_c1(zona: str, rede_id: str, rodada_id: str, resolvedor: str,
     return f"{seguro}.c1.{zona}"
 
 
+# ------------------------------------------------------------- rodizio C3
+
+
+def ler_dominios(texto: str) -> list[tuple[str, str]]:
+    """Le a lista de C3: um dominio por linha, estrato opcional na 2a coluna.
+
+    Formato (linhas vazias e o que vier depois de `#` sao ignorados):
+
+        wikipedia.org     global
+        uol.com.br        brasil
+        sqlite.org        cauda
+
+    A **primeira** linha e' tambem o nome do E-2 quando nao ha' zona
+    (Protocolo, R7). Dominio repetido e' erro: ele seria consultado em dobro e
+    entraria em dois subconjuntos.
+    """
+    dominios: list[tuple[str, str]] = []
+    vistos: set[str] = set()
+    for numero, linha in enumerate(texto.splitlines(), start=1):
+        campos = linha.split("#", 1)[0].split()
+        if not campos:
+            continue
+        if len(campos) > 2:
+            raise ValueError(f"linha {numero}: esperado 'dominio [estrato]', "
+                             f"recebido {linha.strip()!r}")
+        dominio = campos[0].lower().rstrip(".")
+        if dominio in vistos:
+            raise ValueError(f"linha {numero}: dominio repetido {dominio!r}")
+        vistos.add(dominio)
+        dominios.append((dominio, campos[1] if len(campos) == 2 else ""))
+    return dominios
+
+
+def dividir_em_subconjuntos(dominios: list[tuple[str, str]],
+                            quantidade: int) -> list[list[str]]:
+    """Divide os dominios em `quantidade` subconjuntos, estrato por estrato.
+
+    Os dominios sao agrupados por estrato (na ordem em que cada estrato
+    aparece no arquivo, e na ordem do arquivo dentro dele) e distribuidos em
+    rodizio sobre essa sequencia. A contagem **nao recomeca** a cada estrato:
+    se recomecasse, as sobras de todos os estratos cairiam sempre nos
+    primeiros subconjuntos (com 5 por estrato, 6/6/3 em vez de 5/5/5).
+    Resultado: os subconjuntos diferem em no maximo um dominio, no total e em
+    cada estrato, e a divisao depende **so' do arquivo** — as tres redes, com
+    a mesma lista versionada, obtem os mesmos subconjuntos.
+    """
+    if quantidade < 1:
+        raise ValueError("o numero de subconjuntos precisa ser >= 1")
+    if dominios and quantidade > len(dominios):
+        raise ValueError(f"{quantidade} subconjuntos para {len(dominios)} "
+                         f"dominios: algum ficaria vazio")
+    por_estrato: dict[str, list[str]] = {}
+    for dominio, estrato in dominios:
+        por_estrato.setdefault(estrato, []).append(dominio)
+    sequencia = [d for grupo in por_estrato.values() for d in grupo]
+    subconjuntos: list[list[str]] = [[] for _ in range(quantidade)]
+    for posicao, dominio in enumerate(sequencia):
+        subconjuntos[posicao % quantidade].append(dominio)
+    return subconjuntos
+
+
+def rodadas_ja_gravadas(caminho: Path) -> int:
+    """Quantas rodadas distintas o CSV de saida ja' tem.
+
+    O rodizio continua de onde parou quando a coleta e' reiniciada com o mesmo
+    `--saida` (Protocolo, 6.7). Se recomecasse do subconjunto 0, os dominios
+    dele seriam consultados de novo antes de completar o ciclo de 90 min.
+    """
+    if not caminho.exists():
+        return 0
+    with open(caminho, newline="", encoding="utf-8") as arquivo:
+        return len({linha["rodada_id"] for linha in csv.DictReader(arquivo)
+                    if linha.get("rodada_id")})
+
+
 def montar_rodada(resolvedores: list[md.Resolvedor], dominios: list[str],
                   zona: str | None, rede_id: str, rodada_id: str,
-                  nomes_c1: int, nomes_c2: int) -> list[Tratamento]:
+                  nomes_c1: int, nomes_c2: int,
+                  nome_e2: str | None = None) -> list[Tratamento]:
     """Todos os tratamentos da rodada, ainda em ordem determinista.
+
+    `dominios` sao os de C3 **desta rodada** (o subconjunto da vez).
+    `nome_e2` e' o nome do E-2 sem zona; ele vem de fora porque e' fixo na
+    coleta inteira, enquanto o subconjunto muda a cada rodada. Sem ele, usa-se
+    o primeiro dominio da rodada.
 
     O embaralhamento fica por conta de quem chama, para a semente ser
     registrada junto da rodada.
@@ -148,14 +237,15 @@ def montar_rodada(resolvedores: list[md.Resolvedor], dominios: list[str],
 
     # E-2: protocolo x estado da conexao, nos publicos.
     # Em nomes de cache quente, para o tempo de recursao nao se misturar com o
-    # custo de transporte. Sem a zona do grupo, usa-se um dominio real popular
-    # ja' aquecido pela propria rodada de E-1 — aproximacao declarada.
-    # Sem a zona do grupo, o E-2 cai num dominio real ja' aquecido pela
-    # propria rodada de E-1 — aproximacao declarada. Com a lista de C3 vazia
-    # e sem zona nao ha' nome nenhum para o E-2, e ele simplesmente nao roda:
-    # melhor um sub-experimento ausente do que um nome inventado.
+    # custo de transporte. Sem a zona do grupo, o E-2 cai num dominio real
+    # popular e fixo (a primeira linha da lista, Protocolo R7) — aproximacao
+    # declarada. Com a lista de C3 vazia e sem zona nao ha' nome nenhum para o
+    # E-2, e ele simplesmente nao roda: melhor um sub-experimento ausente do
+    # que um nome inventado.
     if zona:
         nomes_e2 = [f"c2-{i}.{zona}" for i in range(nomes_c2)]
+    elif nome_e2:
+        nomes_e2 = [nome_e2]
     elif dominios:
         nomes_e2 = [dominios[0]]
     else:
@@ -334,7 +424,10 @@ def main() -> None:
     analisador.add_argument("--zona", default=None,
                             help="zona do grupo; sem ela, C1 e C2 nao sao coletadas")
     analisador.add_argument("--dominios", type=Path, default=None,
-                            help="arquivo com um dominio por linha (C3)")
+                            help="lista de C3: 'dominio [estrato]' por linha")
+    analisador.add_argument("--subconjuntos", type=int, default=SUBCONJUNTOS_PADRAO,
+                            help="rodizio de C3: em quantos subconjuntos a lista "
+                                 "e' dividida (1 = todos em toda rodada)")
     analisador.add_argument("--nomes-c1", type=int, default=2)
     analisador.add_argument("--nomes-c2", type=int, default=2)
     analisador.add_argument("--semente", type=int, default=None,
@@ -351,8 +444,13 @@ def main() -> None:
         identificador, endereco = item.split("=", 1)
         resolvedores.append(md.Resolvedor(identificador.strip(), endereco.strip()))
 
-    dominios = (argumentos.dominios.read_text(encoding="utf-8").split()
-                if argumentos.dominios else list(DOMINIOS_PILOTO))
+    lista = (ler_dominios(argumentos.dominios.read_text(encoding="utf-8"))
+             if argumentos.dominios else list(DOMINIOS_PILOTO))
+    try:
+        subconjuntos = dividir_em_subconjuntos(lista, argumentos.subconjuntos)
+    except ValueError as erro:
+        raise SystemExit(f"--subconjuntos: {erro}") from erro
+    nome_e2 = lista[0][0] if lista else None
 
     semente = argumentos.semente if argumentos.semente is not None \
         else random.SystemRandom().randrange(2**31)
@@ -372,14 +470,20 @@ def main() -> None:
 
     ultima_consulta: dict[tuple[str, str], float] = {}
     primeira = not saida.exists()
+    ja_gravadas = rodadas_ja_gravadas(saida)
+    print(f"rodizio C3: {len(lista)} dominios em {len(subconjuntos)} subconjuntos "
+          f"({', '.join(str(len(s)) for s in subconjuntos)}); "
+          f"{ja_gravadas} rodadas ja' gravadas na saida", file=sys.stderr)
 
     for numero in range(1, argumentos.rodadas + 1):
         inicio = time.monotonic()
         rodada_id = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
         covariaveis = covariaveis_da_rodada(resolvedores)
-        tratamentos = montar_rodada(resolvedores, dominios, argumentos.zona,
-                                    argumentos.rede_id, rodada_id,
-                                    argumentos.nomes_c1, argumentos.nomes_c2)
+        indice = (ja_gravadas + numero - 1) % len(subconjuntos)
+        tratamentos = montar_rodada(resolvedores, subconjuntos[indice],
+                                    argumentos.zona, argumentos.rede_id,
+                                    rodada_id, argumentos.nomes_c1,
+                                    argumentos.nomes_c2, nome_e2=nome_e2)
         sorteio.shuffle(tratamentos)
         medidas = executar_rodada(tratamentos, ambiente, argumentos.rede_id,
                                   rodada_id, interface, covariaveis,
@@ -390,6 +494,7 @@ def main() -> None:
         falhas = sum(1 for m in medidas if not m.sucesso)
         duracao = time.monotonic() - inicio
         print(f"[{numero}/{argumentos.rodadas}] {rodada_id} "
+              f"subconjunto {indice + 1}/{len(subconjuntos)}, "
               f"{len(medidas)} consultas, {falhas} falhas, {duracao:.1f} s",
               file=sys.stderr, flush=True)
 
