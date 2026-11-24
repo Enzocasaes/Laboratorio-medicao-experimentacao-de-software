@@ -115,3 +115,11 @@ jobs:
 
       - name: Analise roda sobre a base consolidada
         run: python Sprint01/coleta/analise.py Sprint02/base/consultas.csv.gz --lote piloto --replicas 200 > /dev/null
+
+      # Validacao (issue #134): a base validada versionada tem de ser
+      # exatamente a que a base consolidada gera, e a analise tem de le-la.
+      - name: Base validada confere com a base consolidada
+        run: python Sprint02/validar_base.py --verificar
+
+      - name: Analise roda sobre a base validada
+        run: python Sprint01/coleta/analise.py Sprint02/base_validada/consultas.csv.gz --lote piloto --replicas 200 > /dev/null

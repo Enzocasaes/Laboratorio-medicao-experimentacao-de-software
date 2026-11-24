@@ -10,6 +10,12 @@ e a coleta **provisória** da rede-c (1.500 consultas). O lote **definitivo**
 está vazio: a coleta de 7 dias ainda não começou (ProtocoloExperimental, seção 9).
 Quando os arquivos `Sprint02/dados/rede-X.*` chegarem, basta regenerar.
 
+**A análise lê a base validada, e não esta.** Esta pasta é a cópia fiel do
+bruto, com tudo o que foi coletado. A verificação de integridade (ausentes,
+duplicatas, tipos, valores inválidos, discrepantes) e as exclusões
+documentadas ficam em [`../base_validada/`](../base_validada/README.md)
+(issue #134).
+
 ## 1. Organização
 
 ```text
@@ -22,12 +28,15 @@ Lab5/
 │   ├── rede-X.log                  saída de erros do coletor
 │   ├── rede-X_ficha_AAAAMMDD.json  uma ficha por dia
 │   └── provisoria/              BRUTO · lote "provisoria" (mesmos nomes)
-└── Sprint02/base/               GERADO · esta pasta
-    ├── arquivos_brutos.csv         manifesto com SHA-256 de cada bruto
-    ├── consultas.csv.gz            todas as consultas, de todos os lotes
-    ├── rodadas.csv                 uma linha por rodada
-    ├── execucoes.csv               uma linha por execução do coletor
-    └── fichas.csv                  uma linha por ficha e resolvedor padrão
+├── Sprint02/base/               GERADO · esta pasta
+│   ├── arquivos_brutos.csv         manifesto com SHA-256 de cada bruto
+│   ├── consultas.csv.gz            todas as consultas, de todos os lotes
+│   ├── rodadas.csv                 uma linha por rodada
+│   ├── execucoes.csv               uma linha por execução do coletor
+│   └── fichas.csv                  uma linha por ficha e resolvedor padrão
+└── Sprint02/base_validada/      GERADO · validar_base.py, a partir desta pasta
+    ├── consultas.csv.gz            consultas válidas + `sinalizacoes`
+    └── exclusoes.csv, ...          ver o README de lá
 ```
 
 Os **três lotes** nunca se misturam numa análise:
@@ -52,8 +61,11 @@ python Sprint02/consolidar_base.py
 # conferir que o bruto não mudou e que a base está em dia (também roda na CI)
 python Sprint02/consolidar_base.py --verificar
 
-# analisar um lote direto da base
-python Sprint01/coleta/analise.py Sprint02/base/consultas.csv.gz --lote definitiva
+# validar a base (gera Sprint02/base_validada/)
+python Sprint02/validar_base.py
+
+# analisar um lote da base validada
+python Sprint01/coleta/analise.py Sprint02/base_validada/consultas.csv.gz --lote definitiva
 ```
 
 No Windows, a análise precisa de `PYTHONUTF8=1` para imprimir no terminal
@@ -66,13 +78,13 @@ Ler em pandas, se preferir:
 
 ```python
 import pandas as pd
-consultas = pd.read_csv("Sprint02/base/consultas.csv.gz", dtype=str, keep_default_na=False)
+consultas = pd.read_csv("Sprint02/base_validada/consultas.csv.gz", dtype=str, keep_default_na=False)
 definitiva = consultas[consultas.lote == "definitiva"]
 ```
 
 **Reprodutibilidade conferida:** o relatório versionado do piloto
 ([`analise_piloto_c.md`](../../Sprint01/dados/analise_piloto_c.md)) sai idêntico,
-byte a byte, quando gerado a partir da base com `--lote piloto`.
+byte a byte, quando gerado a partir da base ou da base validada com `--lote piloto`.
 
 ## 3. Preservação dos dados brutos
 
@@ -146,7 +158,7 @@ pequenas ficam em CSV simples, para o diff ser legível.
 | `nome` | texto | Nome consultado (tipo A) |
 | `posicao` | texto | Unidade de pareamento: igual a `nome` em C2 e C3; `c1-0`, `c1-1`, … em C1 |
 | `latencia_ms` | decimal, ms | **M1.** Do envio da consulta à resposta. Em conexão `nova` inclui TCP e TLS. Em timeout vale 2.000 (censura, seção 10.4) |
-| `t_tcp_ms` | decimal, ms | Handshake TCP. Só em DoT/DoH com conexão `nova`; vazio nos demais |
+| `t_tcp_ms` | decimal, ms | Handshake TCP. Só em **DoT** com conexão `nova`; vazio nos demais. O DoH não separa os tempos (ProtocoloExperimental, seção 4) |
 | `t_tls_ms` | decimal, ms | Handshake TLS. Idem |
 | `tls_versao` | texto | Versão TLS negociada. Idem |
 | `http_versao` | texto | Versão HTTP do DoH. **Sempre vazia hoje** (divergência V5) |
