@@ -412,11 +412,20 @@ estrutura e dicionário em [`../Sprint02/base/README.md`](../Sprint02/base/READM
 
 ```bash
 python Sprint02/consolidar_base.py
+python Sprint02/validar_base.py
 ```
 
 Os arquivos brutos **não se editam** depois de gravados. A consolidação recusa
 bruto fora do esquema, e a CI (`--verificar`) acusa bruto alterado depois de
 consolidado.
+
+A validação (issue #134) gera a base que a análise lê, em
+[`../Sprint02/base_validada/`](../Sprint02/base_validada/README.md): verifica
+ausentes, duplicatas, tipos e valores inválidos, aplica as exclusões
+pré-registradas (10.4 do Planejamento e ficha (c)) com a justificativa de cada
+uma e **sinaliza, sem remover**, os discrepantes. Antes do commit, ler o
+`relatorio_validacao.md` gerado: uma `falha_rede_local` ou uma
+`execucao_interrompida` precisa de explicação no log (6.7).
 
 ---
 

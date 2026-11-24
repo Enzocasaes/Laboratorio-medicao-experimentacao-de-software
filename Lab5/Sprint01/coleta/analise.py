@@ -27,10 +27,12 @@ Uso (a partir de Lab5/):
 
     .venv/bin/python Sprint01/coleta/analise.py Sprint01/dados/piloto_c.csv
     python3 Sprint01/coleta/analise.py Sprint01/dados/piloto_c.csv --md saida.md
-    python3 Sprint01/coleta/analise.py Sprint02/base/consultas.csv.gz --lote provisoria
+    python3 Sprint01/coleta/analise.py Sprint02/base_validada/consultas.csv.gz --lote provisoria
 
-A base consolidada (Sprint02/base/, issue #133) junta todos os lotes; nela
-`--lote` e' obrigatorio, para piloto, provisoria e definitiva nao se misturarem.
+A base validada (Sprint02/base_validada/, issue #134) e' a que a analise le:
+a base consolidada (Sprint02/base/, #133) sem os registros excluidos, com as
+sinalizacoes. As duas juntam todos os lotes; nelas `--lote` e' obrigatorio,
+para piloto, provisoria e definitiva nao se misturarem.
 """
 
 from __future__ import annotations
