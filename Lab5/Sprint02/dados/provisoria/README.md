@@ -39,3 +39,6 @@ e um AS vazio contava como "AS não bate". Foram acrescentados fallback para o
 - `rede-c.log`: saída de erros do coletor (versões, semente, rodadas, avisos)
   e das fichas.
 - `rede-c_ficha_AAAAMMDD.json`: uma ficha por dia.
+
+Estes arquivos são **brutos** e não se editam. Eles entram na base consolidada
+como lote `provisoria`; ver [`../../base/README.md`](../../base/README.md).

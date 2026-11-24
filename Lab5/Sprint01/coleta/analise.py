@@ -27,12 +27,17 @@ Uso (a partir de Lab5/):
 
     .venv/bin/python Sprint01/coleta/analise.py Sprint01/dados/piloto_c.csv
     python3 Sprint01/coleta/analise.py Sprint01/dados/piloto_c.csv --md saida.md
+    python3 Sprint01/coleta/analise.py Sprint02/base/consultas.csv.gz --lote provisoria
+
+A base consolidada (Sprint02/base/, issue #133) junta todos os lotes; nela
+`--lote` e' obrigatorio, para piloto, provisoria e definitiva nao se misturarem.
 """
 
 from __future__ import annotations
 
 import argparse
 import csv
+import gzip
 import sys
 from collections import defaultdict
 from datetime import datetime
@@ -51,10 +56,25 @@ ALFA = 0.05
 # ------------------------------------------------------------ leitura
 
 
-def carregar(caminho: Path) -> list[dict]:
-    """Le o CSV e converte os campos numericos; nao descarta nada ainda."""
-    with open(caminho, newline="", encoding="utf-8") as arquivo:
+def carregar(caminho: Path, lote: str | None = None) -> list[dict]:
+    """Le o CSV (ou .csv.gz) e converte os campos numericos.
+
+    Na base consolidada, que tem a coluna `lote`, so' as linhas do lote pedido
+    ficam; sem `lote`, a leitura recusa uma base com mais de um lote.
+    """
+    abrir = gzip.open if caminho.suffix == ".gz" else open
+    with abrir(caminho, "rt", newline="", encoding="utf-8") as arquivo:
         linhas = list(csv.DictReader(arquivo))
+    if linhas and "lote" in linhas[0]:
+        lotes = sorted({linha["lote"] for linha in linhas})
+        if lote is None and len(lotes) > 1:
+            raise ValueError(f"{caminho} tem os lotes {lotes}: escolha um com --lote")
+        if lote is not None:
+            linhas = [linha for linha in linhas if linha["lote"] == lote]
+            if not linhas:
+                raise ValueError(f"{caminho} nao tem o lote {lote!r} (tem {lotes})")
+    elif lote is not None:
+        raise ValueError(f"{caminho} nao tem a coluna `lote`; tire o --lote")
     for linha in linhas:
         for campo in ("latencia_ms", "t_tcp_ms", "t_tls_ms", "rtt_ms",
                       "s_desde_ultima_consulta"):
@@ -467,9 +487,14 @@ def main() -> None:
     analisador.add_argument("--md", type=Path, default=None,
                             help="grava o relatorio em Markdown")
     analisador.add_argument("--replicas", type=int, default=REPLICAS_BOOTSTRAP)
+    analisador.add_argument("--lote", default=None,
+                            help="na base consolidada: piloto, provisoria ou definitiva")
     argumentos = analisador.parse_args()
 
-    linhas = carregar(argumentos.csv)
+    try:
+        linhas = carregar(argumentos.csv, argumentos.lote)
+    except ValueError as erro:
+        analisador.error(str(erro))
     texto = "\n".join(relatorio(linhas, argumentos.replicas)) + "\n"
     if argumentos.md:
         argumentos.md.parent.mkdir(parents=True, exist_ok=True)

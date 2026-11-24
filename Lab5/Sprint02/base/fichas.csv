@@ -1,0 +1,4 @@
+lote,rede_id,data,ts_utc,classificacao,interceptacao_detectada,padrao_id,padrao_endereco_privado,padrao_upstream_asn,padrao_classificacao,id_server_1111,arquivo_origem
+piloto,piloto-c,20261119,2026-11-19T02:48:59+00:00,(a),False,padrao-configurado,False,28573,resolve por conta propria (ou por um upstream do provedor),cnf01,Sprint01/dados/rede_piloto-c.json
+piloto,piloto-c,20261119,2026-11-19T02:48:59+00:00,(a),False,padrao-gateway,True,28573,resolve por conta propria (ou por um upstream do provedor),cnf01,Sprint01/dados/rede_piloto-c.json
+provisoria,rede-c,20261124,2026-11-24T17:28:12+00:00,(b),False,padrao,True,13335,encaminha para a Cloudflare (AS13335),gru22,Sprint02/dados/provisoria/rede-c_ficha_20261124.json

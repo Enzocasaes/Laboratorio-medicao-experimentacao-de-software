@@ -103,3 +103,15 @@ jobs:
       # A analise precisa continuar lendo o CSV do piloto versionado.
       - name: Analise roda sobre os dados do piloto
         run: python Sprint01/coleta/analise.py Sprint01/dados/piloto_c.csv --replicas 200 > /dev/null
+
+      # Base de dados (issue #133): o bruto versionado nao pode ter mudado
+      # depois de consolidado, e a base versionada tem de ser exatamente a que
+      # o bruto gera.
+      - name: Testes da consolidacao da base
+        run: python -m unittest discover -s Sprint02/testes -v
+
+      - name: Base confere com os dados brutos
+        run: python Sprint02/consolidar_base.py --verificar
+
+      - name: Analise roda sobre a base consolidada
+        run: python Sprint01/coleta/analise.py Sprint02/base/consultas.csv.gz --lote piloto --replicas 200 > /dev/null

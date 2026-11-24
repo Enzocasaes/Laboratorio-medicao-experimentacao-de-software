@@ -1,0 +1,6 @@
+lote,tipo,caminho,bytes,linhas,sha256
+piloto,consultas,Sprint01/dados/piloto_c.csv,68311,281,22286887d6f756f9902e79662cc9f6b7b020e1f6d45f01b552aa95dbba1c8fd5
+piloto,ficha,Sprint01/dados/rede_piloto-c.json,1729,65,4abc09e3864aab04bdab74032618cc4c2643c3b12830e21dcfa9735d7d19d9be
+provisoria,consultas,Sprint02/dados/provisoria/rede-c.csv,367499,1501,cbeae43fa40675b202232e7483e9247d83c717ca8d8fa7661aa2d017518ec870
+provisoria,log,Sprint02/dados/provisoria/rede-c.log,5663,85,537665ebc93d23b9cbfb20e77206e347074b7e05f4a8ecd0139817281c1a3917
+provisoria,ficha,Sprint02/dados/provisoria/rede-c_ficha_20261124.json,1249,48,fd0b4fc248f41c9f279680914eb0d4923006b17c55f7259ea0691d246abfdf01
