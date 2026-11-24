@@ -1,0 +1,49 @@
+{
+  "rede_id": "rede-c",
+  "ts_utc": "2026-11-24T17:28:12+00:00",
+  "repeticoes_por_sonda": 20,
+  "nameservers_configurados": [
+    "192.168.2.1",
+    "8.8.8.0/24",
+    "1.1.1.0/24"
+  ],
+  "alvos_sondados": {
+    "padrao": "192.168.1.1"
+  },
+  "padroes": {
+    "padrao": {
+      "upstreams": [
+        {
+          "asn": "13335",
+          "org": "CLOUDFLARENET - Cloudflare, Inc., US",
+          "vezes": 20
+        },
+        {
+          "asn": "13335",
+          "org": "CLOUDFLARENET - Cloudflare, Inc., US",
+          "vezes": 20
+        }
+      ],
+      "erros": {},
+      "classificacao": "encaminha para a Cloudflare (AS13335)",
+      "endereco_privado": true
+    }
+  },
+  "interceptacao": {
+    "id_server_1111": "gru22",
+    "1.1.1.1": {
+      "asn_observado": "13335",
+      "org": "CLOUDFLARENET - Cloudflare, Inc., US",
+      "asn_esperado": "13335",
+      "bate": true
+    },
+    "8.8.8.8": {
+      "asn_observado": "15169",
+      "org": "GOOGLE - Google LLC, US",
+      "asn_esperado": "15169",
+      "bate": true
+    },
+    "interceptacao_detectada": false
+  },
+  "classificacao": "(b) o resolvedor padrao encaminha a um publico: entra, mas a comparacao 'padrao x publico' le-se como 'encaminhador local com cache x acesso direto'"
+}
