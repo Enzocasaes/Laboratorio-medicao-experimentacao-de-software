@@ -9,6 +9,12 @@ em redes de acesso brasileiras, com DNS tradicional e cifrado.
 das alterações está em [`RegistroDeRevisao.md`](RegistroDeRevisao.md) e a
 situação da entrega em [`ChecklistEntregaSprint01.md`](ChecklistEntregaSprint01.md).
 
+> **Sprint 02.** O protocolo da coleta definitiva foi consolidado em
+> [`ProtocoloExperimental.md`](ProtocoloExperimental.md) (issue #129, 24/11/2026).
+> Onde ele divergir deste documento — hipóteses (6), definição do resolvedor
+> padrão (9.5), restrição a IPv4 (9.4) e faixas horárias (M10) —, vale o
+> protocolo. Este texto permanece como registro da Sprint 01.
+
 > **Convenção usada no texto.** **[Fato]** marca informação comprovada por
 > fonte citada ou por medição do grupo. **[Hipótese]** marca expectativa ou
 > explicação ainda não testada. **[Decisão]** marca escolha de desenho

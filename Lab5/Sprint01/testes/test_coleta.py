@@ -338,3 +338,161 @@ class TestRodadaSemNomes(unittest.TestCase):
                                         "rede", "rod", 1, 1)
         self.assertEqual({t.condicao_cache for t in tratamentos}, {"C1", "C2"})
         self.assertTrue(any(t.experimento == "E-2" for t in tratamentos))
+
+
+@unittest.skipUnless(TEM_DNSPYTHON, "dnspython ausente")
+class TestRodizioC3(unittest.TestCase):
+    """Rodizio de C3 (secoes 9.3 e 9.6; Protocolo, V1)."""
+
+    LISTA = "\n".join(
+        [f"g{i}.com global" for i in range(6)]
+        + [f"b{i}.com.br brasil" for i in range(6)]
+        + [f"c{i}.org cauda" for i in range(6)])
+
+    def test_le_dominio_e_estrato_e_ignora_comentarios(self):
+        texto = "# lista\nWikipedia.org.  global  # topo\n\nsqlite.org\n"
+        self.assertEqual(col.ler_dominios(texto),
+                         [("wikipedia.org", "global"), ("sqlite.org", "")])
+
+    def test_dominio_repetido_e_erro(self):
+        with self.assertRaises(ValueError):
+            col.ler_dominios("a.com x\nA.com. y\n")
+
+    def test_subconjuntos_tem_a_mesma_composicao_de_estratos(self):
+        """Se um subconjunto concentrasse a cauda longa, a rodada dele seria
+        mais lenta por causa da amostra, e nao do resolvedor."""
+        subconjuntos = col.dividir_em_subconjuntos(col.ler_dominios(self.LISTA), 3)
+        for s in subconjuntos:
+            with self.subTest(subconjunto=s):
+                self.assertEqual(len(s), 6)
+                self.assertEqual(sorted(d[0] for d in s), ["b"] * 2 + ["c"] * 2 + ["g"] * 2)
+
+    def test_particao_cobre_tudo_sem_repetir(self):
+        lista = col.ler_dominios(self.LISTA)
+        subconjuntos = col.dividir_em_subconjuntos(lista, 3)
+        todos = [d for s in subconjuntos for d in s]
+        self.assertEqual(sorted(todos), sorted(d for d, _ in lista))
+
+    def test_divisao_depende_so_do_arquivo(self):
+        """As tres redes, com a mesma lista, precisam dos mesmos subconjuntos."""
+        lista = col.ler_dominios(self.LISTA)
+        self.assertEqual(col.dividir_em_subconjuntos(lista, 3),
+                         col.dividir_em_subconjuntos(lista, 3))
+
+    def test_um_subconjunto_e_a_lista_inteira(self):
+        lista = col.ler_dominios(self.LISTA)
+        self.assertEqual(col.dividir_em_subconjuntos(lista, 1),
+                         [[d for d, _ in lista]])
+
+    def test_subconjunto_vazio_e_erro(self):
+        with self.assertRaises(ValueError):
+            col.dividir_em_subconjuntos([("a.com", "")], 3)
+
+    def test_piloto_divide_em_tres_de_cinco(self):
+        """5 por estrato nao divide por 3: as sobras nao podem cair todas no
+        mesmo subconjunto (a primeira versao dava 6/6/3)."""
+        subconjuntos = col.dividir_em_subconjuntos(list(col.DOMINIOS_PILOTO), 3)
+        self.assertEqual(sorted(len(s) for s in subconjuntos), [5, 5, 5])
+        estrato = dict(col.DOMINIOS_PILOTO)
+        for s in subconjuntos:
+            for nome in ("global", "brasil", "cauda"):
+                with self.subTest(subconjunto=s, estrato=nome):
+                    self.assertIn(sum(1 for d in s if estrato[d] == nome), (1, 2))
+
+    def test_rodizio_continua_depois_de_reiniciar(self):
+        """Reiniciar com o mesmo --saida nao volta ao subconjunto 0."""
+        with tempfile.TemporaryDirectory() as pasta:
+            saida = Path(pasta) / "rede.csv"
+            self.assertEqual(col.rodadas_ja_gravadas(saida), 0)
+            with open(saida, "w", newline="", encoding="utf-8") as arquivo:
+                escritor = csv.DictWriter(arquivo, fieldnames=["rodada_id", "nome"])
+                escritor.writeheader()
+                for rodada in ("r1", "r1", "r2", "r2", "r3"):
+                    escritor.writerow({"rodada_id": rodada, "nome": "a.com"})
+            self.assertEqual(col.rodadas_ja_gravadas(saida), 3)
+
+    def test_e2_sem_zona_usa_nome_fixo_e_nao_o_do_subconjunto(self):
+        """O nome do E-2 e' o mesmo em toda a coleta (Protocolo, R7)."""
+        tratamentos = col.montar_rodada(list(md.PUBLICOS), ["x.com", "y.com"], None,
+                                        "rede", "rod", 0, 0, nome_e2="wikipedia.org")
+        e2 = {t.nome for t in tratamentos if t.experimento == "E-2"}
+        c3 = {t.nome for t in tratamentos if t.experimento == "E-1"}
+        self.assertEqual(e2, {"wikipedia.org"})
+        self.assertEqual(c3, {"x.com", "y.com"})
+
+
+@unittest.skipUnless(TEM_DNSPYTHON, "dnspython ausente")
+class TestAquecimentoC2(unittest.TestCase):
+    """Aquecimento de C2 (secao 9.3; Protocolo, V3). Sem rede: o medidor, o
+    relogio e o sono sao substituidos."""
+
+    def _relogio(self):
+        estado = {"t": 100.0}
+        relogio = lambda: estado["t"]          # noqa: E731
+        def dormir(s):
+            estado["t"] += s
+        return estado, relogio, dormir
+
+    def _medir(self, consultados):
+        def medir(resolvedor, nome):
+            consultados.append((resolvedor.id, nome))
+            m = md.Medida(resolvedor=resolvedor.id, protocolo="Do53",
+                          conexao="unica", nome=nome)
+            m.rcode = "NOERROR"
+            return m
+        return medir
+
+    def test_aquece_cada_nome_c2_em_cada_resolvedor_uma_vez(self):
+        """Inclui o padrao (E-1) e os nomes C2 do E-2, sem repetir o par."""
+        resolvedores = list(md.PUBLICOS) + [md.Resolvedor("padrao", "192.168.0.1")]
+        tratamentos = col.montar_rodada(resolvedores, ["a.com"], "zona.br",
+                                        "rede", "rod", 1, 2)
+        pares = {(r.id, n) for r, n in col.pares_a_aquecer(tratamentos)}
+        esperado = {(r.id, f"c2-{i}.zona.br") for r in resolvedores for i in range(2)}
+        self.assertEqual(pares, esperado)
+        self.assertEqual(len(col.pares_a_aquecer(tratamentos)), len(esperado))
+
+    def test_nao_aquece_c1_nem_c3(self):
+        """Aquecer C1 destruiria a ausencia de cache que ela existe para medir."""
+        tratamentos = col.montar_rodada(list(md.PUBLICOS), ["a.com"], "zona.br",
+                                        "rede", "rod", 2, 1)
+        nomes = {n for _, n in col.pares_a_aquecer(tratamentos)}
+        self.assertEqual(nomes, {"c2-0.zona.br"})
+
+    def test_sem_zona_nao_aquece_nada(self):
+        tratamentos = col.montar_rodada(list(md.PUBLICOS), ["a.com"], None,
+                                        "rede", "rod", 2, 2)
+        self.assertEqual(col.pares_a_aquecer(tratamentos), [])
+        dormiu = []
+        col.aquecer_c2([], {}, dormir=dormiu.append)
+        self.assertEqual(dormiu, [])          # sem C2, a rodada nao fica 2 s mais lenta
+
+    def test_espera_ao_menos_dois_segundos_depois_do_ultimo(self):
+        estado, relogio, dormir = self._relogio()
+        consultados = []
+        pares = [(md.PUBLICOS[0], "c2-0.z.br"), (md.PUBLICOS[1], "c2-0.z.br")]
+        col.aquecer_c2(pares, {}, medir=self._medir(consultados),
+                       dormir=dormir, relogio=relogio)
+        self.assertEqual(len(consultados), 2)
+        self.assertGreaterEqual(estado["t"] - 100.0, col.ESPERA_C2_S)
+
+    def test_registra_a_consulta_em_ultima_consulta(self):
+        """E' o que torna a espera auditavel em s_desde_ultima_consulta."""
+        _, relogio, dormir = self._relogio()
+        ultima: dict = {}
+        col.aquecer_c2([(md.PUBLICOS[0], "c2-0.z.br")], ultima,
+                       medir=self._medir([]), dormir=dormir, relogio=relogio,
+                       agora=lambda: 42.0)
+        self.assertEqual(ultima, {("1.1.1.1", "c2-0.z.br"): 42.0})
+
+    def test_falha_no_aquecimento_e_devolvida_e_nao_interrompe(self):
+        _, relogio, dormir = self._relogio()
+        def falha(resolvedor, nome):
+            m = md.Medida(resolvedor=resolvedor.id, protocolo="Do53",
+                          conexao="unica", nome=nome)
+            m.erro = "Timeout"
+            return m
+        pares = [(md.PUBLICOS[0], "c2-0.z.br"), (md.PUBLICOS[1], "c2-0.z.br")]
+        resultados = col.aquecer_c2(pares, {}, medir=falha, dormir=dormir,
+                                    relogio=relogio)
+        self.assertEqual([m.sucesso for m in resultados], [False, False])

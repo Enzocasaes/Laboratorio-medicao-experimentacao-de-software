@@ -48,7 +48,7 @@ confirmada por B e C.
 | --- | --- | --- |
 | D1 | Domínio próprio sem DNSSEC, fora da Cloudflare e do Google (Registro, 4.2) | Grupo |
 | D2 | Quantidade de redes (proposta: 3) | Grupo |
-| D3 | Nomes por rodada (proposta: 80) | B, com C — **C mediu: 70 consultas levam 1,6 a 3,7 s; 340 caberiam em ~15 s** |
+| D3 | Nomes por rodada (proposta: 80) | B, com C — **C mediu: 70 consultas levam 2,6 a 3,7 s; 340 caberiam em 13 a 18 s** |
 | D4 | Intervalo entre rodadas (proposta: 30 min) | B e C — **C: o tempo de execução não é o limite; 30 min continua de pé** |
 | D5 | Duração da coleta (proposta: 7 dias, nas três redes ao mesmo tempo) | Grupo |
 | D6 | Configuração dos protocolos | **Fechada por C** (PlanoDeInstrumentacao, seção 4) |
@@ -69,6 +69,11 @@ confirmada por B e C.
 | Seções de C (9.4–9.6, 10) | **Validadas** em 19/11/2026, com três ajustes registrados: `TCP_NODELAY` obrigatório, "somente IPv4" não vale para o resolvedor padrão, e a coluna `versao_httpx` no esquema |
 | Entregáveis de C (instrumentação, métricas, scripts, piloto, análise) | **Prontos** |
 | Documento completo da Sprint 01 | **Não pronto**: depende de D10 e da validação de B (a de C saiu em 19/11). D1–D5 podem ficar como "propostas" na entrega, desde que marcadas assim; D6–D8 já estão fechadas |
+
+> **Atualização de 24/11/2026 (issue #129).** O protocolo da Sprint 02 foi
+> revisado e consolidado em [`ProtocoloExperimental.md`](ProtocoloExperimental.md).
+> As pendências acima estão reorganizadas na seção 8 dele, cada uma com regra
+> de contingência. Os itens que bloqueiam a coleta estão na seção 9.
 
 Os arquivos do Participante A foram commitados na `main` em 18/11/2026. Os do
 Participante C estão na branch `121-validar-instrumentação-e-scripts-de-coleta`.
