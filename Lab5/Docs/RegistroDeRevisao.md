@@ -14,6 +14,12 @@ Revisões de [`PlanejamentoEPesquisa.md`](PlanejamentoEPesquisa.md), feitas em
 O resumo da entrega está em
 [`ChecklistEntregaSprint01.md`](ChecklistEntregaSprint01.md).
 
+> **Revisão seguinte (24/11/2026, issue #129).** A consolidação do protocolo
+> para a Sprint 02 tem documento próprio,
+> [`ProtocoloExperimental.md`](ProtocoloExperimental.md). As divergências
+> encontradas entre plano e código estão na seção 7 dele (V1–V12); as
+> decisões, na seção 8.
+
 Gravidade: **Alta** compromete a validade do estudo ou a aprovação;
 **Média** enfraquece uma conclusão ou deixa uma métrica ambígua; **Baixa** é
 uma imprecisão de redação ou de fonte.

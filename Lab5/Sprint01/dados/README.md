@@ -23,7 +23,7 @@ python3 Sprint01/coleta/analise.py Sprint01/dados/piloto_c.csv \
 
 | Arquivo | O que é |
 | --- | --- |
-| `piloto_c.csv` | a coleta: uma linha por consulta, 29 colunas (esquema da seção 9.6) |
+| `piloto_c.csv` | a coleta: uma linha por consulta, 30 colunas (esquema da seção 9.6) |
 | `rede_piloto-c.json` | a ficha da rede, gerada por `validar_rede.py` (seção 9.5) |
 | `analise_piloto_c.md` | o relatório da análise, gerado por `analise.py` |
 
