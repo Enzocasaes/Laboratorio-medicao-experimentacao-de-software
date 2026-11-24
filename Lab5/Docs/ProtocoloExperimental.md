@@ -418,7 +418,7 @@ deve começar antes da correção.
 | --- | --- | --- | --- | --- | --- | --- |
 | **V1** | **O rodízio de C3 não estava implementado.** O plano (9.3, 9.6, D3) prevê 180 domínios em 3 subconjuntos de 60, alternados entre rodadas. O coletor consultava **todos** os domínios da lista em **toda** rodada | `montar_rodada` percorria `dominios` inteiro | Com 180 domínios, cada um seria consultado a cada 30 min, e não a cada 90, o que aumenta o autoaquecimento do cache em C3 | **Resolvido (24/11/2026).** `--subconjuntos` (padrão 3). A lista aceita o estrato na 2ª coluna; os domínios são distribuídos em rodízio estrato por estrato, então os subconjuntos diferem em no máximo um domínio, no total e por estrato. A divisão depende só do arquivo, e é a mesma nas três redes. O subconjunto da rodada é o número de rodadas já gravadas no `--saida`, mod 3: reiniciar a coleta continua o ciclo. O E-2 sem zona usa sempre a primeira linha. Há 10 testes novos, e a coleta real com reinício foi verificada (seção 7.1) | C | Não |
 | **V2** | `--nomes-c1` e `--nomes-c2` valem **2** por padrão; o plano (D3) usa **10** | `coletor.py`, argumentos | Um participante que esquecesse o parâmetro coletaria 5 vezes menos C1 e C2 | Parâmetro **obrigatório** no comando (6.5). Recomendado mudar o padrão para 10 | C | Não (resolvido pelo comando) |
-| **V3** | **O aquecimento de C2 não está implementado.** O plano (9.3) manda consultar o nome C2 uma vez e medir pelo menos 2 s depois | Só as conexões reaproveitadas têm consulta de aquecimento | Sem ele, a primeira consulta C2 de cada resolvedor (e qualquer uma depois de o TTL expirar) mede recursão e não cache, e a M6 acusa a falha só depois | **[Ação]** consultar cada nome C2 em cada resolvedor no início da rodada, antes do embaralhamento, e esperar ≥ 2 s | C | **Sim, no modo A** |
+| **V3** | **O aquecimento de C2 não estava implementado.** O plano (9.3) manda consultar o nome C2 uma vez e medir pelo menos 2 s depois | Só as conexões reaproveitadas tinham consulta de aquecimento | Sem ele, a primeira consulta C2 de cada resolvedor (e qualquer uma depois de o TTL expirar) mede recursão e não cache, e a M6 acusa a falha só depois | **Resolvido (24/11/2026).** Com `--zona`, cada rodada consulta em Do53, antes do embaralhamento, cada par (resolvedor, nome C2) uma vez: os do E-1, incluindo o padrão, e os do E-2. Depois espera 2 s contados do último aquecimento. Os aquecimentos não vão para o CSV, mas atualizam `s_desde_ultima_consulta`, que fica como prova auditável da espera; as falhas aparecem no log. **[Hipótese]** o cache aquecido em Do53 serve ao DoT e ao DoH no mesmo endereço anycast; a M6 confere isso. Há 6 testes novos e uma verificação real (seção 7.2) | C | Não |
 | **V4** | Janelas de 6 h em UTC × faixas da M10 em Brasília | `analise.janela_6h` | Janelas misturam madrugada com noite (R5) | **[Ação]** cortar em UTC−3 | C | Não (só análise) |
 | **V5** | `http_versao` **nunca é preenchida**, embora a seção 9.4 mande registrar a versão HTTP negociada | Coluna vazia em todas as linhas DoH, no piloto C e na revisão | Não há como provar que o DoH usou HTTP/2 em todas as redes | **[Ação]** gravar a versão da resposta do `httpx2` | C | Não, mas recomendado |
 | **V6** | `interface` fica **vazia no Windows** | `interface_ativa` só trata macOS e Linux | Não se sabe se a coleta foi no cabo ou no Wi-Fi | Registrar na ficha e no log até haver correção. **[Ação]** opcional: tratar Windows | C | Não |
@@ -446,6 +446,18 @@ continuou do ponto em que parou. Os testes automáticos também pegaram um
 desequilíbrio da primeira versão: com 5 domínios por estrato, recomeçar a
 contagem em cada estrato dava subconjuntos de 6, 6 e 3. Isso foi corrigido
 antes do commit.
+
+### 7.2 Verificação do aquecimento de C2 (V3)
+
+Como o grupo ainda não tem zona (D1), a rodada de verificação usou
+`--zona example.com`, o domínio reservado para exemplos (RFC 2606), com 2 nomes
+C2 e 3 resolvedores, em Windows. O log registrou
+`aquecimento C2 6 (0 falhas)`, que corresponde a 2 nomes × 3 resolvedores. A
+primeira consulta **medida** de cada par veio entre **2,17 e 3,76 s** depois
+do aquecimento, segundo `s_desde_ultima_consulta`; a espera mínima de 2 s foi
+cumprida em todos os pares. Os nomes C1 não foram aquecidos: a coluna ficou
+vazia nas linhas C1, como deve ser. A verificação do TTL decrementado (M6) só
+pode ser feita com a zona do grupo, que tem TTL conhecido.
 
 ---
 
@@ -490,7 +502,7 @@ marcados:
 - [ ] **L1** — lista de C3 versionada em `Sprint02/dominios/c3.txt`
 - [x] **V1** — rodízio implementado (24/11/2026)
 - [ ] **D1** — zona funcionando 2 dias antes (modo A), ou modo B declarado
-- [ ] **V3** — aquecimento de C2 implementado (só no modo A)
+- [x] **V3** — aquecimento de C2 implementado (24/11/2026)
 - [ ] **D5** — data de início comum às três redes
 - [ ] **R2** — margem da H-c2 fixada
 - [ ] Os três participantes com o Passo 1 aprovado, a ficha do Passo 2 e a
@@ -498,7 +510,7 @@ marcados:
 - [ ] Aceite dos três (seção 10)
 
 **Situação em 24/11/2026: não pronto.** Bloqueiam L1, D5 e o aceite;
-D1 e V3 bloqueiam apenas o modo A.
+D1 bloqueia apenas o modo A.
 
 ---
 

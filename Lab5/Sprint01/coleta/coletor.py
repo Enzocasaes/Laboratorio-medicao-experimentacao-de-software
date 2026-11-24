@@ -11,7 +11,8 @@ O QUE UMA RODADA FAZ, NESTA ORDEM
    da rede no momento, e todas as consultas da rodada herdam esses valores.
 2. Monta a lista de tratamentos da rodada (E-1 e E-2). Em C3 entra so' o
    subconjunto da vez (rodizio, `--subconjuntos`): cada dominio e'
-   consultado uma rodada em cada tres.
+   consultado uma rodada em cada tres. Com zona, **aquece C2**: consulta
+   cada nome C2 uma vez em cada resolvedor e espera 2 s antes de medir.
 3. **Embaralha a lista** com semente registrada e executa. Sem isso, um
    resolvedor seria sempre o primeiro, e a posicao na fila viraria parte da
    diferenca medida.
@@ -302,6 +303,70 @@ class Conexoes:
         self._doh.clear()
 
 
+# ------------------------------------------------------- aquecimento C2
+
+# Espera minima entre o aquecimento e a primeira consulta medida (secao 9.3).
+# O TTL so' cai em segundos inteiros: com menos de 1 s, a resposta de cache
+# volta com o TTL integral, igual a uma vinda do autoritativo, e a checagem
+# M6 nao distingue as duas. 2 s garantem que o TTL ja' caiu ao menos 1 s.
+ESPERA_C2_S = 2.0
+
+
+def pares_a_aquecer(tratamentos: list[Tratamento]) -> list[tuple[md.Resolvedor, str]]:
+    """Os pares (resolvedor, nome) de C2 da rodada, sem repeticao.
+
+    Inclui os nomes C2 do E-2: a secao 9.3 estende a eles a mesma garantia.
+    A ordem segue a de `tratamentos` (antes do embaralhamento), entao e'
+    determinista.
+    """
+    pares: dict[tuple[str, str], tuple[md.Resolvedor, str]] = {}
+    for t in tratamentos:
+        if t.condicao_cache == "C2":
+            pares.setdefault((t.resolvedor.id, t.nome), (t.resolvedor, t.nome))
+    return list(pares.values())
+
+
+def aquecer_c2(pares: list[tuple[md.Resolvedor, str]],
+               ultima_consulta: dict[tuple[str, str], float],
+               espera_min: float = ESPERA_C2_S,
+               medir=None, dormir=time.sleep, relogio=time.monotonic,
+               agora=time.time) -> list[md.Medida]:
+    """Consulta cada nome C2 uma vez em cada resolvedor e espera `espera_min`.
+
+    POR QUE. C2 mede o custo de uma resposta **de cache**. Sem aquecimento, a
+    primeira consulta C2 de cada resolvedor — e toda consulta depois de o TTL
+    vencer — mediria uma resolucao recursiva, e a condicao viraria uma
+    mistura de C1 com C2 que so' a checagem M6 denunciaria, depois da coleta.
+
+    COMO. O aquecimento e' em Do53, no mesmo endereco anycast usado pelo DoT e
+    pelo DoH do E-2. **[Hipotese]** o cache e' compartilhado entre os
+    protocolos na mesma instancia; a M6 confere isso pelo TTL decrementado
+    nas consultas medidas.
+
+    A espera conta a partir do **ultimo** aquecimento, entao vale para todos
+    os pares. O aquecimento atualiza `ultima_consulta`: ele e' uma consulta
+    do grupo, e `s_desde_ultima_consulta` das medidas C2 passa a registrar a
+    distancia real ate' ele — e' o que permite auditar a espera no CSV.
+
+    Os resultados nao vao para o CSV (nao sao tratamentos); voltam para quem
+    chamou contar falhas no log. Uma falha de aquecimento nao cancela a
+    medida: ela e' feita mesmo assim, e a M6 a classifica.
+    """
+    medir = medir or md.medir_do53
+    resultados: list[md.Medida] = []
+    if not pares:
+        return resultados
+    for resolvedor, nome in pares:
+        resultados.append(medir(resolvedor, nome))
+        ultima_consulta[(resolvedor.id, nome)] = agora()
+    fim = relogio()
+    # espera contada do fim do ultimo aquecimento; dorme em fatias para nao
+    # depender de o sleep do sistema ser exato
+    while (restante := espera_min - (relogio() - fim)) > 0:
+        dormir(restante)
+    return resultados
+
+
 def executar_rodada(tratamentos: list[Tratamento], ambiente: Ambiente,
                     rede_id: str, rodada_id: str, interface: str,
                     covariaveis: dict[str, dict[str, object]],
@@ -484,6 +549,7 @@ def main() -> None:
                                     argumentos.zona, argumentos.rede_id,
                                     rodada_id, argumentos.nomes_c1,
                                     argumentos.nomes_c2, nome_e2=nome_e2)
+        aquecimento = aquecer_c2(pares_a_aquecer(tratamentos), ultima_consulta)
         sorteio.shuffle(tratamentos)
         medidas = executar_rodada(tratamentos, ambiente, argumentos.rede_id,
                                   rodada_id, interface, covariaveis,
@@ -493,8 +559,13 @@ def main() -> None:
 
         falhas = sum(1 for m in medidas if not m.sucesso)
         duracao = time.monotonic() - inicio
+        texto_aquecimento = ""
+        if aquecimento:
+            falhas_aquecimento = sum(1 for m in aquecimento if not m.sucesso)
+            texto_aquecimento = (f"aquecimento C2 {len(aquecimento)} "
+                                 f"({falhas_aquecimento} falhas), ")
         print(f"[{numero}/{argumentos.rodadas}] {rodada_id} "
-              f"subconjunto {indice + 1}/{len(subconjuntos)}, "
+              f"subconjunto {indice + 1}/{len(subconjuntos)}, {texto_aquecimento}"
               f"{len(medidas)} consultas, {falhas} falhas, {duracao:.1f} s",
               file=sys.stderr, flush=True)
 

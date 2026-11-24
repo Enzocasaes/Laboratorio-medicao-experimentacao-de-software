@@ -419,3 +419,80 @@ class TestRodizioC3(unittest.TestCase):
         c3 = {t.nome for t in tratamentos if t.experimento == "E-1"}
         self.assertEqual(e2, {"wikipedia.org"})
         self.assertEqual(c3, {"x.com", "y.com"})
+
+
+@unittest.skipUnless(TEM_DNSPYTHON, "dnspython ausente")
+class TestAquecimentoC2(unittest.TestCase):
+    """Aquecimento de C2 (secao 9.3; Protocolo, V3). Sem rede: o medidor, o
+    relogio e o sono sao substituidos."""
+
+    def _relogio(self):
+        estado = {"t": 100.0}
+        relogio = lambda: estado["t"]          # noqa: E731
+        def dormir(s):
+            estado["t"] += s
+        return estado, relogio, dormir
+
+    def _medir(self, consultados):
+        def medir(resolvedor, nome):
+            consultados.append((resolvedor.id, nome))
+            m = md.Medida(resolvedor=resolvedor.id, protocolo="Do53",
+                          conexao="unica", nome=nome)
+            m.rcode = "NOERROR"
+            return m
+        return medir
+
+    def test_aquece_cada_nome_c2_em_cada_resolvedor_uma_vez(self):
+        """Inclui o padrao (E-1) e os nomes C2 do E-2, sem repetir o par."""
+        resolvedores = list(md.PUBLICOS) + [md.Resolvedor("padrao", "192.168.0.1")]
+        tratamentos = col.montar_rodada(resolvedores, ["a.com"], "zona.br",
+                                        "rede", "rod", 1, 2)
+        pares = {(r.id, n) for r, n in col.pares_a_aquecer(tratamentos)}
+        esperado = {(r.id, f"c2-{i}.zona.br") for r in resolvedores for i in range(2)}
+        self.assertEqual(pares, esperado)
+        self.assertEqual(len(col.pares_a_aquecer(tratamentos)), len(esperado))
+
+    def test_nao_aquece_c1_nem_c3(self):
+        """Aquecer C1 destruiria a ausencia de cache que ela existe para medir."""
+        tratamentos = col.montar_rodada(list(md.PUBLICOS), ["a.com"], "zona.br",
+                                        "rede", "rod", 2, 1)
+        nomes = {n for _, n in col.pares_a_aquecer(tratamentos)}
+        self.assertEqual(nomes, {"c2-0.zona.br"})
+
+    def test_sem_zona_nao_aquece_nada(self):
+        tratamentos = col.montar_rodada(list(md.PUBLICOS), ["a.com"], None,
+                                        "rede", "rod", 2, 2)
+        self.assertEqual(col.pares_a_aquecer(tratamentos), [])
+        dormiu = []
+        col.aquecer_c2([], {}, dormir=dormiu.append)
+        self.assertEqual(dormiu, [])          # sem C2, a rodada nao fica 2 s mais lenta
+
+    def test_espera_ao_menos_dois_segundos_depois_do_ultimo(self):
+        estado, relogio, dormir = self._relogio()
+        consultados = []
+        pares = [(md.PUBLICOS[0], "c2-0.z.br"), (md.PUBLICOS[1], "c2-0.z.br")]
+        col.aquecer_c2(pares, {}, medir=self._medir(consultados),
+                       dormir=dormir, relogio=relogio)
+        self.assertEqual(len(consultados), 2)
+        self.assertGreaterEqual(estado["t"] - 100.0, col.ESPERA_C2_S)
+
+    def test_registra_a_consulta_em_ultima_consulta(self):
+        """E' o que torna a espera auditavel em s_desde_ultima_consulta."""
+        _, relogio, dormir = self._relogio()
+        ultima: dict = {}
+        col.aquecer_c2([(md.PUBLICOS[0], "c2-0.z.br")], ultima,
+                       medir=self._medir([]), dormir=dormir, relogio=relogio,
+                       agora=lambda: 42.0)
+        self.assertEqual(ultima, {("1.1.1.1", "c2-0.z.br"): 42.0})
+
+    def test_falha_no_aquecimento_e_devolvida_e_nao_interrompe(self):
+        _, relogio, dormir = self._relogio()
+        def falha(resolvedor, nome):
+            m = md.Medida(resolvedor=resolvedor.id, protocolo="Do53",
+                          conexao="unica", nome=nome)
+            m.erro = "Timeout"
+            return m
+        pares = [(md.PUBLICOS[0], "c2-0.z.br"), (md.PUBLICOS[1], "c2-0.z.br")]
+        resultados = col.aquecer_c2(pares, {}, medir=falha, dormir=dormir,
+                                    relogio=relogio)
+        self.assertEqual([m.sucesso for m in resultados], [False, False])
