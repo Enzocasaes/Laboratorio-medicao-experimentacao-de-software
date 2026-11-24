@@ -407,6 +407,17 @@ redes (D5). A lacuna é declarada no relatório.
 Antes do commit, conferir que nenhum arquivo traz endereço IP público inteiro
 nem nome de pessoa (Planejamento, 9.6). As fichas já saem truncadas.
 
+Depois, regenerar a base consolidada e versioná-la no mesmo commit (issue #133;
+estrutura e dicionário em [`../Sprint02/base/README.md`](../Sprint02/base/README.md)):
+
+```bash
+python Sprint02/consolidar_base.py
+```
+
+Os arquivos brutos **não se editam** depois de gravados. A consolidação recusa
+bruto fora do esquema, e a CI (`--verificar`) acusa bruto alterado depois de
+consolidado.
+
 ---
 
 ## 7. Divergências entre o plano e a implementação

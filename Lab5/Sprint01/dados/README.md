@@ -27,6 +27,9 @@ python3 Sprint01/coleta/analise.py Sprint01/dados/piloto_c.csv \
 | `rede_piloto-c.json` | a ficha da rede, gerada por `validar_rede.py` (seção 9.5) |
 | `analise_piloto_c.md` | o relatório da análise, gerado por `analise.py` |
 
+Estes dados também estão na base consolidada da Sprint 02, como lote `piloto`
+([`../../Sprint02/base/README.md`](../../Sprint02/base/README.md)).
+
 ## Como refazer
 
 ```bash
