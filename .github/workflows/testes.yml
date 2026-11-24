@@ -123,3 +123,10 @@ jobs:
 
       - name: Analise roda sobre a base validada
         run: python Sprint01/coleta/analise.py Sprint02/base_validada/consultas.csv.gz --lote piloto --replicas 200 > /dev/null
+
+      # Decisao D13: o lote provisoria e' o dado do experimento. O resultado
+      # versionado tem de sair identico da base validada (bootstrap semeado).
+      - name: Resultado do experimento e' reprodutivel
+        run: |
+          python Sprint01/coleta/analise.py Sprint02/base_validada/consultas.csv.gz --lote provisoria --md /tmp/analise_rede-c.md > /dev/null
+          diff Sprint02/resultados/analise_rede-c.md /tmp/analise_rede-c.md

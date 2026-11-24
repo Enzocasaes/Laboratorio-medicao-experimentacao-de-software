@@ -6,9 +6,9 @@ partir dos dados brutos por [`../consolidar_base.py`](../consolidar_base.py) e
 documentado, e regenera.
 
 **Situação em 24/11/2026:** a base tem o **piloto** da Sprint 01 (280 consultas)
-e a coleta **provisória** da rede-c (1.500 consultas). O lote **definitivo**
-está vazio: a coleta de 7 dias ainda não começou (ProtocoloExperimental, seção 9).
-Quando os arquivos `Sprint02/dados/rede-X.*` chegarem, basta regenerar.
+e a coleta **provisória** da rede-c (1.500 consultas). Pela decisão **D13**, a
+provisória é a base do experimento: não haverá coleta de 7 dias, e o lote
+**definitivo** fica vazio (ProtocoloExperimental, 8.1).
 
 **A análise lê a base validada, e não esta.** Esta pasta é a cópia fiel do
 bruto, com tudo o que foi coletado. A verificação de integridade (ausentes,
@@ -44,8 +44,8 @@ Os **três lotes** nunca se misturam numa análise:
 | Lote | O que é | Entra na análise confirmatória? |
 | --- | --- | --- |
 | `piloto` | Sprint 01: 4 rodadas, prova de que o instrumento mede ([README](../../Sprint01/dados/README.md)) | Não |
-| `provisoria` | Coleta curta fora do protocolo ([README](../dados/provisoria/README.md)) | Não |
-| `definitiva` | Coleta de 7 dias, seção 6.5 do protocolo | **Sim** |
+| `provisoria` | Coleta curta da rede-c, fora do protocolo ([README](../dados/provisoria/README.md)) | **Sim**, pela decisão D13, com o alcance limitado descrito no README do lote |
+| `definitiva` | Coleta de 7 dias, seção 6.5 do protocolo | Não foi feita (D13) |
 
 O mesmo `rede_id` pode aparecer em dois lotes (a `rede-c` provisória e a
 definitiva). Por isso a chave de uma consulta inclui o `lote` (seção 4).

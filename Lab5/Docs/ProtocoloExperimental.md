@@ -491,6 +491,7 @@ pode ser feita com a zona do grupo, que tem TTL conhecido.
 | D7 | Ambiente: `requirements.txt` fixado, `ambiente.py` aborta se algo não bater | PlanoDeInstrumentacao, seção 5. **Revalidada em Windows** |
 | D8 | Estratégia estatística: Friedman, Wilcoxon bilateral com Holm, bootstrap por conglomerado com 10.000 réplicas, α = 0,05, primárias H-a e H-c | PlanoDeAnalise, seção 1. Complementada por R1 e R2 |
 | R1, R3–R7 | Ajustes desta revisão | Seções 3 a 5 |
+| **D13** | **Dados do experimento = coleta da rede-c de 24/11/2026** (lote `provisoria`, 60 rodadas, 1.500 consultas). Não há tempo para a coleta de 7 dias nas três redes; a seção 9 não será cumprida. O alcance fica limitado: inferência só no E-1 (C3, 15 nomes), E-2 descritivo, sem C1/C2, uma rede, um horário | Participante C, 24/11/2026. Alcance e ameaças no [README do lote](../Sprint02/dados/provisoria/README.md); resultado em [`analise_rede-c.md`](../Sprint02/resultados/analise_rede-c.md) |
 
 ### 8.2 Decisões pendentes
 
@@ -531,6 +532,9 @@ marcados:
 
 **Situação em 24/11/2026: não pronto.** Bloqueiam L1, D5 e o aceite;
 D1 bloqueia apenas o modo A.
+
+**Superado pela D13 (8.1):** a coleta definitiva não será feita, e a coleta
+curta da rede-c é a base do experimento.
 
 ---
 
