@@ -9,6 +9,12 @@ mão**. Os números desta rodada estão em
 **nenhuma excluída**, nenhum erro. Restam 97 latências discrepantes
 (sinalizadas e investigadas na seção 5) e 2 avisos já conhecidos do piloto.
 
+**Esta é a base validada do experimento.** Pela decisão D13, o lote
+`provisoria` (1.500 consultas da rede-c) é o dado da análise, que fica em
+[`../resultados/analise_rede-c.md`](../resultados/analise_rede-c.md). Nele:
+0 exclusões, 0 erros, 0 avisos; 75 latências discrepantes sinalizadas
+(cache frio, seção 5) e nenhuma mudança de sítio do 1.1.1.1.
+
 ## 1. Onde fica no fluxo
 
 ```text

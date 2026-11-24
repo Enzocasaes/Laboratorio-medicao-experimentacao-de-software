@@ -1,10 +1,17 @@
 # Coleta provisória — rede-c
 
-**Não é a coleta definitiva.** É uma coleta **curta**, feita em 24/11/2026
+> **Decisão D13 (24/11/2026): estes são os dados do experimento.** Não há
+> tempo para a coleta de 7 dias, e este lote passa a ser a base da análise do
+> Lab05 ([ProtocoloExperimental, 8.1](../../../Docs/ProtocoloExperimental.md#81-decisões-fechadas)).
+> Os arquivos não foram movidos nem renomeados, e o lote continua `provisoria`
+> na base, para o manifesto e os hashes do bruto não mudarem. Os desvios da
+> tabela abaixo **continuam valendo** e limitam o que o relatório pode
+> concluir (seção "Alcance", no fim).
+
+É uma coleta **curta**, feita em 24/11/2026
 antes de o protocolo estar pronto (ProtocoloExperimental.md, seção 9), porque
 os dados eram necessários no mesmo dia. Uma coleta de 7 dias chegou a ser
 iniciada e foi interrompida depois de 1 rodada; essa rodada foi descartada.
-**Não entra** na análise confirmatória.
 
 | Item | Valor | Desvio do protocolo |
 | --- | --- | --- |
@@ -42,3 +49,23 @@ e um AS vazio contava como "AS não bate". Foram acrescentados fallback para o
 
 Estes arquivos são **brutos** e não se editam. Eles entram na base consolidada
 como lote `provisoria`; ver [`../../base/README.md`](../../base/README.md).
+
+## Alcance como dados do experimento (D13)
+
+Resultado da análise: [`../../resultados/analise_rede-c.md`](../../resultados/analise_rede-c.md),
+gerado da base validada com `--lote provisoria` e 10.000 réplicas.
+
+| Pergunta | O que estes dados permitem | Por quê |
+| --- | --- | --- |
+| Q1 / H-a (resolvedores, E-1) | **Inferência**: Friedman, Wilcoxon com Holm, IC por bootstrap | A unidade em C3 é o nome: 15 domínios, 20 rodadas cada |
+| Q2 / H-b (cache, C1 × C2 × C3) | **Nada**: só C3 foi coletada | Sem a zona do grupo (D1, modo B) |
+| Q3 / H-c (DoT e DoH × Do53, E-2) | **Só descritiva** (Δ das medianas, sem IC nem p) | A unidade é a janela de 6 h, e 10 minutos cabem numa janela só |
+| Q4 (falhas, M8) | Descritiva: 0 falhas em 1.500 consultas, IC de Wilson | Período curto demais para eventos raros |
+| Variação por horário, por dia ou entre redes | **Nada** | Uma rede, 10 minutos, um dia |
+
+Ameaças a declarar no relatório: uma única rede (validade externa); cache
+mais quente que no desenho, porque cada nome de C3 volta a cada ≈ 30 s
+(validade interna, superestima o acerto de cache); Wi-Fi; lista de piloto,
+sem estratos de popularidade; padrão = roteador, a rede é **(b)**, e a
+comparação "padrão × público" se lê como "encaminhador local com cache ×
+acesso direto".
