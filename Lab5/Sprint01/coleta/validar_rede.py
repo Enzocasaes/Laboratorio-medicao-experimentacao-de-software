@@ -127,18 +127,26 @@ def _rotulo_cymru(ip: str) -> tuple[str, str]:
 
 
 def asn_do_ip(ip: str) -> dict[str, str]:
-    """AS e organizacao de um IP (v4 ou v6), pelo servico da Team Cymru [R41]."""
+    """AS e organizacao de um IP (v4 ou v6), pelo servico da Team Cymru [R41].
+
+    Alterna 1.1.1.1 e 8.8.8.8, ate' 3 vezes cada. Em 24/11/2026 a Team Cymru
+    respondia de forma intermitente (1 em 6 pelo 1.1.1.1, 5 em 6 pelo
+    8.8.8.8); com uma tentativa so', o AS saia vazio e `checar_interceptacao`
+    acusava interceptacao (classificacao (c)) numa rede sem desvio nenhum.
+    """
     reverso, sufixo = _rotulo_cymru(ip)
-    try:
-        partes = _consultar_texto(f"{reverso}.{sufixo}", "TXT", "1.1.1.1")
-        if not partes:
-            return {"asn": "", "org": ""}
-        asn = partes[0].split("|")[0].strip().split()[0]
-        nome = _consultar_texto(f"AS{asn}.{SUFIXO_CYMRU_AS}", "TXT", "1.1.1.1")
-        org = nome[0].split("|")[-1].strip() if nome else ""
-        return {"asn": asn, "org": org}
-    except Exception:  # noqa: BLE001
-        return {"asn": "", "org": ""}
+    for servidor in ("1.1.1.1", "8.8.8.8") * 3:
+        try:
+            partes = _consultar_texto(f"{reverso}.{sufixo}", "TXT", servidor)
+            if not partes:
+                continue
+            asn = partes[0].split("|")[0].strip().split()[0]
+            nome = _consultar_texto(f"AS{asn}.{SUFIXO_CYMRU_AS}", "TXT", servidor)
+            org = nome[0].split("|")[-1].strip() if nome else ""
+            return {"asn": asn, "org": org}
+        except Exception:  # noqa: BLE001
+            continue
+    return {"asn": "", "org": ""}
 
 
 def quem_resolve(servidor: str, repeticoes: int = REPETICOES) -> dict:

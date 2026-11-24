@@ -447,8 +447,11 @@ def interface_ativa() -> str:
     )
     for comando in tentativas:
         try:
+            # errors="replace": no Windows, `route` e' o route.exe, que
+            # responde em cp850; com PYTHONUTF8=1 a leitura quebrava e
+            # despejava um traceback (com a pasta do usuario) no log
             saida = subprocess.run(comando, capture_output=True, text=True,
-                                   timeout=5).stdout
+                                   errors="replace", timeout=5).stdout
         except Exception:  # noqa: BLE001 - comando ausente: tenta o proximo
             continue
         for linha in saida.splitlines():
