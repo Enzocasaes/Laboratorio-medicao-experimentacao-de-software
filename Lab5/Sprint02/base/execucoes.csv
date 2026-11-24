@@ -1,0 +1,2 @@
+lote,rede_id,execucao,semente,interface,ambiente,rodadas_previstas,rodadas_no_log,n_avisos,codigo_saida,arquivo_origem,linha_origem
+provisoria,rede-c,1,911652765,,Python 3.14.0 · OpenSSL 3.0.18 30 Sep 2025 · dnspython 2.9.2 · httpx2 2.16.2,60,60,1,0,Sprint02/dados/provisoria/rede-c.log,20
