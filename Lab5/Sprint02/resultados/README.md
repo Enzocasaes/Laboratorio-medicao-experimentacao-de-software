@@ -9,6 +9,12 @@ gerados, que a CI confere a cada push:
 | [`analise_rede-c.md`](analise_rede-c.md) | `Sprint01/coleta/analise.py` | Descritiva, Friedman, Wilcoxon, falhas, covariáveis |
 | [`testes_hipotese.md`](testes_hipotese.md) | [`../inferencia.py`](../inferencia.py) | Vereditos, tamanhos de efeito, Δ por nome, E-2 exploratório, sensibilidade |
 | [`graficos/`](graficos/) | [`../graficos.py`](../graficos.py) | G1 a G5, em SVG |
+| [`descritiva.md`](descritiva.md) | [`../descritiva.py`](../descritiva.py) | Média e desvio, forma da distribuição, nível por nome, decomposição dos handshakes do E-2, covariáveis rodada a rodada (#135) |
+| [`conformidade_metodologica.md`](conformidade_metodologica.md) | [`../conformidade.py`](../conformidade.py) | 14 verificações do dado coletado contra o desenho experimental (#130) |
+
+As ameaças à validade do experimento executado estão consolidadas em
+[`../../Docs/AmeacasAValidade.md`](../../Docs/AmeacasAValidade.md) (#131), que
+reúne as listas parciais do desenho, do protocolo e da seção 6 deste texto.
 
 **Dados.** Pela decisão D13, a base é a coleta da **rede-c** de 24/11/2026
 (lote `provisoria` da [base validada](../base_validada/README.md)): 1.500
