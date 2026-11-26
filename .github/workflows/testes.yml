@@ -130,3 +130,13 @@ jobs:
         run: |
           python Sprint01/coleta/analise.py Sprint02/base_validada/consultas.csv.gz --lote provisoria --md /tmp/analise_rede-c.md > /dev/null
           diff Sprint02/resultados/analise_rede-c.md /tmp/analise_rede-c.md
+
+      # Testes de hipotese (#136) e graficos (#137): o que esta' versionado em
+      # Sprint02/resultados/ tem de sair identico da base validada.
+      - name: Testes de hipotese e graficos sao reprodutiveis
+        run: |
+          python Sprint02/inferencia.py --saida /tmp/inferencia > /dev/null
+          diff Sprint02/resultados/testes_hipotese.md /tmp/inferencia/testes_hipotese.md
+          diff Sprint02/resultados/inferencia.json /tmp/inferencia/inferencia.json
+          python Sprint02/graficos.py --inferencia /tmp/inferencia/inferencia.json --saida /tmp/graficos > /dev/null
+          diff -r Sprint02/resultados/graficos /tmp/graficos

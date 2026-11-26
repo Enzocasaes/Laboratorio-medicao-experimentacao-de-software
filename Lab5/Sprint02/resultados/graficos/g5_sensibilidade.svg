@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="760" height="320" viewBox="0 0 760 320" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" role="img" aria-label="G5 — A H-a resiste às análises de sensibilidade?">
+<title>G5 — A H-a resiste às análises de sensibilidade?</title>
+<rect width="760" height="320" fill="#ffffff"/>
+<text x="24.0" y="30.0" font-size="16" fill="#191919" text-anchor="start" font-weight="600">G5 — A H-a resiste às análises de sensibilidade?</text>
+<text x="24.0" y="50.0" font-size="12" fill="#666666" text-anchor="start" font-weight="normal">Some quando se desconta o RTT (S2) e quando se tiram as consultas autoaquecidas (S1).</text>
+<line x1="300.0" y1="84.0" x2="300.0" y2="270.0" stroke="#e4e7eb" stroke-width="1.0" />
+<text x="300.0" y="286.0" font-size="11" fill="#666666" text-anchor="middle" font-weight="normal">−8</text>
+<line x1="353.3" y1="84.0" x2="353.3" y2="270.0" stroke="#e4e7eb" stroke-width="1.0" />
+<text x="353.3" y="286.0" font-size="11" fill="#666666" text-anchor="middle" font-weight="normal">−6</text>
+<line x1="406.7" y1="84.0" x2="406.7" y2="270.0" stroke="#e4e7eb" stroke-width="1.0" />
+<text x="406.7" y="286.0" font-size="11" fill="#666666" text-anchor="middle" font-weight="normal">−4</text>
+<line x1="460.0" y1="84.0" x2="460.0" y2="270.0" stroke="#e4e7eb" stroke-width="1.0" />
+<text x="460.0" y="286.0" font-size="11" fill="#666666" text-anchor="middle" font-weight="normal">−2</text>
+<line x1="513.3" y1="84.0" x2="513.3" y2="270.0" stroke="#e4e7eb" stroke-width="1.0" />
+<text x="513.3" y="286.0" font-size="11" fill="#666666" text-anchor="middle" font-weight="normal">0</text>
+<line x1="566.7" y1="84.0" x2="566.7" y2="270.0" stroke="#e4e7eb" stroke-width="1.0" />
+<text x="566.7" y="286.0" font-size="11" fill="#666666" text-anchor="middle" font-weight="normal">+2</text>
+<line x1="620.0" y1="84.0" x2="620.0" y2="270.0" stroke="#e4e7eb" stroke-width="1.0" />
+<text x="620.0" y="286.0" font-size="11" fill="#666666" text-anchor="middle" font-weight="normal">+4</text>
+<line x1="513.3" y1="84.0" x2="513.3" y2="270.0" stroke="#666666" stroke-width="1.2" />
+<text x="290.0" y="104.0" font-size="12" fill="#191919" text-anchor="end" font-weight="normal">P — Análise principal</text>
+<line x1="429.4" y1="100.0" x2="481.9" y2="100.0" stroke="#257de0" stroke-width="2" stroke-linecap="round"/>
+<circle cx="460.9" cy="100" r="5" fill="#257de0" stroke="#257de0" stroke-width="2"><title>Análise principal: Δ −2,0 ms, p (Holm) 0,0215</title></circle>
+<text x="632.0" y="104.0" font-size="11" fill="#191919" text-anchor="start" font-weight="600">sustentada</text>
+<text x="290.0" y="134.0" font-size="12" fill="#191919" text-anchor="end" font-weight="normal">S1 — Sem consultas autoaquecidas</text>
+<line x1="369.9" y1="130.0" x2="547.2" y2="130.0" stroke="#257de0" stroke-width="2" stroke-linecap="round"/>
+<circle cx="482.8" cy="130" r="5" fill="#fff" stroke="#257de0" stroke-width="2"><title>Sem consultas autoaquecidas: Δ −1,1 ms, p (Holm) 0,4586</title></circle>
+<text x="632.0" y="134.0" font-size="11" fill="#666666" text-anchor="start" font-weight="normal">não sustentada</text>
+<text x="290.0" y="164.0" font-size="12" fill="#191919" text-anchor="end" font-weight="normal">S2 — Descontando o RTT de rede (M11)</text>
+<line x1="458.8" y1="160.0" x2="571.0" y2="160.0" stroke="#257de0" stroke-width="2" stroke-linecap="round"/>
+<circle cx="495.0" cy="160" r="5" fill="#fff" stroke="#257de0" stroke-width="2"><title>Descontando o RTT de rede (M11): Δ −0,7 ms, p (Holm) 0,9341</title></circle>
+<text x="632.0" y="164.0" font-size="11" fill="#666666" text-anchor="start" font-weight="normal">não sustentada</text>
+<text x="290.0" y="194.0" font-size="12" fill="#191919" text-anchor="end" font-weight="normal">S3 — Sem rodadas com troca de sítio do 1.1.1.1</text>
+<line x1="429.4" y1="190.0" x2="481.9" y2="190.0" stroke="#257de0" stroke-width="2" stroke-linecap="round"/>
+<circle cx="460.9" cy="190" r="5" fill="#257de0" stroke="#257de0" stroke-width="2"><title>Sem rodadas com troca de sítio do 1.1.1.1: Δ −2,0 ms, p (Holm) 0,0215</title></circle>
+<text x="632.0" y="194.0" font-size="11" fill="#191919" text-anchor="start" font-weight="600">sustentada</text>
+<text x="290.0" y="224.0" font-size="12" fill="#191919" text-anchor="end" font-weight="normal">S4 — Timeouts como 2.000 ms</text>
+<line x1="429.4" y1="220.0" x2="481.9" y2="220.0" stroke="#257de0" stroke-width="2" stroke-linecap="round"/>
+<circle cx="460.9" cy="220" r="5" fill="#257de0" stroke="#257de0" stroke-width="2"><title>Timeouts como 2.000 ms: Δ −2,0 ms, p (Holm) 0,0215</title></circle>
+<text x="632.0" y="224.0" font-size="11" fill="#191919" text-anchor="start" font-weight="600">sustentada</text>
+<text x="290.0" y="254.0" font-size="12" fill="#191919" text-anchor="end" font-weight="normal">S6 — Sem latências discrepantes</text>
+<line x1="441.3" y1="250.0" x2="481.9" y2="250.0" stroke="#257de0" stroke-width="2" stroke-linecap="round"/>
+<circle cx="467.4" cy="250" r="5" fill="#257de0" stroke="#257de0" stroke-width="2"><title>Sem latências discrepantes: Δ −1,7 ms, p (Holm) 0,0067</title></circle>
+<text x="632.0" y="254.0" font-size="11" fill="#191919" text-anchor="start" font-weight="600">sustentada</text>
+<text x="460.0" y="304.0" font-size="12" fill="#666666" text-anchor="middle" font-weight="normal">Δ = 1.1.1.1 − 8.8.8.8 (ms), IC 95% por bootstrap de nomes. Ponto cheio = H-a sustentada (R1).</text>
+</svg>

@@ -1,0 +1,208 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="760" height="400" viewBox="0 0 760 400" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" role="img" aria-label="G4 — Mediana da latência por rodada (E-1, Do53, C3)">
+<title>G4 — Mediana da latência por rodada (E-1, Do53, C3)</title>
+<rect width="760" height="400" fill="#ffffff"/>
+<text x="24.0" y="30.0" font-size="16" fill="#191919" text-anchor="start" font-weight="600">G4 — Mediana da latência por rodada (E-1, Do53, C3)</text>
+<text x="24.0" y="50.0" font-size="12" fill="#666666" text-anchor="start" font-weight="normal">60 rodadas a cada 10 s em 24/11/2026, 5 domínios por rodada. Substitui o boxplot por faixa horária (só 10 min de coleta).</text>
+<line x1="70.0" y1="360.0" x2="610.0" y2="360.0" stroke="#e4e7eb" stroke-width="1.0" />
+<text x="62.0" y="364.0" font-size="11" fill="#666666" text-anchor="end" font-weight="normal">0</text>
+<line x1="70.0" y1="290.0" x2="610.0" y2="290.0" stroke="#e4e7eb" stroke-width="1.0" />
+<text x="62.0" y="294.0" font-size="11" fill="#666666" text-anchor="end" font-weight="normal">10</text>
+<line x1="70.0" y1="220.0" x2="610.0" y2="220.0" stroke="#e4e7eb" stroke-width="1.0" />
+<text x="62.0" y="224.0" font-size="11" fill="#666666" text-anchor="end" font-weight="normal">20</text>
+<line x1="70.0" y1="150.0" x2="610.0" y2="150.0" stroke="#e4e7eb" stroke-width="1.0" />
+<text x="62.0" y="154.0" font-size="11" fill="#666666" text-anchor="end" font-weight="normal">30</text>
+<line x1="70.0" y1="80.0" x2="610.0" y2="80.0" stroke="#e4e7eb" stroke-width="1.0" />
+<text x="62.0" y="84.0" font-size="11" fill="#666666" text-anchor="end" font-weight="normal">40</text>
+<text x="70.0" y="378.0" font-size="11" fill="#666666" text-anchor="middle" font-weight="normal">0 min</text>
+<text x="179.8" y="378.0" font-size="11" fill="#666666" text-anchor="middle" font-weight="normal">2 min</text>
+<text x="289.7" y="378.0" font-size="11" fill="#666666" text-anchor="middle" font-weight="normal">4 min</text>
+<text x="399.5" y="378.0" font-size="11" fill="#666666" text-anchor="middle" font-weight="normal">6 min</text>
+<text x="509.3" y="378.0" font-size="11" fill="#666666" text-anchor="middle" font-weight="normal">8 min</text>
+<text x="24.0" y="70.0" font-size="11" fill="#666666" text-anchor="start" font-weight="normal">mediana da rodada (ms)</text>
+<polyline points="70.0,260.5 79.2,245.4 88.3,268.3 97.5,263.5 106.6,252.5 115.8,237.3 124.9,248.9 134.1,268.2 143.2,263.8 152.4,249.6 161.5,276.4 170.7,246.3 179.8,261.7 189.0,248.4 198.1,254.2 207.3,260.1 216.4,258.5 225.6,253.6 234.7,253.1 243.9,224.4 253.1,248.7 262.2,273.7 271.4,239.1 280.5,256.3 289.7,265.3 298.8,266.0 308.0,261.9 317.1,246.7 326.3,247.9 335.4,249.8 344.6,268.6 353.7,248.8 362.9,268.5 372.0,254.2 381.2,258.3 390.3,246.4 399.5,268.1 408.6,268.6 417.8,272.3 426.9,263.5 436.1,232.4 445.3,253.4 454.4,250.8 463.6,258.2 472.7,263.9 481.9,268.9 491.0,268.1 500.2,255.1 509.3,261.7 518.5,271.2 527.6,273.9 536.8,272.1 545.9,274.1 555.1,265.2 564.2,258.8 573.4,262.7 582.5,254.0 591.7,225.5 600.8,243.7 610.0,270.9" fill="none" stroke="#257de0" stroke-width="2" stroke-linejoin="round"/>
+<circle cx="70.0" cy="260.5" r="6" fill="transparent"><title>1.1.1.1, rodada 20261124T171537Z: mediana 14,2 ms</title></circle>
+<circle cx="79.2" cy="245.4" r="6" fill="transparent"><title>1.1.1.1, rodada 20261124T171547Z: mediana 16,4 ms</title></circle>
+<circle cx="88.3" cy="268.3" r="6" fill="transparent"><title>1.1.1.1, rodada 20261124T171557Z: mediana 13,1 ms</title></circle>
+<circle cx="97.5" cy="263.5" r="6" fill="transparent"><title>1.1.1.1, rodada 20261124T171607Z: mediana 13,8 ms</title></circle>
+<circle cx="106.6" cy="252.5" r="6" fill="transparent"><title>1.1.1.1, rodada 20261124T171617Z: mediana 15,4 ms</title></circle>
+<circle cx="115.8" cy="237.3" r="6" fill="transparent"><title>1.1.1.1, rodada 20261124T171627Z: mediana 17,5 ms</title></circle>
+<circle cx="124.9" cy="248.9" r="6" fill="transparent"><title>1.1.1.1, rodada 20261124T171637Z: mediana 15,9 ms</title></circle>
+<circle cx="134.1" cy="268.2" r="6" fill="transparent"><title>1.1.1.1, rodada 20261124T171647Z: mediana 13,1 ms</title></circle>
+<circle cx="143.2" cy="263.8" r="6" fill="transparent"><title>1.1.1.1, rodada 20261124T171657Z: mediana 13,7 ms</title></circle>
+<circle cx="152.4" cy="249.6" r="6" fill="transparent"><title>1.1.1.1, rodada 20261124T171707Z: mediana 15,8 ms</title></circle>
+<circle cx="161.5" cy="276.4" r="6" fill="transparent"><title>1.1.1.1, rodada 20261124T171717Z: mediana 11,9 ms</title></circle>
+<circle cx="170.7" cy="246.3" r="6" fill="transparent"><title>1.1.1.1, rodada 20261124T171727Z: mediana 16,2 ms</title></circle>
+<circle cx="179.8" cy="261.7" r="6" fill="transparent"><title>1.1.1.1, rodada 20261124T171737Z: mediana 14,0 ms</title></circle>
+<circle cx="189.0" cy="248.4" r="6" fill="transparent"><title>1.1.1.1, rodada 20261124T171747Z: mediana 15,9 ms</title></circle>
+<circle cx="198.1" cy="254.2" r="6" fill="transparent"><title>1.1.1.1, rodada 20261124T171757Z: mediana 15,1 ms</title></circle>
+<circle cx="207.3" cy="260.1" r="6" fill="transparent"><title>1.1.1.1, rodada 20261124T171807Z: mediana 14,3 ms</title></circle>
+<circle cx="216.4" cy="258.5" r="6" fill="transparent"><title>1.1.1.1, rodada 20261124T171817Z: mediana 14,5 ms</title></circle>
+<circle cx="225.6" cy="253.6" r="6" fill="transparent"><title>1.1.1.1, rodada 20261124T171827Z: mediana 15,2 ms</title></circle>
+<circle cx="234.7" cy="253.1" r="6" fill="transparent"><title>1.1.1.1, rodada 20261124T171837Z: mediana 15,3 ms</title></circle>
+<circle cx="243.9" cy="224.4" r="6" fill="transparent"><title>1.1.1.1, rodada 20261124T171847Z: mediana 19,4 ms</title></circle>
+<circle cx="253.1" cy="248.7" r="6" fill="transparent"><title>1.1.1.1, rodada 20261124T171857Z: mediana 15,9 ms</title></circle>
+<circle cx="262.2" cy="273.7" r="6" fill="transparent"><title>1.1.1.1, rodada 20261124T171907Z: mediana 12,3 ms</title></circle>
+<circle cx="271.4" cy="239.1" r="6" fill="transparent"><title>1.1.1.1, rodada 20261124T171917Z: mediana 17,3 ms</title></circle>
+<circle cx="280.5" cy="256.3" r="6" fill="transparent"><title>1.1.1.1, rodada 20261124T171927Z: mediana 14,8 ms</title></circle>
+<circle cx="289.7" cy="265.3" r="6" fill="transparent"><title>1.1.1.1, rodada 20261124T171937Z: mediana 13,5 ms</title></circle>
+<circle cx="298.8" cy="266.0" r="6" fill="transparent"><title>1.1.1.1, rodada 20261124T171947Z: mediana 13,4 ms</title></circle>
+<circle cx="308.0" cy="261.9" r="6" fill="transparent"><title>1.1.1.1, rodada 20261124T171957Z: mediana 14,0 ms</title></circle>
+<circle cx="317.1" cy="246.7" r="6" fill="transparent"><title>1.1.1.1, rodada 20261124T172007Z: mediana 16,2 ms</title></circle>
+<circle cx="326.3" cy="247.9" r="6" fill="transparent"><title>1.1.1.1, rodada 20261124T172017Z: mediana 16,0 ms</title></circle>
+<circle cx="335.4" cy="249.8" r="6" fill="transparent"><title>1.1.1.1, rodada 20261124T172027Z: mediana 15,7 ms</title></circle>
+<circle cx="344.6" cy="268.6" r="6" fill="transparent"><title>1.1.1.1, rodada 20261124T172037Z: mediana 13,1 ms</title></circle>
+<circle cx="353.7" cy="248.8" r="6" fill="transparent"><title>1.1.1.1, rodada 20261124T172047Z: mediana 15,9 ms</title></circle>
+<circle cx="362.9" cy="268.5" r="6" fill="transparent"><title>1.1.1.1, rodada 20261124T172057Z: mediana 13,1 ms</title></circle>
+<circle cx="372.0" cy="254.2" r="6" fill="transparent"><title>1.1.1.1, rodada 20261124T172107Z: mediana 15,1 ms</title></circle>
+<circle cx="381.2" cy="258.3" r="6" fill="transparent"><title>1.1.1.1, rodada 20261124T172117Z: mediana 14,5 ms</title></circle>
+<circle cx="390.3" cy="246.4" r="6" fill="transparent"><title>1.1.1.1, rodada 20261124T172127Z: mediana 16,2 ms</title></circle>
+<circle cx="399.5" cy="268.1" r="6" fill="transparent"><title>1.1.1.1, rodada 20261124T172137Z: mediana 13,1 ms</title></circle>
+<circle cx="408.6" cy="268.6" r="6" fill="transparent"><title>1.1.1.1, rodada 20261124T172147Z: mediana 13,1 ms</title></circle>
+<circle cx="417.8" cy="272.3" r="6" fill="transparent"><title>1.1.1.1, rodada 20261124T172157Z: mediana 12,5 ms</title></circle>
+<circle cx="426.9" cy="263.5" r="6" fill="transparent"><title>1.1.1.1, rodada 20261124T172207Z: mediana 13,8 ms</title></circle>
+<circle cx="436.1" cy="232.4" r="6" fill="transparent"><title>1.1.1.1, rodada 20261124T172217Z: mediana 18,2 ms</title></circle>
+<circle cx="445.3" cy="253.4" r="6" fill="transparent"><title>1.1.1.1, rodada 20261124T172227Z: mediana 15,2 ms</title></circle>
+<circle cx="454.4" cy="250.8" r="6" fill="transparent"><title>1.1.1.1, rodada 20261124T172237Z: mediana 15,6 ms</title></circle>
+<circle cx="463.6" cy="258.2" r="6" fill="transparent"><title>1.1.1.1, rodada 20261124T172247Z: mediana 14,5 ms</title></circle>
+<circle cx="472.7" cy="263.9" r="6" fill="transparent"><title>1.1.1.1, rodada 20261124T172257Z: mediana 13,7 ms</title></circle>
+<circle cx="481.9" cy="268.9" r="6" fill="transparent"><title>1.1.1.1, rodada 20261124T172307Z: mediana 13,0 ms</title></circle>
+<circle cx="491.0" cy="268.1" r="6" fill="transparent"><title>1.1.1.1, rodada 20261124T172317Z: mediana 13,1 ms</title></circle>
+<circle cx="500.2" cy="255.1" r="6" fill="transparent"><title>1.1.1.1, rodada 20261124T172327Z: mediana 15,0 ms</title></circle>
+<circle cx="509.3" cy="261.7" r="6" fill="transparent"><title>1.1.1.1, rodada 20261124T172337Z: mediana 14,0 ms</title></circle>
+<circle cx="518.5" cy="271.2" r="6" fill="transparent"><title>1.1.1.1, rodada 20261124T172347Z: mediana 12,7 ms</title></circle>
+<circle cx="527.6" cy="273.9" r="6" fill="transparent"><title>1.1.1.1, rodada 20261124T172357Z: mediana 12,3 ms</title></circle>
+<circle cx="536.8" cy="272.1" r="6" fill="transparent"><title>1.1.1.1, rodada 20261124T172407Z: mediana 12,6 ms</title></circle>
+<circle cx="545.9" cy="274.1" r="6" fill="transparent"><title>1.1.1.1, rodada 20261124T172417Z: mediana 12,3 ms</title></circle>
+<circle cx="555.1" cy="265.2" r="6" fill="transparent"><title>1.1.1.1, rodada 20261124T172427Z: mediana 13,5 ms</title></circle>
+<circle cx="564.2" cy="258.8" r="6" fill="transparent"><title>1.1.1.1, rodada 20261124T172437Z: mediana 14,5 ms</title></circle>
+<circle cx="573.4" cy="262.7" r="6" fill="transparent"><title>1.1.1.1, rodada 20261124T172447Z: mediana 13,9 ms</title></circle>
+<circle cx="582.5" cy="254.0" r="6" fill="transparent"><title>1.1.1.1, rodada 20261124T172457Z: mediana 15,1 ms</title></circle>
+<circle cx="591.7" cy="225.5" r="6" fill="transparent"><title>1.1.1.1, rodada 20261124T172507Z: mediana 19,2 ms</title></circle>
+<circle cx="600.8" cy="243.7" r="6" fill="transparent"><title>1.1.1.1, rodada 20261124T172517Z: mediana 16,6 ms</title></circle>
+<circle cx="610.0" cy="270.9" r="6" fill="transparent"><title>1.1.1.1, rodada 20261124T172527Z: mediana 12,7 ms</title></circle>
+<polyline points="70.0,226.9 79.2,253.9 88.3,250.3 97.5,220.8 106.6,252.1 115.8,221.8 124.9,239.4 134.1,256.5 143.2,251.2 152.4,259.1 161.5,242.4 170.7,227.0 179.8,251.2 189.0,247.7 198.1,246.3 207.3,239.4 216.4,245.3 225.6,242.9 234.7,230.1 243.9,266.5 253.1,241.4 262.2,254.7 271.4,260.1 280.5,252.9 289.7,248.6 298.8,232.5 308.0,253.7 317.1,234.2 326.3,251.3 335.4,238.9 344.6,233.6 353.7,240.9 362.9,246.4 372.0,255.6 381.2,246.7 390.3,233.4 399.5,235.0 408.6,224.6 417.8,222.6 426.9,229.1 436.1,245.3 445.3,245.6 454.4,248.4 463.6,236.6 472.7,253.3 481.9,241.5 491.0,254.8 500.2,240.2 509.3,252.7 518.5,251.5 527.6,243.9 536.8,229.2 545.9,252.7 555.1,219.2 564.2,226.0 573.4,254.1 582.5,247.8 591.7,232.1 600.8,255.3 610.0,259.6" fill="none" stroke="#f47230" stroke-width="2" stroke-linejoin="round"/>
+<circle cx="70.0" cy="226.9" r="6" fill="transparent"><title>8.8.8.8, rodada 20261124T171537Z: mediana 19,0 ms</title></circle>
+<circle cx="79.2" cy="253.9" r="6" fill="transparent"><title>8.8.8.8, rodada 20261124T171547Z: mediana 15,2 ms</title></circle>
+<circle cx="88.3" cy="250.3" r="6" fill="transparent"><title>8.8.8.8, rodada 20261124T171557Z: mediana 15,7 ms</title></circle>
+<circle cx="97.5" cy="220.8" r="6" fill="transparent"><title>8.8.8.8, rodada 20261124T171607Z: mediana 19,9 ms</title></circle>
+<circle cx="106.6" cy="252.1" r="6" fill="transparent"><title>8.8.8.8, rodada 20261124T171617Z: mediana 15,4 ms</title></circle>
+<circle cx="115.8" cy="221.8" r="6" fill="transparent"><title>8.8.8.8, rodada 20261124T171627Z: mediana 19,7 ms</title></circle>
+<circle cx="124.9" cy="239.4" r="6" fill="transparent"><title>8.8.8.8, rodada 20261124T171637Z: mediana 17,2 ms</title></circle>
+<circle cx="134.1" cy="256.5" r="6" fill="transparent"><title>8.8.8.8, rodada 20261124T171647Z: mediana 14,8 ms</title></circle>
+<circle cx="143.2" cy="251.2" r="6" fill="transparent"><title>8.8.8.8, rodada 20261124T171657Z: mediana 15,5 ms</title></circle>
+<circle cx="152.4" cy="259.1" r="6" fill="transparent"><title>8.8.8.8, rodada 20261124T171707Z: mediana 14,4 ms</title></circle>
+<circle cx="161.5" cy="242.4" r="6" fill="transparent"><title>8.8.8.8, rodada 20261124T171717Z: mediana 16,8 ms</title></circle>
+<circle cx="170.7" cy="227.0" r="6" fill="transparent"><title>8.8.8.8, rodada 20261124T171727Z: mediana 19,0 ms</title></circle>
+<circle cx="179.8" cy="251.2" r="6" fill="transparent"><title>8.8.8.8, rodada 20261124T171737Z: mediana 15,5 ms</title></circle>
+<circle cx="189.0" cy="247.7" r="6" fill="transparent"><title>8.8.8.8, rodada 20261124T171747Z: mediana 16,0 ms</title></circle>
+<circle cx="198.1" cy="246.3" r="6" fill="transparent"><title>8.8.8.8, rodada 20261124T171757Z: mediana 16,2 ms</title></circle>
+<circle cx="207.3" cy="239.4" r="6" fill="transparent"><title>8.8.8.8, rodada 20261124T171807Z: mediana 17,2 ms</title></circle>
+<circle cx="216.4" cy="245.3" r="6" fill="transparent"><title>8.8.8.8, rodada 20261124T171817Z: mediana 16,4 ms</title></circle>
+<circle cx="225.6" cy="242.9" r="6" fill="transparent"><title>8.8.8.8, rodada 20261124T171827Z: mediana 16,7 ms</title></circle>
+<circle cx="234.7" cy="230.1" r="6" fill="transparent"><title>8.8.8.8, rodada 20261124T171837Z: mediana 18,6 ms</title></circle>
+<circle cx="243.9" cy="266.5" r="6" fill="transparent"><title>8.8.8.8, rodada 20261124T171847Z: mediana 13,4 ms</title></circle>
+<circle cx="253.1" cy="241.4" r="6" fill="transparent"><title>8.8.8.8, rodada 20261124T171857Z: mediana 16,9 ms</title></circle>
+<circle cx="262.2" cy="254.7" r="6" fill="transparent"><title>8.8.8.8, rodada 20261124T171907Z: mediana 15,0 ms</title></circle>
+<circle cx="271.4" cy="260.1" r="6" fill="transparent"><title>8.8.8.8, rodada 20261124T171917Z: mediana 14,3 ms</title></circle>
+<circle cx="280.5" cy="252.9" r="6" fill="transparent"><title>8.8.8.8, rodada 20261124T171927Z: mediana 15,3 ms</title></circle>
+<circle cx="289.7" cy="248.6" r="6" fill="transparent"><title>8.8.8.8, rodada 20261124T171937Z: mediana 15,9 ms</title></circle>
+<circle cx="298.8" cy="232.5" r="6" fill="transparent"><title>8.8.8.8, rodada 20261124T171947Z: mediana 18,2 ms</title></circle>
+<circle cx="308.0" cy="253.7" r="6" fill="transparent"><title>8.8.8.8, rodada 20261124T171957Z: mediana 15,2 ms</title></circle>
+<circle cx="317.1" cy="234.2" r="6" fill="transparent"><title>8.8.8.8, rodada 20261124T172007Z: mediana 18,0 ms</title></circle>
+<circle cx="326.3" cy="251.3" r="6" fill="transparent"><title>8.8.8.8, rodada 20261124T172017Z: mediana 15,5 ms</title></circle>
+<circle cx="335.4" cy="238.9" r="6" fill="transparent"><title>8.8.8.8, rodada 20261124T172027Z: mediana 17,3 ms</title></circle>
+<circle cx="344.6" cy="233.6" r="6" fill="transparent"><title>8.8.8.8, rodada 20261124T172037Z: mediana 18,1 ms</title></circle>
+<circle cx="353.7" cy="240.9" r="6" fill="transparent"><title>8.8.8.8, rodada 20261124T172047Z: mediana 17,0 ms</title></circle>
+<circle cx="362.9" cy="246.4" r="6" fill="transparent"><title>8.8.8.8, rodada 20261124T172057Z: mediana 16,2 ms</title></circle>
+<circle cx="372.0" cy="255.6" r="6" fill="transparent"><title>8.8.8.8, rodada 20261124T172107Z: mediana 14,9 ms</title></circle>
+<circle cx="381.2" cy="246.7" r="6" fill="transparent"><title>8.8.8.8, rodada 20261124T172117Z: mediana 16,2 ms</title></circle>
+<circle cx="390.3" cy="233.4" r="6" fill="transparent"><title>8.8.8.8, rodada 20261124T172127Z: mediana 18,1 ms</title></circle>
+<circle cx="399.5" cy="235.0" r="6" fill="transparent"><title>8.8.8.8, rodada 20261124T172137Z: mediana 17,9 ms</title></circle>
+<circle cx="408.6" cy="224.6" r="6" fill="transparent"><title>8.8.8.8, rodada 20261124T172147Z: mediana 19,3 ms</title></circle>
+<circle cx="417.8" cy="222.6" r="6" fill="transparent"><title>8.8.8.8, rodada 20261124T172157Z: mediana 19,6 ms</title></circle>
+<circle cx="426.9" cy="229.1" r="6" fill="transparent"><title>8.8.8.8, rodada 20261124T172207Z: mediana 18,7 ms</title></circle>
+<circle cx="436.1" cy="245.3" r="6" fill="transparent"><title>8.8.8.8, rodada 20261124T172217Z: mediana 16,4 ms</title></circle>
+<circle cx="445.3" cy="245.6" r="6" fill="transparent"><title>8.8.8.8, rodada 20261124T172227Z: mediana 16,3 ms</title></circle>
+<circle cx="454.4" cy="248.4" r="6" fill="transparent"><title>8.8.8.8, rodada 20261124T172237Z: mediana 15,9 ms</title></circle>
+<circle cx="463.6" cy="236.6" r="6" fill="transparent"><title>8.8.8.8, rodada 20261124T172247Z: mediana 17,6 ms</title></circle>
+<circle cx="472.7" cy="253.3" r="6" fill="transparent"><title>8.8.8.8, rodada 20261124T172257Z: mediana 15,2 ms</title></circle>
+<circle cx="481.9" cy="241.5" r="6" fill="transparent"><title>8.8.8.8, rodada 20261124T172307Z: mediana 16,9 ms</title></circle>
+<circle cx="491.0" cy="254.8" r="6" fill="transparent"><title>8.8.8.8, rodada 20261124T172317Z: mediana 15,0 ms</title></circle>
+<circle cx="500.2" cy="240.2" r="6" fill="transparent"><title>8.8.8.8, rodada 20261124T172327Z: mediana 17,1 ms</title></circle>
+<circle cx="509.3" cy="252.7" r="6" fill="transparent"><title>8.8.8.8, rodada 20261124T172337Z: mediana 15,3 ms</title></circle>
+<circle cx="518.5" cy="251.5" r="6" fill="transparent"><title>8.8.8.8, rodada 20261124T172347Z: mediana 15,5 ms</title></circle>
+<circle cx="527.6" cy="243.9" r="6" fill="transparent"><title>8.8.8.8, rodada 20261124T172357Z: mediana 16,6 ms</title></circle>
+<circle cx="536.8" cy="229.2" r="6" fill="transparent"><title>8.8.8.8, rodada 20261124T172407Z: mediana 18,7 ms</title></circle>
+<circle cx="545.9" cy="252.7" r="6" fill="transparent"><title>8.8.8.8, rodada 20261124T172417Z: mediana 15,3 ms</title></circle>
+<circle cx="555.1" cy="219.2" r="6" fill="transparent"><title>8.8.8.8, rodada 20261124T172427Z: mediana 20,1 ms</title></circle>
+<circle cx="564.2" cy="226.0" r="6" fill="transparent"><title>8.8.8.8, rodada 20261124T172437Z: mediana 19,1 ms</title></circle>
+<circle cx="573.4" cy="254.1" r="6" fill="transparent"><title>8.8.8.8, rodada 20261124T172447Z: mediana 15,1 ms</title></circle>
+<circle cx="582.5" cy="247.8" r="6" fill="transparent"><title>8.8.8.8, rodada 20261124T172457Z: mediana 16,0 ms</title></circle>
+<circle cx="591.7" cy="232.1" r="6" fill="transparent"><title>8.8.8.8, rodada 20261124T172507Z: mediana 18,3 ms</title></circle>
+<circle cx="600.8" cy="255.3" r="6" fill="transparent"><title>8.8.8.8, rodada 20261124T172517Z: mediana 15,0 ms</title></circle>
+<circle cx="610.0" cy="259.6" r="6" fill="transparent"><title>8.8.8.8, rodada 20261124T172527Z: mediana 14,3 ms</title></circle>
+<polyline points="70.0,244.5 79.2,220.5 88.3,321.7 97.5,339.2 106.6,341.9 115.8,335.6 124.9,328.1 134.1,335.9 143.2,335.2 152.4,328.8 161.5,342.1 170.7,327.1 179.8,343.4 189.0,333.9 198.1,329.1 207.3,338.1 216.4,344.1 225.6,340.3 234.7,340.9 243.9,337.7 253.1,339.5 262.2,319.7 271.4,339.1 280.5,341.1 289.7,341.7 298.8,322.9 308.0,340.9 317.1,341.9 326.3,332.0 335.4,345.7 344.6,325.5 353.7,334.7 362.9,341.1 372.0,332.1 381.2,341.5 390.3,337.8 399.5,317.2 408.6,314.6 417.8,340.1 426.9,225.9 436.1,340.6 445.3,347.0 454.4,326.3 463.6,336.5 472.7,342.4 481.9,323.7 491.0,345.4 500.2,336.6 509.3,329.1 518.5,343.0 527.6,342.9 536.8,243.4 545.9,336.5 555.1,344.9 564.2,332.7 573.4,327.8 582.5,340.2 591.7,249.1 600.8,317.6 610.0,345.9" fill="none" stroke="#00b894" stroke-width="2" stroke-linejoin="round"/>
+<circle cx="70.0" cy="244.5" r="6" fill="transparent"><title>padrão (roteador), rodada 20261124T171537Z: mediana 16,5 ms</title></circle>
+<circle cx="79.2" cy="220.5" r="6" fill="transparent"><title>padrão (roteador), rodada 20261124T171547Z: mediana 19,9 ms</title></circle>
+<circle cx="88.3" cy="321.7" r="6" fill="transparent"><title>padrão (roteador), rodada 20261124T171557Z: mediana 5,5 ms</title></circle>
+<circle cx="97.5" cy="339.2" r="6" fill="transparent"><title>padrão (roteador), rodada 20261124T171607Z: mediana 3,0 ms</title></circle>
+<circle cx="106.6" cy="341.9" r="6" fill="transparent"><title>padrão (roteador), rodada 20261124T171617Z: mediana 2,6 ms</title></circle>
+<circle cx="115.8" cy="335.6" r="6" fill="transparent"><title>padrão (roteador), rodada 20261124T171627Z: mediana 3,5 ms</title></circle>
+<circle cx="124.9" cy="328.1" r="6" fill="transparent"><title>padrão (roteador), rodada 20261124T171637Z: mediana 4,6 ms</title></circle>
+<circle cx="134.1" cy="335.9" r="6" fill="transparent"><title>padrão (roteador), rodada 20261124T171647Z: mediana 3,4 ms</title></circle>
+<circle cx="143.2" cy="335.2" r="6" fill="transparent"><title>padrão (roteador), rodada 20261124T171657Z: mediana 3,5 ms</title></circle>
+<circle cx="152.4" cy="328.8" r="6" fill="transparent"><title>padrão (roteador), rodada 20261124T171707Z: mediana 4,5 ms</title></circle>
+<circle cx="161.5" cy="342.1" r="6" fill="transparent"><title>padrão (roteador), rodada 20261124T171717Z: mediana 2,6 ms</title></circle>
+<circle cx="170.7" cy="327.1" r="6" fill="transparent"><title>padrão (roteador), rodada 20261124T171727Z: mediana 4,7 ms</title></circle>
+<circle cx="179.8" cy="343.4" r="6" fill="transparent"><title>padrão (roteador), rodada 20261124T171737Z: mediana 2,4 ms</title></circle>
+<circle cx="189.0" cy="333.9" r="6" fill="transparent"><title>padrão (roteador), rodada 20261124T171747Z: mediana 3,7 ms</title></circle>
+<circle cx="198.1" cy="329.1" r="6" fill="transparent"><title>padrão (roteador), rodada 20261124T171757Z: mediana 4,4 ms</title></circle>
+<circle cx="207.3" cy="338.1" r="6" fill="transparent"><title>padrão (roteador), rodada 20261124T171807Z: mediana 3,1 ms</title></circle>
+<circle cx="216.4" cy="344.1" r="6" fill="transparent"><title>padrão (roteador), rodada 20261124T171817Z: mediana 2,3 ms</title></circle>
+<circle cx="225.6" cy="340.3" r="6" fill="transparent"><title>padrão (roteador), rodada 20261124T171827Z: mediana 2,8 ms</title></circle>
+<circle cx="234.7" cy="340.9" r="6" fill="transparent"><title>padrão (roteador), rodada 20261124T171837Z: mediana 2,7 ms</title></circle>
+<circle cx="243.9" cy="337.7" r="6" fill="transparent"><title>padrão (roteador), rodada 20261124T171847Z: mediana 3,2 ms</title></circle>
+<circle cx="253.1" cy="339.5" r="6" fill="transparent"><title>padrão (roteador), rodada 20261124T171857Z: mediana 2,9 ms</title></circle>
+<circle cx="262.2" cy="319.7" r="6" fill="transparent"><title>padrão (roteador), rodada 20261124T171907Z: mediana 5,8 ms</title></circle>
+<circle cx="271.4" cy="339.1" r="6" fill="transparent"><title>padrão (roteador), rodada 20261124T171917Z: mediana 3,0 ms</title></circle>
+<circle cx="280.5" cy="341.1" r="6" fill="transparent"><title>padrão (roteador), rodada 20261124T171927Z: mediana 2,7 ms</title></circle>
+<circle cx="289.7" cy="341.7" r="6" fill="transparent"><title>padrão (roteador), rodada 20261124T171937Z: mediana 2,6 ms</title></circle>
+<circle cx="298.8" cy="322.9" r="6" fill="transparent"><title>padrão (roteador), rodada 20261124T171947Z: mediana 5,3 ms</title></circle>
+<circle cx="308.0" cy="340.9" r="6" fill="transparent"><title>padrão (roteador), rodada 20261124T171957Z: mediana 2,7 ms</title></circle>
+<circle cx="317.1" cy="341.9" r="6" fill="transparent"><title>padrão (roteador), rodada 20261124T172007Z: mediana 2,6 ms</title></circle>
+<circle cx="326.3" cy="332.0" r="6" fill="transparent"><title>padrão (roteador), rodada 20261124T172017Z: mediana 4,0 ms</title></circle>
+<circle cx="335.4" cy="345.7" r="6" fill="transparent"><title>padrão (roteador), rodada 20261124T172027Z: mediana 2,0 ms</title></circle>
+<circle cx="344.6" cy="325.5" r="6" fill="transparent"><title>padrão (roteador), rodada 20261124T172037Z: mediana 4,9 ms</title></circle>
+<circle cx="353.7" cy="334.7" r="6" fill="transparent"><title>padrão (roteador), rodada 20261124T172047Z: mediana 3,6 ms</title></circle>
+<circle cx="362.9" cy="341.1" r="6" fill="transparent"><title>padrão (roteador), rodada 20261124T172057Z: mediana 2,7 ms</title></circle>
+<circle cx="372.0" cy="332.1" r="6" fill="transparent"><title>padrão (roteador), rodada 20261124T172107Z: mediana 4,0 ms</title></circle>
+<circle cx="381.2" cy="341.5" r="6" fill="transparent"><title>padrão (roteador), rodada 20261124T172117Z: mediana 2,6 ms</title></circle>
+<circle cx="390.3" cy="337.8" r="6" fill="transparent"><title>padrão (roteador), rodada 20261124T172127Z: mediana 3,2 ms</title></circle>
+<circle cx="399.5" cy="317.2" r="6" fill="transparent"><title>padrão (roteador), rodada 20261124T172137Z: mediana 6,1 ms</title></circle>
+<circle cx="408.6" cy="314.6" r="6" fill="transparent"><title>padrão (roteador), rodada 20261124T172147Z: mediana 6,5 ms</title></circle>
+<circle cx="417.8" cy="340.1" r="6" fill="transparent"><title>padrão (roteador), rodada 20261124T172157Z: mediana 2,8 ms</title></circle>
+<circle cx="426.9" cy="225.9" r="6" fill="transparent"><title>padrão (roteador), rodada 20261124T172207Z: mediana 19,2 ms</title></circle>
+<circle cx="436.1" cy="340.6" r="6" fill="transparent"><title>padrão (roteador), rodada 20261124T172217Z: mediana 2,8 ms</title></circle>
+<circle cx="445.3" cy="347.0" r="6" fill="transparent"><title>padrão (roteador), rodada 20261124T172227Z: mediana 1,9 ms</title></circle>
+<circle cx="454.4" cy="326.3" r="6" fill="transparent"><title>padrão (roteador), rodada 20261124T172237Z: mediana 4,8 ms</title></circle>
+<circle cx="463.6" cy="336.5" r="6" fill="transparent"><title>padrão (roteador), rodada 20261124T172247Z: mediana 3,4 ms</title></circle>
+<circle cx="472.7" cy="342.4" r="6" fill="transparent"><title>padrão (roteador), rodada 20261124T172257Z: mediana 2,5 ms</title></circle>
+<circle cx="481.9" cy="323.7" r="6" fill="transparent"><title>padrão (roteador), rodada 20261124T172307Z: mediana 5,2 ms</title></circle>
+<circle cx="491.0" cy="345.4" r="6" fill="transparent"><title>padrão (roteador), rodada 20261124T172317Z: mediana 2,1 ms</title></circle>
+<circle cx="500.2" cy="336.6" r="6" fill="transparent"><title>padrão (roteador), rodada 20261124T172327Z: mediana 3,3 ms</title></circle>
+<circle cx="509.3" cy="329.1" r="6" fill="transparent"><title>padrão (roteador), rodada 20261124T172337Z: mediana 4,4 ms</title></circle>
+<circle cx="518.5" cy="343.0" r="6" fill="transparent"><title>padrão (roteador), rodada 20261124T172347Z: mediana 2,4 ms</title></circle>
+<circle cx="527.6" cy="342.9" r="6" fill="transparent"><title>padrão (roteador), rodada 20261124T172357Z: mediana 2,4 ms</title></circle>
+<circle cx="536.8" cy="243.4" r="6" fill="transparent"><title>padrão (roteador), rodada 20261124T172407Z: mediana 16,7 ms</title></circle>
+<circle cx="545.9" cy="336.5" r="6" fill="transparent"><title>padrão (roteador), rodada 20261124T172417Z: mediana 3,4 ms</title></circle>
+<circle cx="555.1" cy="344.9" r="6" fill="transparent"><title>padrão (roteador), rodada 20261124T172427Z: mediana 2,2 ms</title></circle>
+<circle cx="564.2" cy="332.7" r="6" fill="transparent"><title>padrão (roteador), rodada 20261124T172437Z: mediana 3,9 ms</title></circle>
+<circle cx="573.4" cy="327.8" r="6" fill="transparent"><title>padrão (roteador), rodada 20261124T172447Z: mediana 4,6 ms</title></circle>
+<circle cx="582.5" cy="340.2" r="6" fill="transparent"><title>padrão (roteador), rodada 20261124T172457Z: mediana 2,8 ms</title></circle>
+<circle cx="591.7" cy="249.1" r="6" fill="transparent"><title>padrão (roteador), rodada 20261124T172507Z: mediana 15,8 ms</title></circle>
+<circle cx="600.8" cy="317.6" r="6" fill="transparent"><title>padrão (roteador), rodada 20261124T172517Z: mediana 6,1 ms</title></circle>
+<circle cx="610.0" cy="345.9" r="6" fill="transparent"><title>padrão (roteador), rodada 20261124T172527Z: mediana 2,0 ms</title></circle>
+<text x="618.0" y="263.6" font-size="12" fill="#191919" text-anchor="start" font-weight="600">8.8.8.8</text>
+<text x="618.0" y="279.6" font-size="12" fill="#191919" text-anchor="start" font-weight="600">1.1.1.1</text>
+<text x="618.0" y="349.9" font-size="12" fill="#191919" text-anchor="start" font-weight="600">padrão (roteador)</text>
+</svg>
