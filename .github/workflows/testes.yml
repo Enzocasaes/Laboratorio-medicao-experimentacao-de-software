@@ -140,3 +140,13 @@ jobs:
           diff Sprint02/resultados/inferencia.json /tmp/inferencia/inferencia.json
           python Sprint02/graficos.py --inferencia /tmp/inferencia/inferencia.json --saida /tmp/graficos > /dev/null
           diff -r Sprint02/resultados/graficos /tmp/graficos
+
+      # Descritiva (#135) e consistencia metodologica (#130): o relatorio
+      # versionado tem de sair identico da base validada. Os dois sao
+      # deterministicos, sem sorteio.
+      - name: Descritiva e conformidade sao reprodutiveis
+        run: |
+          python Sprint02/descritiva.py --saida /tmp/b > /dev/null
+          diff Sprint02/resultados/descritiva.md /tmp/b/descritiva.md
+          python Sprint02/conformidade.py --saida /tmp/b > /dev/null
+          diff Sprint02/resultados/conformidade_metodologica.md /tmp/b/conformidade_metodologica.md
