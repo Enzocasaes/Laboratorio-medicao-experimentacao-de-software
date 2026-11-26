@@ -1,0 +1,1310 @@
+{
+ "consultas": 1500,
+ "e1": {
+  "8.8.8.8": {
+   "cliff": 0.6444,
+   "cliff_rotulo": "grande",
+   "delta_ms": -1.9671,
+   "delta_relativo": -0.1195,
+   "ic95": [
+    -3.1464,
+    -1.1798
+   ],
+   "mediana_comparador_ms": 16.4626,
+   "mediana_das_medianas_ms": -1.8116,
+   "p_holm": 0.0215,
+   "pares": 300,
+   "r": 0.5866,
+   "r_rotulo": "grande",
+   "unidades": 15,
+   "vitoria": {
+    "derrotas": 76,
+    "empates": 39,
+    "taxa": 0.7088,
+    "vitorias": 185
+   },
+   "vitoria_ic95": [
+    0.6094,
+    0.7992
+   ],
+   "wilcoxon": {
+    "metodo": "exato",
+    "n": 15,
+    "p": 0.02154541,
+    "r": 0.5866,
+    "w_mais": 20.0
+   }
+  },
+  "padrao": {
+   "cliff": -0.8844,
+   "cliff_rotulo": "grande",
+   "delta_ms": 10.4011,
+   "delta_relativo": 3.0963,
+   "ic95": [
+    9.2751,
+    11.4043
+   ],
+   "mediana_comparador_ms": 3.3592,
+   "mediana_das_medianas_ms": 10.2354,
+   "p_holm": 0.0002,
+   "pares": 300,
+   "r": 0.8652,
+   "r_rotulo": "grande",
+   "unidades": 15,
+   "vitoria": {
+    "derrotas": 252,
+    "empates": 6,
+    "taxa": 0.1429,
+    "vitorias": 42
+   },
+   "vitoria_ic95": [
+    0.0707,
+    0.23
+   ],
+   "wilcoxon": {
+    "metodo": "exato",
+    "n": 15,
+    "p": 0.00012207,
+    "r": 0.8652,
+    "w_mais": 119.0
+   }
+  }
+ },
+ "e2_confirmatorio": {
+  "1.1.1.1": {
+   "DoH nova": {
+    "cliff": null,
+    "cliff_rotulo": null,
+    "delta_ms": 48.0716,
+    "delta_relativo": 3.3866,
+    "ic95": null,
+    "mediana_comparador_ms": 14.1945,
+    "p_holm": null,
+    "pares": 60,
+    "r": null,
+    "r_rotulo": null,
+    "unidades": 1,
+    "vitoria": {
+     "derrotas": 60,
+     "empates": 0,
+     "taxa": 0.0,
+     "vitorias": 0
+    },
+    "vitoria_ic95": null,
+    "wilcoxon": null
+   },
+   "DoH reaproveitada": {
+    "cliff": null,
+    "cliff_rotulo": null,
+    "delta_ms": 0.9381,
+    "delta_relativo": 0.0661,
+    "ic95": null,
+    "mediana_comparador_ms": 14.1945,
+    "p_holm": null,
+    "pares": 60,
+    "r": null,
+    "r_rotulo": null,
+    "unidades": 1,
+    "vitoria": {
+     "derrotas": 30,
+     "empates": 12,
+     "taxa": 0.375,
+     "vitorias": 18
+    },
+    "vitoria_ic95": null,
+    "wilcoxon": null
+   },
+   "DoT nova": {
+    "cliff": null,
+    "cliff_rotulo": null,
+    "delta_ms": 56.9529,
+    "delta_relativo": 4.0123,
+    "ic95": null,
+    "mediana_comparador_ms": 14.1945,
+    "p_holm": null,
+    "pares": 60,
+    "r": null,
+    "r_rotulo": null,
+    "unidades": 1,
+    "vitoria": {
+     "derrotas": 60,
+     "empates": 0,
+     "taxa": 0.0,
+     "vitorias": 0
+    },
+    "vitoria_ic95": null,
+    "wilcoxon": null
+   },
+   "DoT reaproveitada": {
+    "cliff": null,
+    "cliff_rotulo": null,
+    "delta_ms": -1.2709,
+    "delta_relativo": -0.0895,
+    "ic95": null,
+    "mediana_comparador_ms": 14.1945,
+    "p_holm": null,
+    "pares": 60,
+    "r": null,
+    "r_rotulo": null,
+    "unidades": 1,
+    "vitoria": {
+     "derrotas": 19,
+     "empates": 10,
+     "taxa": 0.62,
+     "vitorias": 31
+    },
+    "vitoria_ic95": null,
+    "wilcoxon": null
+   }
+  },
+  "8.8.8.8": {
+   "DoH nova": {
+    "cliff": null,
+    "cliff_rotulo": null,
+    "delta_ms": 107.0568,
+    "delta_relativo": 7.147,
+    "ic95": null,
+    "mediana_comparador_ms": 14.9792,
+    "p_holm": null,
+    "pares": 60,
+    "r": null,
+    "r_rotulo": null,
+    "unidades": 1,
+    "vitoria": {
+     "derrotas": 59,
+     "empates": 0,
+     "taxa": 0.0167,
+     "vitorias": 1
+    },
+    "vitoria_ic95": null,
+    "wilcoxon": null
+   },
+   "DoH reaproveitada": {
+    "cliff": null,
+    "cliff_rotulo": null,
+    "delta_ms": 2.0991,
+    "delta_relativo": 0.1401,
+    "ic95": null,
+    "mediana_comparador_ms": 14.9792,
+    "p_holm": null,
+    "pares": 60,
+    "r": null,
+    "r_rotulo": null,
+    "unidades": 1,
+    "vitoria": {
+     "derrotas": 34,
+     "empates": 5,
+     "taxa": 0.3818,
+     "vitorias": 21
+    },
+    "vitoria_ic95": null,
+    "wilcoxon": null
+   },
+   "DoT nova": {
+    "cliff": null,
+    "cliff_rotulo": null,
+    "delta_ms": 114.3044,
+    "delta_relativo": 7.6308,
+    "ic95": null,
+    "mediana_comparador_ms": 14.9792,
+    "p_holm": null,
+    "pares": 60,
+    "r": null,
+    "r_rotulo": null,
+    "unidades": 1,
+    "vitoria": {
+     "derrotas": 60,
+     "empates": 0,
+     "taxa": 0.0,
+     "vitorias": 0
+    },
+    "vitoria_ic95": null,
+    "wilcoxon": null
+   },
+   "DoT reaproveitada": {
+    "cliff": null,
+    "cliff_rotulo": null,
+    "delta_ms": -0.7657,
+    "delta_relativo": -0.0511,
+    "ic95": null,
+    "mediana_comparador_ms": 14.9792,
+    "p_holm": null,
+    "pares": 60,
+    "r": null,
+    "r_rotulo": null,
+    "unidades": 1,
+    "vitoria": {
+     "derrotas": 20,
+     "empates": 12,
+     "taxa": 0.5833,
+     "vitorias": 28
+    },
+    "vitoria_ic95": null,
+    "wilcoxon": null
+   }
+  }
+ },
+ "e2_exploratorio": {
+  "1.1.1.1": {
+   "DoH nova": {
+    "cliff": -1.0,
+    "cliff_rotulo": "grande",
+    "delta_ms": 48.0716,
+    "delta_relativo": 3.3866,
+    "ic95": [
+     45.1804,
+     52.1617
+    ],
+    "mediana_comparador_ms": 14.1945,
+    "mediana_das_medianas_ms": 48.0716,
+    "p_holm": 0.0,
+    "pares": 60,
+    "r": 0.8696,
+    "r_rotulo": "grande",
+    "unidades": 60,
+    "vitoria": {
+     "derrotas": 60,
+     "empates": 0,
+     "taxa": 0.0,
+     "vitorias": 0
+    },
+    "vitoria_ic95": [
+     0.0,
+     0.0
+    ],
+    "wilcoxon": {
+     "metodo": "normal",
+     "n": 60,
+     "p": 0.0,
+     "r": 0.8696,
+     "w_mais": 1830.0
+    }
+   },
+   "DoH reaproveitada": {
+    "cliff": -0.1189,
+    "cliff_rotulo": "desprezivel",
+    "delta_ms": 0.9381,
+    "delta_relativo": 0.0661,
+    "ic95": [
+     -0.485,
+     1.5306
+    ],
+    "mediana_comparador_ms": 14.1945,
+    "mediana_das_medianas_ms": 0.9381,
+    "p_holm": 0.375,
+    "pares": 60,
+    "r": 0.115,
+    "r_rotulo": "pequeno",
+    "unidades": 60,
+    "vitoria": {
+     "derrotas": 30,
+     "empates": 12,
+     "taxa": 0.375,
+     "vitorias": 18
+    },
+    "vitoria_ic95": [
+     0.2391,
+     0.5111
+    ],
+    "wilcoxon": {
+     "metodo": "normal",
+     "n": 60,
+     "p": 0.37503951,
+     "r": 0.115,
+     "w_mais": 1036.0
+    }
+   },
+   "DoT nova": {
+    "cliff": -1.0,
+    "cliff_rotulo": "grande",
+    "delta_ms": 56.9529,
+    "delta_relativo": 4.0123,
+    "ic95": [
+     54.1764,
+     62.0871
+    ],
+    "mediana_comparador_ms": 14.1945,
+    "mediana_das_medianas_ms": 56.9529,
+    "p_holm": 0.0,
+    "pares": 60,
+    "r": 0.8696,
+    "r_rotulo": "grande",
+    "unidades": 60,
+    "vitoria": {
+     "derrotas": 60,
+     "empates": 0,
+     "taxa": 0.0,
+     "vitorias": 0
+    },
+    "vitoria_ic95": [
+     0.0,
+     0.0
+    ],
+    "wilcoxon": {
+     "metodo": "normal",
+     "n": 60,
+     "p": 0.0,
+     "r": 0.8696,
+     "w_mais": 1830.0
+    }
+   },
+   "DoT reaproveitada": {
+    "cliff": 0.1178,
+    "cliff_rotulo": "desprezivel",
+    "delta_ms": -1.2709,
+    "delta_relativo": -0.0895,
+    "ic95": [
+     -1.8498,
+     0.5315
+    ],
+    "mediana_comparador_ms": 14.1945,
+    "mediana_das_medianas_ms": -1.2709,
+    "p_holm": 0.2644,
+    "pares": 60,
+    "r": 0.1948,
+    "r_rotulo": "pequeno",
+    "unidades": 60,
+    "vitoria": {
+     "derrotas": 19,
+     "empates": 10,
+     "taxa": 0.62,
+     "vitorias": 31
+    },
+    "vitoria_ic95": [
+     0.48,
+     0.7547
+    ],
+    "wilcoxon": {
+     "metodo": "normal",
+     "n": 60,
+     "p": 0.13220898,
+     "r": 0.1948,
+     "w_mais": 710.0
+    }
+   }
+  },
+  "8.8.8.8": {
+   "DoH nova": {
+    "cliff": -0.9539,
+    "cliff_rotulo": "grande",
+    "delta_ms": 107.0568,
+    "delta_relativo": 7.147,
+    "ic95": [
+     101.64,
+     112.4464
+    ],
+    "mediana_comparador_ms": 14.9792,
+    "mediana_das_medianas_ms": 107.0568,
+    "p_holm": 0.0,
+    "pares": 60,
+    "r": 0.8677,
+    "r_rotulo": "grande",
+    "unidades": 60,
+    "vitoria": {
+     "derrotas": 59,
+     "empates": 0,
+     "taxa": 0.0167,
+     "vitorias": 1
+    },
+    "vitoria_ic95": [
+     0.0,
+     0.05
+    ],
+    "wilcoxon": {
+     "metodo": "normal",
+     "n": 60,
+     "p": 0.0,
+     "r": 0.8677,
+     "w_mais": 1828.0
+    }
+   },
+   "DoH reaproveitada": {
+    "cliff": -0.3606,
+    "cliff_rotulo": "medio",
+    "delta_ms": 2.0991,
+    "delta_relativo": 0.1401,
+    "ic95": [
+     -0.4412,
+     4.1683
+    ],
+    "mediana_comparador_ms": 14.9792,
+    "mediana_das_medianas_ms": 2.0991,
+    "p_holm": 0.0674,
+    "pares": 60,
+    "r": 0.2747,
+    "r_rotulo": "pequeno",
+    "unidades": 60,
+    "vitoria": {
+     "derrotas": 34,
+     "empates": 5,
+     "taxa": 0.3818,
+     "vitorias": 21
+    },
+    "vitoria_ic95": [
+     0.2545,
+     0.5094
+    ],
+    "wilcoxon": {
+     "metodo": "normal",
+     "n": 60,
+     "p": 0.03368499,
+     "r": 0.2747,
+     "w_mais": 1204.0
+    }
+   },
+   "DoT nova": {
+    "cliff": -0.9661,
+    "cliff_rotulo": "grande",
+    "delta_ms": 114.3044,
+    "delta_relativo": 7.6308,
+    "ic95": [
+     110.8897,
+     119.7233
+    ],
+    "mediana_comparador_ms": 14.9792,
+    "mediana_das_medianas_ms": 114.3044,
+    "p_holm": 0.0,
+    "pares": 60,
+    "r": 0.8696,
+    "r_rotulo": "grande",
+    "unidades": 60,
+    "vitoria": {
+     "derrotas": 60,
+     "empates": 0,
+     "taxa": 0.0,
+     "vitorias": 0
+    },
+    "vitoria_ic95": [
+     0.0,
+     0.0
+    ],
+    "wilcoxon": {
+     "metodo": "normal",
+     "n": 60,
+     "p": 0.0,
+     "r": 0.8696,
+     "w_mais": 1830.0
+    }
+   },
+   "DoT reaproveitada": {
+    "cliff": 0.035,
+    "cliff_rotulo": "desprezivel",
+    "delta_ms": -0.7657,
+    "delta_relativo": -0.0511,
+    "ic95": [
+     -1.4578,
+     0.341
+    ],
+    "mediana_comparador_ms": 14.9792,
+    "mediana_das_medianas_ms": -0.7657,
+    "p_holm": 0.4913,
+    "pares": 60,
+    "r": 0.0893,
+    "r_rotulo": "desprezivel",
+    "unidades": 60,
+    "vitoria": {
+     "derrotas": 20,
+     "empates": 12,
+     "taxa": 0.5833,
+     "vitorias": 28
+    },
+    "vitoria_ic95": [
+     0.439,
+     0.7174
+    ],
+    "wilcoxon": {
+     "metodo": "normal",
+     "n": 60,
+     "p": 0.49125766,
+     "r": 0.0893,
+     "w_mais": 821.0
+    }
+   }
+  }
+ },
+ "friedman": {
+  "gl": 2,
+  "k": 3,
+  "n": 15,
+  "p": 2.84698e-05,
+  "postos_medios": {
+   "1.1.1.1": 2.0667,
+   "8.8.8.8": 2.8,
+   "padrao": 1.1333
+  },
+  "q": 20.9333,
+  "w_kendall": 0.6978
+ },
+ "por_nome": {
+  "8.8.8.8": {
+   "amazon.com": {
+    "delta_ms": -1.1544,
+    "derrotas": 5,
+    "pares": 20,
+    "q1_ms": -2.0918,
+    "q3_ms": 1.1803,
+    "ttl_mediano": 413.5,
+    "vitorias": 12
+   },
+   "cloudflare.com": {
+    "delta_ms": -2.371,
+    "derrotas": 3,
+    "pares": 20,
+    "q1_ms": -4.7335,
+    "q3_ms": 0.0792,
+    "ttl_mediano": 160.0,
+    "vitorias": 13
+   },
+   "github.com": {
+    "delta_ms": -4.1311,
+    "derrotas": 4,
+    "pares": 20,
+    "q1_ms": -8.9246,
+    "q3_ms": -1.1502,
+    "ttl_mediano": 18.5,
+    "vitorias": 15
+   },
+   "globo.com": {
+    "delta_ms": -1.5368,
+    "derrotas": 4,
+    "pares": 20,
+    "q1_ms": -3.2443,
+    "q3_ms": -0.3783,
+    "ttl_mediano": 79378.0,
+    "vitorias": 12
+   },
+   "gnu.org": {
+    "delta_ms": 59.6799,
+    "derrotas": 12,
+    "pares": 20,
+    "q1_ms": -29.4477,
+    "q3_ms": 138.8225,
+    "ttl_mediano": 300.0,
+    "vitorias": 7
+   },
+   "google.com": {
+    "delta_ms": -2.4162,
+    "derrotas": 3,
+    "pares": 20,
+    "q1_ms": -5.7959,
+    "q3_ms": -0.3128,
+    "ttl_mediano": 194.5,
+    "vitorias": 13
+   },
+   "gov.br": {
+    "delta_ms": -3.5948,
+    "derrotas": 2,
+    "pares": 20,
+    "q1_ms": -21.2106,
+    "q3_ms": -1.6548,
+    "ttl_mediano": 13668.0,
+    "vitorias": 16
+   },
+   "ifood.com.br": {
+    "delta_ms": -9.1397,
+    "derrotas": 1,
+    "pares": 20,
+    "q1_ms": -100.6785,
+    "q3_ms": -3.7871,
+    "ttl_mediano": 37.0,
+    "vitorias": 18
+   },
+   "mercadolivre.com.br": {
+    "delta_ms": -5.9863,
+    "derrotas": 3,
+    "pares": 20,
+    "q1_ms": -7.4987,
+    "q3_ms": -3.3758,
+    "ttl_mediano": 30.5,
+    "vitorias": 17
+   },
+   "postgresql.org": {
+    "delta_ms": 0.8147,
+    "derrotas": 10,
+    "pares": 20,
+    "q1_ms": -1.2777,
+    "q3_ms": 3.3463,
+    "ttl_mediano": 1254.5,
+    "vitorias": 6
+   },
+   "rfc-editor.org": {
+    "delta_ms": -1.5197,
+    "derrotas": 3,
+    "pares": 20,
+    "q1_ms": -5.6565,
+    "q3_ms": -0.2016,
+    "ttl_mediano": 300.0,
+    "vitorias": 14
+   },
+   "sqlite.org": {
+    "delta_ms": 0.9924,
+    "derrotas": 10,
+    "pares": 20,
+    "q1_ms": -3.1614,
+    "q3_ms": 5.2043,
+    "ttl_mediano": 201.5,
+    "vitorias": 7
+   },
+   "unicode.org": {
+    "delta_ms": -1.8116,
+    "derrotas": 6,
+    "pares": 20,
+    "q1_ms": -3.6188,
+    "q3_ms": 1.2994,
+    "ttl_mediano": 300.0,
+    "vitorias": 12
+   },
+   "uol.com.br": {
+    "delta_ms": -0.3571,
+    "derrotas": 8,
+    "pares": 20,
+    "q1_ms": -2.5007,
+    "q3_ms": 2.439,
+    "ttl_mediano": 40.0,
+    "vitorias": 9
+   },
+   "wikipedia.org": {
+    "delta_ms": -2.1456,
+    "derrotas": 2,
+    "pares": 20,
+    "q1_ms": -4.8031,
+    "q3_ms": -0.3443,
+    "ttl_mediano": 99.5,
+    "vitorias": 14
+   }
+  },
+  "padrao": {
+   "amazon.com": {
+    "delta_ms": 11.1232,
+    "derrotas": 20,
+    "pares": 20,
+    "q1_ms": 9.0869,
+    "q3_ms": 12.233,
+    "ttl_mediano": 413.5,
+    "vitorias": 0
+   },
+   "cloudflare.com": {
+    "delta_ms": 10.2354,
+    "derrotas": 18,
+    "pares": 20,
+    "q1_ms": 9.0712,
+    "q3_ms": 12.7352,
+    "ttl_mediano": 160.0,
+    "vitorias": 2
+   },
+   "github.com": {
+    "delta_ms": 9.1756,
+    "derrotas": 15,
+    "pares": 20,
+    "q1_ms": 1.821,
+    "q3_ms": 12.3138,
+    "ttl_mediano": 18.5,
+    "vitorias": 5
+   },
+   "globo.com": {
+    "delta_ms": 9.2751,
+    "derrotas": 20,
+    "pares": 20,
+    "q1_ms": 8.322,
+    "q3_ms": 11.0161,
+    "ttl_mediano": 79378.0,
+    "vitorias": 0
+   },
+   "gnu.org": {
+    "delta_ms": 143.7132,
+    "derrotas": 19,
+    "pares": 20,
+    "q1_ms": 125.9319,
+    "q3_ms": 151.9311,
+    "ttl_mediano": 300.0,
+    "vitorias": 1
+   },
+   "google.com": {
+    "delta_ms": 9.8659,
+    "derrotas": 19,
+    "pares": 20,
+    "q1_ms": 8.0254,
+    "q3_ms": 11.2319,
+    "ttl_mediano": 194.5,
+    "vitorias": 1
+   },
+   "gov.br": {
+    "delta_ms": 10.5801,
+    "derrotas": 20,
+    "pares": 20,
+    "q1_ms": 8.8938,
+    "q3_ms": 13.3978,
+    "ttl_mediano": 13668.0,
+    "vitorias": 0
+   },
+   "ifood.com.br": {
+    "delta_ms": 5.8557,
+    "derrotas": 12,
+    "pares": 20,
+    "q1_ms": -3.5365,
+    "q3_ms": 11.4776,
+    "ttl_mediano": 37.0,
+    "vitorias": 6
+   },
+   "mercadolivre.com.br": {
+    "delta_ms": 4.3133,
+    "derrotas": 10,
+    "pares": 20,
+    "q1_ms": -4.968,
+    "q3_ms": 10.5678,
+    "ttl_mediano": 30.5,
+    "vitorias": 7
+   },
+   "postgresql.org": {
+    "delta_ms": 11.1483,
+    "derrotas": 19,
+    "pares": 20,
+    "q1_ms": 8.8224,
+    "q3_ms": 13.4967,
+    "ttl_mediano": 1254.5,
+    "vitorias": 1
+   },
+   "rfc-editor.org": {
+    "delta_ms": 11.2219,
+    "derrotas": 18,
+    "pares": 20,
+    "q1_ms": 10.1867,
+    "q3_ms": 12.4422,
+    "ttl_mediano": 300.0,
+    "vitorias": 2
+   },
+   "sqlite.org": {
+    "delta_ms": 13.6392,
+    "derrotas": 17,
+    "pares": 20,
+    "q1_ms": 11.0303,
+    "q3_ms": 19.1878,
+    "ttl_mediano": 201.5,
+    "vitorias": 3
+   },
+   "unicode.org": {
+    "delta_ms": 12.3893,
+    "derrotas": 19,
+    "pares": 20,
+    "q1_ms": 10.5635,
+    "q3_ms": 14.0115,
+    "ttl_mediano": 300.0,
+    "vitorias": 1
+   },
+   "uol.com.br": {
+    "delta_ms": -1.8743,
+    "derrotas": 8,
+    "pares": 20,
+    "q1_ms": -3.6692,
+    "q3_ms": 3.9608,
+    "ttl_mediano": 40.0,
+    "vitorias": 11
+   },
+   "wikipedia.org": {
+    "delta_ms": 8.8349,
+    "derrotas": 18,
+    "pares": 20,
+    "q1_ms": 6.3458,
+    "q3_ms": 9.8482,
+    "ttl_mediano": 99.5,
+    "vitorias": 2
+   }
+  }
+ },
+ "replicas": 10000,
+ "rodadas": 60,
+ "sensibilidade": [
+  {
+   "consultas_e1": 900,
+   "id": "P",
+   "nome": "Análise principal",
+   "nota": "",
+   "resultados": {
+    "8.8.8.8": {
+     "cliff": 0.6444,
+     "cliff_rotulo": "grande",
+     "delta_ms": -1.9671,
+     "delta_relativo": -0.1195,
+     "ic95": [
+      -3.1464,
+      -1.1798
+     ],
+     "mediana_comparador_ms": 16.4626,
+     "mediana_das_medianas_ms": -1.8116,
+     "p_holm": 0.0215,
+     "pares": 300,
+     "r": 0.5866,
+     "r_rotulo": "grande",
+     "unidades": 15,
+     "vitoria": {
+      "derrotas": 76,
+      "empates": 39,
+      "taxa": 0.7088,
+      "vitorias": 185
+     },
+     "vitoria_ic95": [
+      0.6094,
+      0.7992
+     ],
+     "wilcoxon": {
+      "metodo": "exato",
+      "n": 15,
+      "p": 0.02154541,
+      "r": 0.5866,
+      "w_mais": 20.0
+     }
+    },
+    "padrao": {
+     "cliff": -0.8844,
+     "cliff_rotulo": "grande",
+     "delta_ms": 10.4011,
+     "delta_relativo": 3.0963,
+     "ic95": [
+      9.2751,
+      11.4043
+     ],
+     "mediana_comparador_ms": 3.3592,
+     "mediana_das_medianas_ms": 10.2354,
+     "p_holm": 0.0002,
+     "pares": 300,
+     "r": 0.8652,
+     "r_rotulo": "grande",
+     "unidades": 15,
+     "vitoria": {
+      "derrotas": 252,
+      "empates": 6,
+      "taxa": 0.1429,
+      "vitorias": 42
+     },
+     "vitoria_ic95": [
+      0.0707,
+      0.23
+     ],
+     "wilcoxon": {
+      "metodo": "exato",
+      "n": 15,
+      "p": 0.00012207,
+      "r": 0.8652,
+      "w_mais": 119.0
+     }
+    }
+   }
+  },
+  {
+   "consultas_e1": 168,
+   "id": "S1",
+   "nome": "Sem consultas autoaquecidas",
+   "nota": "TTL da consulta anterior no lugar do TTL autoritativo (D1)",
+   "resultados": {
+    "8.8.8.8": {
+     "cliff": 0.1289,
+     "cliff_rotulo": "desprezivel",
+     "delta_ms": -1.1458,
+     "delta_relativo": -0.0756,
+     "ic95": [
+      -5.378,
+      1.2688
+     ],
+     "mediana_comparador_ms": 15.164,
+     "mediana_das_medianas_ms": -1.1458,
+     "p_holm": 0.4586,
+     "pares": 21,
+     "r": 0.2493,
+     "r_rotulo": "pequeno",
+     "unidades": 15,
+     "vitoria": {
+      "derrotas": 7,
+      "empates": 3,
+      "taxa": 0.6111,
+      "vitorias": 11
+     },
+     "vitoria_ic95": [
+      0.3684,
+      0.875
+     ],
+     "wilcoxon": {
+      "metodo": "exato",
+      "n": 15,
+      "p": 0.35913086,
+      "r": 0.2493,
+      "w_mais": 43.0
+     }
+    },
+    "padrao": {
+     "cliff": -0.0044,
+     "cliff_rotulo": "desprezivel",
+     "delta_ms": -0.6302,
+     "delta_relativo": -0.0333,
+     "ic95": [
+      -4.3448,
+      5.5132
+     ],
+     "mediana_comparador_ms": 18.9511,
+     "mediana_das_medianas_ms": 5.3724,
+     "p_holm": 0.4586,
+     "pares": 37,
+     "r": 0.3226,
+     "r_rotulo": "medio",
+     "unidades": 15,
+     "vitoria": {
+      "derrotas": 15,
+      "empates": 5,
+      "taxa": 0.5312,
+      "vitorias": 17
+     },
+     "vitoria_ic95": [
+      0.32,
+      0.7241
+     ],
+     "wilcoxon": {
+      "metodo": "exato",
+      "n": 15,
+      "p": 0.22930908,
+      "r": 0.3226,
+      "w_mais": 82.0
+     }
+    }
+   }
+  },
+  {
+   "consultas_e1": 900,
+   "id": "S2",
+   "nome": "Descontando o RTT de rede (M11)",
+   "nota": "",
+   "resultados": {
+    "8.8.8.8": {
+     "cliff": 0.6444,
+     "cliff_rotulo": "grande",
+     "delta_ms": -0.6879,
+     "delta_relativo": -0.0418,
+     "ic95": [
+      -2.0458,
+      2.1635
+     ],
+     "mediana_comparador_ms": 16.4626,
+     "mediana_das_medianas_ms": -0.8643,
+     "p_holm": 0.9341,
+     "pares": 300,
+     "r": 0.0293,
+     "r_rotulo": "desprezivel",
+     "unidades": 15,
+     "vitoria": {
+      "derrotas": 143,
+      "empates": 9,
+      "taxa": 0.5086,
+      "vitorias": 148
+     },
+     "vitoria_ic95": [
+      0.4658,
+      0.5516
+     ],
+     "wilcoxon": {
+      "metodo": "exato",
+      "n": 15,
+      "p": 0.93408203,
+      "r": 0.0293,
+      "w_mais": 62.0
+     }
+    },
+    "padrao": {
+     "cliff": -0.8844,
+     "cliff_rotulo": "grande",
+     "delta_ms": -5.566,
+     "delta_relativo": -1.6569,
+     "ic95": [
+      -8.3016,
+      -2.2593
+     ],
+     "mediana_comparador_ms": 3.3592,
+     "mediana_das_medianas_ms": -4.5094,
+     "p_holm": 0.0205,
+     "pares": 300,
+     "r": 0.6452,
+     "r_rotulo": "grande",
+     "unidades": 15,
+     "vitoria": {
+      "derrotas": 97,
+      "empates": 16,
+      "taxa": 0.6585,
+      "vitorias": 187
+     },
+     "vitoria_ic95": [
+      0.547,
+      0.757
+     ],
+     "wilcoxon": {
+      "metodo": "exato",
+      "n": 15,
+      "p": 0.01025391,
+      "r": 0.6452,
+      "w_mais": 16.0
+     }
+    }
+   }
+  },
+  {
+   "consultas_e1": 900,
+   "id": "S3",
+   "nome": "Sem rodadas com troca de sítio do 1.1.1.1",
+   "nota": "0 rodadas com troca de sítio",
+   "resultados": {
+    "8.8.8.8": {
+     "cliff": 0.6444,
+     "cliff_rotulo": "grande",
+     "delta_ms": -1.9671,
+     "delta_relativo": -0.1195,
+     "ic95": [
+      -3.1464,
+      -1.1798
+     ],
+     "mediana_comparador_ms": 16.4626,
+     "mediana_das_medianas_ms": -1.8116,
+     "p_holm": 0.0215,
+     "pares": 300,
+     "r": 0.5866,
+     "r_rotulo": "grande",
+     "unidades": 15,
+     "vitoria": {
+      "derrotas": 76,
+      "empates": 39,
+      "taxa": 0.7088,
+      "vitorias": 185
+     },
+     "vitoria_ic95": [
+      0.6094,
+      0.7992
+     ],
+     "wilcoxon": {
+      "metodo": "exato",
+      "n": 15,
+      "p": 0.02154541,
+      "r": 0.5866,
+      "w_mais": 20.0
+     }
+    },
+    "padrao": {
+     "cliff": -0.8844,
+     "cliff_rotulo": "grande",
+     "delta_ms": 10.4011,
+     "delta_relativo": 3.0963,
+     "ic95": [
+      9.2751,
+      11.4043
+     ],
+     "mediana_comparador_ms": 3.3592,
+     "mediana_das_medianas_ms": 10.2354,
+     "p_holm": 0.0002,
+     "pares": 300,
+     "r": 0.8652,
+     "r_rotulo": "grande",
+     "unidades": 15,
+     "vitoria": {
+      "derrotas": 252,
+      "empates": 6,
+      "taxa": 0.1429,
+      "vitorias": 42
+     },
+     "vitoria_ic95": [
+      0.0707,
+      0.23
+     ],
+     "wilcoxon": {
+      "metodo": "exato",
+      "n": 15,
+      "p": 0.00012207,
+      "r": 0.8652,
+      "w_mais": 119.0
+     }
+    }
+   }
+  },
+  {
+   "consultas_e1": 900,
+   "id": "S4",
+   "nome": "Timeouts como 2.000 ms",
+   "nota": "0 falhas na base",
+   "resultados": {
+    "8.8.8.8": {
+     "cliff": 0.6444,
+     "cliff_rotulo": "grande",
+     "delta_ms": -1.9671,
+     "delta_relativo": -0.1195,
+     "ic95": [
+      -3.1464,
+      -1.1798
+     ],
+     "mediana_comparador_ms": 16.4626,
+     "mediana_das_medianas_ms": -1.8116,
+     "p_holm": 0.0215,
+     "pares": 300,
+     "r": 0.5866,
+     "r_rotulo": "grande",
+     "unidades": 15,
+     "vitoria": {
+      "derrotas": 76,
+      "empates": 39,
+      "taxa": 0.7088,
+      "vitorias": 185
+     },
+     "vitoria_ic95": [
+      0.6094,
+      0.7992
+     ],
+     "wilcoxon": {
+      "metodo": "exato",
+      "n": 15,
+      "p": 0.02154541,
+      "r": 0.5866,
+      "w_mais": 20.0
+     }
+    },
+    "padrao": {
+     "cliff": -0.8844,
+     "cliff_rotulo": "grande",
+     "delta_ms": 10.4011,
+     "delta_relativo": 3.0963,
+     "ic95": [
+      9.2751,
+      11.4043
+     ],
+     "mediana_comparador_ms": 3.3592,
+     "mediana_das_medianas_ms": 10.2354,
+     "p_holm": 0.0002,
+     "pares": 300,
+     "r": 0.8652,
+     "r_rotulo": "grande",
+     "unidades": 15,
+     "vitoria": {
+      "derrotas": 252,
+      "empates": 6,
+      "taxa": 0.1429,
+      "vitorias": 42
+     },
+     "vitoria_ic95": [
+      0.0707,
+      0.23
+     ],
+     "wilcoxon": {
+      "metodo": "exato",
+      "n": 15,
+      "p": 0.00012207,
+      "r": 0.8652,
+      "w_mais": 119.0
+     }
+    }
+   }
+  },
+  {
+   "id": "S5",
+   "nome": "Sem o estrato sujeito ao viés da lista",
+   "nota": "não se aplica: a lista do piloto não tem estratos (L1 pendente)",
+   "resultados": null
+  },
+  {
+   "consultas_e1": 840,
+   "id": "S6",
+   "nome": "Sem latências discrepantes",
+   "nota": "discrepantes sinalizados na validação (#134)",
+   "resultados": {
+    "8.8.8.8": {
+     "cliff": 0.6178,
+     "cliff_rotulo": "grande",
+     "delta_ms": -1.7237,
+     "delta_relativo": -0.107,
+     "ic95": [
+      -2.7002,
+      -1.1798
+     ],
+     "mediana_comparador_ms": 16.1082,
+     "mediana_das_medianas_ms": -1.5368,
+     "p_holm": 0.0067,
+     "pares": 252,
+     "r": 0.6746,
+     "r_rotulo": "grande",
+     "unidades": 15,
+     "vitoria": {
+      "derrotas": 60,
+      "empates": 38,
+      "taxa": 0.7196,
+      "vitorias": 154
+     },
+     "vitoria_ic95": [
+      0.6351,
+      0.7897
+     ],
+     "wilcoxon": {
+      "metodo": "exato",
+      "n": 15,
+      "p": 0.00671387,
+      "r": 0.6746,
+      "w_mais": 14.0
+     }
+    },
+    "padrao": {
+     "cliff": -0.8756,
+     "cliff_rotulo": "grande",
+     "delta_ms": 10.0107,
+     "delta_relativo": 3.067,
+     "ic95": [
+      9.1626,
+      11.01
+     ],
+     "mediana_comparador_ms": 3.264,
+     "mediana_das_medianas_ms": 10.2354,
+     "p_holm": 0.0002,
+     "pares": 275,
+     "r": 0.8652,
+     "r_rotulo": "grande",
+     "unidades": 15,
+     "vitoria": {
+      "derrotas": 230,
+      "empates": 6,
+      "taxa": 0.145,
+      "vitorias": 39
+     },
+     "vitoria_ic95": [
+      0.07,
+      0.2361
+     ],
+     "wilcoxon": {
+      "metodo": "exato",
+      "n": 15,
+      "p": 0.00012207,
+      "r": 0.8652,
+      "w_mais": 119.0
+     }
+    }
+   }
+  }
+ ],
+ "vereditos": [
+  {
+   "exploratorio": "sensibilidade: mantida em S3, S4, S6; cai em S1, S2 (seção 4)",
+   "id": "H-a",
+   "papel": "Primária",
+   "regra": "R1 (Wilcoxon bilateral, Holm, sinal previsto Δ < 0)",
+   "resultado": "sustentada"
+  },
+  {
+   "exploratorio": "sem a zona (D1) não há C1 nem C2, e a lista não tem estratos; em C3 o padrão é o mais rápido (seção 2)",
+   "id": "H-b",
+   "papel": "Exploratória (R3, modo B)",
+   "regra": "precisa de C1 e C2",
+   "resultado": "não testável"
+  },
+  {
+   "exploratorio": "1.1.1.1 DoT nova: indício a favor; 1.1.1.1 DoH nova: indício a favor; 8.8.8.8 DoT nova: indício a favor; 8.8.8.8 DoH nova: indício a favor",
+   "id": "H-c1",
+   "papel": "Secundária",
+   "regra": "R1 por janela de 6 h, sinal previsto Δ > 0",
+   "resultado": "não testável (1 janela de 6 h)"
+  },
+  {
+   "exploratorio": "1.1.1.1 DoT reaproveitada: indício a favor; 1.1.1.1 DoH reaproveitada: indício a favor; 8.8.8.8 DoT reaproveitada: indício a favor; 8.8.8.8 DoH reaproveitada: indício a favor",
+   "id": "H-c2",
+   "papel": "Primária",
+   "regra": "R2: IC 95% dentro de ±5 ms",
+   "resultado": "não testável (1 janela de 6 h)"
+  }
+ ]
+}

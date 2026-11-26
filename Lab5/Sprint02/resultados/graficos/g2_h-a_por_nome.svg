@@ -1,0 +1,74 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="760" height="516" viewBox="0 0 760 516" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" role="img" aria-label="G2 — H-a nome a nome: 1.1.1.1 × 8.8.8.8 em Do53">
+<title>G2 — H-a nome a nome: 1.1.1.1 × 8.8.8.8 em Do53</title>
+<rect width="760" height="516" fill="#ffffff"/>
+<text x="24.0" y="30.0" font-size="16" fill="#191919" text-anchor="start" font-weight="600">G2 — H-a nome a nome: 1.1.1.1 × 8.8.8.8 em Do53</text>
+<text x="24.0" y="50.0" font-size="12" fill="#666666" text-anchor="start" font-weight="normal">O 1.1.1.1 é mais rápido em 12 de 15 domínios. Eixo cortado em ±25 ms; seta = o intervalo continua.</text>
+<line x1="259.0" y1="80.0" x2="259.0" y2="455.0" stroke="#e4e7eb" stroke-width="1.0" />
+<text x="259.0" y="471.0" font-size="11" fill="#666666" text-anchor="middle" font-weight="normal">−20</text>
+<line x1="357.0" y1="80.0" x2="357.0" y2="455.0" stroke="#e4e7eb" stroke-width="1.0" />
+<text x="357.0" y="471.0" font-size="11" fill="#666666" text-anchor="middle" font-weight="normal">−10</text>
+<line x1="455.0" y1="80.0" x2="455.0" y2="455.0" stroke="#e4e7eb" stroke-width="1.0" />
+<text x="455.0" y="471.0" font-size="11" fill="#666666" text-anchor="middle" font-weight="normal">0</text>
+<line x1="553.0" y1="80.0" x2="553.0" y2="455.0" stroke="#e4e7eb" stroke-width="1.0" />
+<text x="553.0" y="471.0" font-size="11" fill="#666666" text-anchor="middle" font-weight="normal">+10</text>
+<line x1="651.0" y1="80.0" x2="651.0" y2="455.0" stroke="#e4e7eb" stroke-width="1.0" />
+<text x="651.0" y="471.0" font-size="11" fill="#666666" text-anchor="middle" font-weight="normal">+20</text>
+<line x1="455.0" y1="80.0" x2="455.0" y2="455.0" stroke="#666666" stroke-width="1.2" />
+<text x="332.5" y="74.0" font-size="11" fill="#666666" text-anchor="middle" font-weight="normal">← 1.1.1.1 mais rápido</text>
+<text x="577.5" y="74.0" font-size="11" fill="#666666" text-anchor="middle" font-weight="normal">8.8.8.8 mais rápido →</text>
+<text x="455.0" y="489.0" font-size="12" fill="#666666" text-anchor="middle" font-weight="normal">Δ = 1.1.1.1 − 8.8.8.8 (ms); linha = intervalo interquartil das 20 rodadas</text>
+<text x="200.0" y="96.0" font-size="12" fill="#191919" text-anchor="end" font-weight="normal">ifood.com.br</text>
+<line x1="210.0" y1="92.0" x2="417.9" y2="92.0" stroke="#257de0" stroke-width="2" stroke-linecap="round"/>
+<path d="M210.0,92 l6,-4 v8 z" fill="#257de0"/>
+<circle cx="365.4" cy="92" r="5" fill="#257de0" stroke="#257de0" stroke-width="2"><title>ifood.com.br: Δ −9,1 ms, vitórias/derrotas do 1.1.1.1 18/1</title></circle>
+<text x="200.0" y="118.0" font-size="12" fill="#191919" text-anchor="end" font-weight="normal">mercadolivre.com.br</text>
+<line x1="381.5" y1="114.0" x2="421.9" y2="114.0" stroke="#257de0" stroke-width="2" stroke-linecap="round"/>
+<circle cx="396.3" cy="114" r="5" fill="#257de0" stroke="#257de0" stroke-width="2"><title>mercadolivre.com.br: Δ −6,0 ms, vitórias/derrotas do 1.1.1.1 17/3</title></circle>
+<text x="200.0" y="140.0" font-size="12" fill="#191919" text-anchor="end" font-weight="normal">github.com</text>
+<line x1="367.5" y1="136.0" x2="443.7" y2="136.0" stroke="#257de0" stroke-width="2" stroke-linecap="round"/>
+<circle cx="414.5" cy="136" r="5" fill="#257de0" stroke="#257de0" stroke-width="2"><title>github.com: Δ −4,1 ms, vitórias/derrotas do 1.1.1.1 15/4</title></circle>
+<text x="200.0" y="162.0" font-size="12" fill="#191919" text-anchor="end" font-weight="normal">gov.br</text>
+<line x1="247.1" y1="158.0" x2="438.8" y2="158.0" stroke="#257de0" stroke-width="2" stroke-linecap="round"/>
+<circle cx="419.8" cy="158" r="5" fill="#257de0" stroke="#257de0" stroke-width="2"><title>gov.br: Δ −3,6 ms, vitórias/derrotas do 1.1.1.1 16/2</title></circle>
+<text x="200.0" y="184.0" font-size="12" fill="#191919" text-anchor="end" font-weight="normal">google.com</text>
+<line x1="398.2" y1="180.0" x2="451.9" y2="180.0" stroke="#257de0" stroke-width="2" stroke-linecap="round"/>
+<circle cx="431.3" cy="180" r="5" fill="#257de0" stroke="#257de0" stroke-width="2"><title>google.com: Δ −2,4 ms, vitórias/derrotas do 1.1.1.1 13/3</title></circle>
+<text x="200.0" y="206.0" font-size="12" fill="#191919" text-anchor="end" font-weight="normal">cloudflare.com</text>
+<line x1="408.6" y1="202.0" x2="455.8" y2="202.0" stroke="#257de0" stroke-width="2" stroke-linecap="round"/>
+<circle cx="431.8" cy="202" r="5" fill="#257de0" stroke="#257de0" stroke-width="2"><title>cloudflare.com: Δ −2,4 ms, vitórias/derrotas do 1.1.1.1 13/3</title></circle>
+<text x="200.0" y="228.0" font-size="12" fill="#191919" text-anchor="end" font-weight="normal">wikipedia.org</text>
+<line x1="407.9" y1="224.0" x2="451.6" y2="224.0" stroke="#257de0" stroke-width="2" stroke-linecap="round"/>
+<circle cx="434.0" cy="224" r="5" fill="#257de0" stroke="#257de0" stroke-width="2"><title>wikipedia.org: Δ −2,1 ms, vitórias/derrotas do 1.1.1.1 14/2</title></circle>
+<text x="200.0" y="250.0" font-size="12" fill="#191919" text-anchor="end" font-weight="normal">unicode.org</text>
+<line x1="419.5" y1="246.0" x2="467.7" y2="246.0" stroke="#257de0" stroke-width="2" stroke-linecap="round"/>
+<circle cx="437.2" cy="246" r="5" fill="#257de0" stroke="#257de0" stroke-width="2"><title>unicode.org: Δ −1,8 ms, vitórias/derrotas do 1.1.1.1 12/6</title></circle>
+<text x="200.0" y="272.0" font-size="12" fill="#191919" text-anchor="end" font-weight="normal">globo.com</text>
+<line x1="423.2" y1="268.0" x2="451.3" y2="268.0" stroke="#257de0" stroke-width="2" stroke-linecap="round"/>
+<circle cx="439.9" cy="268" r="5" fill="#257de0" stroke="#257de0" stroke-width="2"><title>globo.com: Δ −1,5 ms, vitórias/derrotas do 1.1.1.1 12/4</title></circle>
+<text x="200.0" y="294.0" font-size="12" fill="#191919" text-anchor="end" font-weight="normal">rfc-editor.org</text>
+<line x1="399.6" y1="290.0" x2="453.0" y2="290.0" stroke="#257de0" stroke-width="2" stroke-linecap="round"/>
+<circle cx="440.1" cy="290" r="5" fill="#257de0" stroke="#257de0" stroke-width="2"><title>rfc-editor.org: Δ −1,5 ms, vitórias/derrotas do 1.1.1.1 14/3</title></circle>
+<text x="200.0" y="316.0" font-size="12" fill="#191919" text-anchor="end" font-weight="normal">amazon.com</text>
+<line x1="434.5" y1="312.0" x2="466.6" y2="312.0" stroke="#257de0" stroke-width="2" stroke-linecap="round"/>
+<circle cx="443.7" cy="312" r="5" fill="#257de0" stroke="#257de0" stroke-width="2"><title>amazon.com: Δ −1,2 ms, vitórias/derrotas do 1.1.1.1 12/5</title></circle>
+<text x="200.0" y="338.0" font-size="12" fill="#191919" text-anchor="end" font-weight="normal">uol.com.br</text>
+<line x1="430.5" y1="334.0" x2="478.9" y2="334.0" stroke="#257de0" stroke-width="2" stroke-linecap="round"/>
+<circle cx="451.5" cy="334" r="5" fill="#257de0" stroke="#257de0" stroke-width="2"><title>uol.com.br: Δ −0,4 ms, vitórias/derrotas do 1.1.1.1 9/8</title></circle>
+<text x="200.0" y="360.0" font-size="12" fill="#191919" text-anchor="end" font-weight="normal">postgresql.org</text>
+<line x1="442.5" y1="356.0" x2="487.8" y2="356.0" stroke="#257de0" stroke-width="2" stroke-linecap="round"/>
+<circle cx="463.0" cy="356" r="5" fill="#257de0" stroke="#257de0" stroke-width="2"><title>postgresql.org: Δ +0,8 ms, vitórias/derrotas do 1.1.1.1 6/10</title></circle>
+<text x="200.0" y="382.0" font-size="12" fill="#191919" text-anchor="end" font-weight="normal">sqlite.org</text>
+<line x1="424.0" y1="378.0" x2="506.0" y2="378.0" stroke="#257de0" stroke-width="2" stroke-linecap="round"/>
+<circle cx="464.7" cy="378" r="5" fill="#257de0" stroke="#257de0" stroke-width="2"><title>sqlite.org: Δ +1,0 ms, vitórias/derrotas do 1.1.1.1 7/10</title></circle>
+<text x="200.0" y="404.0" font-size="12" fill="#191919" text-anchor="end" font-weight="normal">gnu.org</text>
+<line x1="210.0" y1="400.0" x2="700.0" y2="400.0" stroke="#257de0" stroke-width="2" stroke-linecap="round"/>
+<path d="M210.0,400 l6,-4 v8 z" fill="#257de0"/>
+<path d="M700.0,400 l-6,-4 v8 z" fill="#257de0"/>
+<circle cx="700.0" cy="400" r="5" fill="#257de0" stroke="#257de0" stroke-width="2"><title>gnu.org: Δ +59,7 ms, vitórias/derrotas do 1.1.1.1 7/12</title></circle>
+<text x="690.0" y="392.0" font-size="11" fill="#191919" text-anchor="end" font-weight="normal">+59,7 ms</text>
+<line x1="24.0" y1="424.2" x2="736.0" y2="424.2" stroke="#e4e7eb" stroke-width="1.0" />
+<text x="200.0" y="439.2" font-size="12" fill="#191919" text-anchor="end" font-weight="normal">Agregado (IC 95%)</text>
+<line x1="424.2" y1="435.2" x2="443.4" y2="435.2" stroke="#191919" stroke-width="2" stroke-linecap="round"/>
+<circle cx="435.7" cy="435.2" r="5" fill="#191919" stroke="#191919" stroke-width="2"><title>Δ −2,0 ms, IC [−3,1; −1,2], p (Holm) 0,0215</title></circle>
+<text x="465.0" y="439.2" font-size="12" fill="#191919" text-anchor="start" font-weight="600">−2,0 ms [−3,1; −1,2]</text>
+</svg>

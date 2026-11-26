@@ -121,10 +121,15 @@ vão testar.
 | 10.3 | Friedman, Wilcoxon, Holm | **roda** |
 | 10.4 | Classificação de falhas | **parcial**: a censura em 2.000 ms e a contagem por tipo rodam; as regras de exclusão (falha da rede local, falha do domínio) precisam de mais de uma rede para valer |
 | 10.5 | Bootstrap por conglomerado | **roda** |
-| 10.6 | Análises de sensibilidade | **não roda**: precisam de coleta longa. O campo `s_desde_ultima_consulta`, que a primeira delas usa, já é gravado |
+| 10.6 | Análises de sensibilidade | **roda na Sprint 02** ([`inferencia.py`](../Sprint02/inferencia.py), #136): S1, S2, S3, S4 e S6; S5 não se aplica sem estratos. Resultado em [`testes_hipotese.md`](../Sprint02/resultados/testes_hipotese.md), seção 4 |
 | 10.7 | Ameaças à validade | texto do Participante A; validado |
 
-### Gráficos (seção 10.1) **[Pendente]**
+### Gráficos (seção 10.1) **[Feito na Sprint 02, #137]**
+
+Feitos em [`../Sprint02/graficos.py`](../Sprint02/graficos.py) e consolidados
+em [`../Sprint02/resultados/README.md`](../Sprint02/resultados/README.md). O
+boxplot por faixa horária foi trocado pela série temporal por rodada, porque a
+coleta da D13 tem uma faixa só. O texto abaixo é o registro da Sprint 01.
 
 A seção pede ECDF por tratamento, boxplot por faixa horária e série temporal
 da mediana por rodada. Não implementei na Sprint 01, por uma razão de ordem:
